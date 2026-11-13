@@ -54,7 +54,8 @@ h1 span{color:var(--sand)}
 .chip i svg{width:12px;height:12px}
 .chip.bump{color:var(--good)}
 .chip.hurt{color:var(--foe)}
-.res{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.res{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+@media (max-width:560px){.res{grid-template-columns:repeat(3,1fr)}}
 .rc{background:var(--surface);border-radius:8px;padding:6px 9px 5px;display:flex;flex-direction:column;min-width:0;transition:background .4s}
 .rc .lab{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden}
 .rc .lab i{width:8px;height:8px;border-radius:2px;flex:none}
@@ -89,8 +90,7 @@ h1 span{color:var(--sand)}
 .insp button .c{font-family:var(--f-num);color:var(--gold)}
 .insp button:disabled{opacity:.45;cursor:default}
 .insp .hint{font-size:13px;color:var(--muted)}
-.tools{display:grid;grid-template-columns:repeat(12,1fr);gap:5px}
-@media (max-width:780px){.tools{grid-template-columns:repeat(6,1fr)}}
+.tools{display:grid;grid-template-columns:repeat(auto-fill,minmax(62px,1fr));gap:5px}
 .tool{position:relative;font:inherit;color:var(--ink);background:var(--surface);border:1px solid transparent;border-radius:8px;padding:7px 2px 6px;display:flex;flex-direction:column;align-items:center;gap:1px;cursor:pointer;min-width:0}
 .tool svg{width:22px;height:22px;color:var(--sand)}
 .tool .n{font-size:12.5px;font-weight:500;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -161,6 +161,9 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
 .ab .kk{position:absolute;right:2px;bottom:1px;font-family:var(--f-num);font-size:9.5px;color:var(--muted)}
 .ab::after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(rgba(10,8,6,.72) calc(var(--cd)*1turn),transparent 0);pointer-events:none}
 .ab:disabled{cursor:default}
+.chip .xpb{display:inline-block;width:34px;height:4px;border-radius:2px;background:rgba(242,234,221,.18);overflow:hidden;margin-left:2px}
+.chip .xpb b{display:block;height:100%;width:0;background:var(--gold)}
+.chip.blood{color:#FF8A7A}
 .nogl{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:var(--ink);background:var(--bg)}
 </style>
 
@@ -183,6 +186,8 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <div class="chips" aria-live="polite">
       <div class="chip" id="cHp"><i><svg viewBox="0 0 12 12"><path d="M2 11V5l1.5-1.5L5 5V3l1-1 1 1v2l1.5-1.5L10 5v6z" fill="#F2EADD"/></svg></i><span id="hp">10</span></div>
       <div class="chip" id="cDay"><i><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="2.6" fill="#D99A60"/><path d="M6 .8v1.6M6 9.6v1.6M.8 6h1.6M9.6 6h1.6M2.3 2.3l1.1 1.1M8.6 8.6l1.1 1.1M2.3 9.7l1.1-1.1M8.6 3.4l1.1-1.1" stroke="#D99A60" stroke-width="1.1"/></svg></i><span id="day">Day 1</span></div>
+      <div class="chip" id="cSeason"><i><svg viewBox="0 0 12 12"><circle id="seaDot" cx="6" cy="6" r="3.4" fill="#8FCB7E"/></svg></i><span id="season">Spring</span></div>
+      <div class="chip" id="cHero" title="Your hero's level. Felling raiders earns experience."><i><svg viewBox="0 0 12 12"><path d="M6 1l1.5 3.2 3.5.4-2.6 2.4.7 3.5L6 8.8 2.9 10.5l.7-3.5L1 4.6l3.5-.4z" fill="#F0BE4E"/></svg></i><span id="hlv">Lv 1</span><b class="xpb"><b id="xpf"></b></b></div>
       <div class="chip" id="cLoad"><i><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="none" stroke="#B5A795" stroke-width="1.4" stroke-dasharray="6 4"/></svg></i><span>Loading models</span></div>
     </div>
     <div class="abil" id="abil">
@@ -224,16 +229,19 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
   <details>
     <summary>How to rule</summary>
     <p><b>The goal</b> is to hold the keep through 20 nights. Your score counts nights held, raiders felled, villagers and buildings, and Hard raises it. After night 20 you can keep ruling in endless mode. Quests along the way teach the basics and pay out goods.</p>
+    <p><b>Seasons</b> turn every 5 days. Spring rains add 1 food per farm, summer heat costs 1, harvest adds 2 and lifts markets, and winter costs 2 while every house burns 1 wood a dawn to stay warm. Weather is rolled each dawn: rain stops fires, sandstorms slow raiders but shorten your towers' sight, snow slows everyone.</p>
+    <p><b>Mood.</b> Villagers are happier with wells and shrines nearby, full granaries and a good harvest, and unhappier after hunger, cold houses and buildings lost to raiders. Content villagers pay extra taxes; unhappy ones pay less, stop moving in, and below 20 they start to leave. Wells also keep fire off the buildings around them.</p>
+    <p><b>Hero levels.</b> Raiders your hero fells, and every night survived, earn experience. Each level adds health, every second level adds damage, and each one lets you pick a perk.</p>
     <p><b>Hero abilities.</b> <b>Charge</b> (<kbd>Q</kbd>) sends your hero dashing ahead, cutting down every raider in his path. <b>Rally</b> (<kbd>E</kbd>) blows a horn: every soldier rushes to his side and fights harder for 8 seconds.</p>
     <p><b>Your hero</b> rides a white horse. Pick a build tool and tap tiles to give him orders: he rides to each spot and builds it there, up to 8 orders in a row. Tap an order again to cancel it. With <b>Ride</b>, or at any time at night, tapping the ground sends him there. He fights any raider within reach, and if he falls he returns to the keep a few seconds later.</p>
     <p><b>Your village</b> runs on gold, food, wood and stone. Villagers live in the keep (room for 4) and in houses (3 each). Every dawn each villager pays 1 gold in taxes and eats 1 food, and each soldier eats 1 food too. With food to spare and room in your houses, new villagers move in. If food runs out, some of them leave.</p>
     <p><b>Producers need a villager to work them.</b> Farms grow 4 food, lumber camps in a palm grove cut 4 wood, mines on ore dig 3 stone, and a market (day 3) earns 3 gold and lets you buy and sell goods. Workers fill farms first, then mines, lumber camps and the market. Pause a producer from its panel to move its worker elsewhere. Catapults and barracks cost 1 gold upkeep each dawn, and if the treasury can't pay, they sit out the night.</p>
     <p><b>Market prices</b> rise as you buy and fall as you sell, then drift back toward normal each dawn. Caravans, droughts, festivals and migrants can turn up at dawn and shake things up.</p>
     <p><b>Defenses.</b> Red dots trace the road each war band will take through the canyon. Palisades are cheap and stubborn. Traps wound and slow whoever crosses and reset each dawn. Watchtowers shoot whoever is closest to your keep. Catapults (day 4) hit everyone near where the stone lands but can't fire up close. Barracks (day 2) field soldiers who hold the ground around them. Runners slip past soldiers. Anything built today refunds in full.</p>
-    <p><b>By night</b> raiders take the easiest road and smash anything blocking it. Runners appear from night 3, brutes from night 6, and a warlord every fifth night. Archers appear from night 4 and shoot from range at your hero, soldiers and buildings. Battering rams roll in from night 8, ignore soldiers and smash buildings fast. Beat a warlord and you choose a boon. Kingdom upgrades are permanent improvements you buy with your goods at any time. Progress saves after every build and each dawn.</p>
+    <p><b>By night</b> raiders take the easiest road and smash anything blocking it. Runners appear from night 3, brutes from night 6, and a warlord every fifth night. Shamans appear from night 7 and heal the raiders around them, so strike them first. Some nights bring a blood moon: half again as many raiders, but every kill pays double. Archers appear from night 4 and shoot from range at your hero, soldiers and buildings. Battering rams roll in from night 8, ignore soldiers and smash buildings fast. Beat a warlord and you choose a boon. Kingdom upgrades are permanent improvements you buy with your goods at any time. Progress saves after every build and each dawn.</p>
     <p><b>The view</b> follows your hero. Drag the board to look around, scroll or pinch to zoom, tap the minimap to jump anywhere, and use the frame button (<kbd>V</kbd>) to see the whole valley at once.</p>
     <p><b>Moving and building.</b> Your hero rides around buildings and cliffs on his own. Right-click anywhere to send him there. With the palisade or trap tool, drag across the ground to lay a whole line of orders at once. Right-click an order to cancel it.</p>
-    <p>Keys: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> ride the hero, arrow keys pan the view, <kbd>H</kbd> back to the hero, <kbd>+</kbd> <kbd>−</kbd> zoom, <kbd>1</kbd>–<kbd>0</kbd> build tools, <kbd>X</kbd> clear, <kbd>R</kbd> ride, <kbd>Space</kbd> ring the bell, <kbd>U</kbd> upgrade, <kbd>P</kbd> pause, <kbd>F</kbd> speed, <kbd>Esc</kbd> deselect. Speed, zoom, sound and graphics quality are remembered.</p>
+    <p>Keys: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> ride the hero, arrow keys pan the view, <kbd>H</kbd> back to the hero, <kbd>+</kbd> <kbd>−</kbd> zoom, <kbd>1</kbd>–<kbd>0</kbd>, <kbd>Z</kbd>, <kbd>C</kbd>, <kbd>B</kbd> build tools, <kbd>X</kbd> clear, <kbd>R</kbd> ride, <kbd>Space</kbd> ring the bell, <kbd>U</kbd> upgrade, <kbd>P</kbd> pause, <kbd>F</kbd> speed, <kbd>Esc</kbd> deselect. Speed, zoom, sound and graphics quality are remembered.</p>
     <p><b>On a phone or tablet</b>, steer your hero with the joystick in the bottom-left corner of the valley. Tapping tiles still builds and selects.</p>
     <p><b>Sound</b> button: tap once for sound effects, twice to add music, a third time for silence. <button class="linkbtn" id="tourBtn" type="button">Take the guided tour</button></p>
     <p><b>Damage</b> shows: buildings smoke when hurt and burn when badly hurt. Tap one and use <b>Repair</b> during the day, or wait for dawn to patch them slowly. Destroyed buildings leave rubble that clears after two days.</p>
@@ -255,12 +263,18 @@ const DEF={
   cata:{name:'Catapult',cost:{wood:6,stone:4,gold:4},hp:6,enter:10,upg:[{stone:8,gold:8}],unlock:4,upkeep:1},
   barr:{name:'Barracks',cost:{wood:6,gold:4},hp:7,enter:10,upg:[{stone:4,gold:8}],unlock:2,upkeep:1},
   market:{name:'Market',cost:{wood:6,stone:4},hp:4,enter:8,work:true,unlock:3},
+  well:{name:'Well',cost:{wood:3,stone:2},hp:4,enter:6},
+  shrine:{name:'Shrine',cost:{stone:6,gold:6},hp:5,enter:8,unlock:5},
+  range:{name:'Archery range',cost:{wood:6,gold:5},hp:6,enter:10,unlock:3,upkeep:1,upg:[{wood:6,gold:8}]},
   keep:{name:'Keep',cost:{},hp:0,enter:1}
 };
-const TOOLS=['farm','house','lumber','mine','wall','trap','tower','cata','barr','market','clear','ride'];
-const KEYS={farm:'1',house:'2',lumber:'3',mine:'4',wall:'5',trap:'6',tower:'7',cata:'8',barr:'9',market:'0',clear:'X',ride:'R'};
-const TNAME={farm:'Farm',house:'House',lumber:'Lumber',mine:'Mine',wall:'Palisade',trap:'Trap',tower:'Tower',cata:'Catapult',barr:'Barracks',market:'Market',clear:'Clear',ride:'Ride'};
+const TOOLS=['farm','house','lumber','mine','wall','trap','tower','cata','barr','market','well','shrine','range','clear','ride'];
+const KEYS={farm:'1',house:'2',lumber:'3',mine:'4',wall:'5',trap:'6',tower:'7',cata:'8',barr:'9',market:'0',well:'Z',shrine:'C',range:'B',clear:'X',ride:'R'};
+const TNAME={farm:'Farm',house:'House',lumber:'Lumber',mine:'Mine',wall:'Palisade',trap:'Trap',tower:'Tower',cata:'Catapult',barr:'Barracks',market:'Market',well:'Well',shrine:'Shrine',range:'Archers',clear:'Clear',ride:'Ride'};
 const ICON={
+  well:'<ellipse cx="11" cy="16" rx="7" ry="3" fill="currentColor"/><rect x="4" y="11" width="14" height="5" fill="currentColor"/><path d="M5 11V6M17 11V6M3 6l8-3 8 3z" stroke="currentColor" stroke-width="1.6" fill="currentColor"/>',
+  shrine:'<path d="M11 2l2 5h-4z" fill="currentColor"/><rect x="9" y="7" width="4" height="9" fill="currentColor"/><rect x="5" y="16" width="12" height="3" fill="currentColor"/>',
+  range:'<circle cx="13" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="13" cy="10" r="2.5" fill="currentColor"/><path d="M2 18l9-7" stroke="currentColor" stroke-width="1.6"/>',
   farm:'<rect x="3" y="3" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M6 8h10M6 11h10M6 14h10" stroke="currentColor" stroke-width="1.6"/>',
   house:'<path d="M3 11l8-7 8 7v8H3z" fill="currentColor"/><rect x="9.5" y="13" width="3" height="6" fill="#28201C"/>',
   lumber:'<path d="M11 2l5 7h-3l4 6H5l4-6H6z" fill="currentColor"/><rect x="10" y="15" width="2" height="5" fill="currentColor"/>',
@@ -275,7 +289,7 @@ const ICON={
   ride:'<path d="M6 18.5V10a5 5 0 0 1 10 0v8.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="7.6" cy="9" r=".9" fill="#28201C"/><circle cx="14.4" cy="9" r=".9" fill="#28201C"/>'
 };
 const RES=['gold','food','wood','stone'], BASEP={food:2,wood:2,stone:3}, LOT=5;
-const RCOL={gold:'#F0BE4E',food:'#C9E07A',wood:'#E0A86A',stone:'#C9CFD8',people:'#86B6FF'};
+const RCOL={gold:'#F0BE4E',food:'#C9E07A',wood:'#E0A86A',stone:'#C9CFD8',people:'#86B6FF',mood:'#E89AC0'};
 const cap1=w=>w.charAt(0).toUpperCase()+w.slice(1);
 function costStr(c){ return RES.filter(r=>c[r]).map(r=>`${c[r]} ${r}`).join(', '); }
 function costShort(c){ const p=RES.filter(r=>c[r]).map(r=>`<span class="c${r[0]}">${c[r]}${r[0]}</span>`); return p.length?p.join(' '):'free'; }
@@ -285,6 +299,53 @@ function addC(a,b){ const o={...a}; RES.forEach(r=>{ if(b&&b[r]) o[r]=(o[r]||0)+
 const count=t=>S.grid.filter(g=>g.b&&g.b.type===t).length;
 const housing=()=>4+(3+S.mods.housing)*count('house');
 const WIN_NIGHTS=20;
+const SEASONS=[
+  {name:'Spring',farm:1,col:'#8FCB7E',wx:[['rain',.5]]},
+  {name:'Summer',farm:-1,col:'#F0BE4E',wx:[['sandstorm',.4]]},
+  {name:'Harvest',farm:2,col:'#E0904A',wx:[['rain',.2]]},
+  {name:'Winter',farm:-2,col:'#B9CCF0',wx:[['snow',.6]]}];
+const season=()=>SEASONS[Math.floor((S.day-1)/5)%4];
+const WX={clear:{name:'Clear',desc:''},rain:{name:'Rain',desc:'rain stops fires and adds 1 food per farm'},sandstorm:{name:'Sandstorm',desc:'a sandstorm slows raiders but cuts your towers’ sight'},snow:{name:'Snow',desc:'snow slows everyone in the open'}};
+function rollWeather(){ let r=Math.random(); for(const [w,p] of season().wx){ if(r<p) return w; r-=p; } return 'clear'; }
+const wxNight=w=>S.weather===w&&S.phase==='night';
+const wxSlow=()=>wxNight('sandstorm')?.75:wxNight('snow')?.85:1;
+const wxRange=()=>wxNight('sandstorm')?.6:0;
+function farmOut(){ const sea=season(); return Math.max(1,4+S.mods.harvest+sea.farm+(S.weather==='rain'?1:0)); }
+function moodInfo(){
+  const parts=[]; let t=45;
+  const add=(label,v)=>{ if(v){ parts.push([label,v]); t+=v; } };
+  add(plural(Math.min(3,count('well')),'well'),Math.min(3,count('well'))*4);
+  add(plural(Math.min(2,count('shrine')),'shrine'),Math.min(2,count('shrine'))*8);
+  if(S.res.food>=15) add('Full granaries',5);
+  if(season().name==='Harvest') add('Harvest festival',5);
+  if(S.hungry) add('Hunger at the last dawn',-20);
+  if(S.cold) add('Cold houses',-12);
+  if(S.lostTonight) add('Buildings lost to raiders',-Math.min(20,S.lostTonight*5));
+  if(S.idle>3) add('Many without work',-5);
+  return {target:Math.max(0,Math.min(100,t)),parts};
+}
+const PERKS=[
+  {id:'whirlwind',name:'Whirlwind',desc:'Charge ends in a spinning strike that hits every raider around your hero.'},
+  {id:'secondwind',name:'Second wind',desc:'Your hero heals 1 health every 3 seconds.'},
+  {id:'inspire',name:'Inspiring',desc:'Rally heals your soldiers fully and lasts 12 seconds instead of 8.'},
+  {id:'swift',name:'Swift rider',desc:'Your hero rides 30% faster.'},
+  {id:'bounty',name:'Bounty hunter',desc:'Raiders your hero fells pay 2 more gold.'},
+  {id:'mason',name:'Master builder',desc:'Buildings your hero raises get half again as much health.'},
+  {id:'shield',name:'Shield wall',desc:'Your hero takes 1 less damage from every hit.'},
+  {id:'lance',name:'Long lance',desc:'Charge recharges 40% faster and carries further.'}];
+const hasPerk=id=>S.perks.includes(id);
+const xpNeed=l=>10+12*(l-1);
+function gainXP(n){
+  S.hx+=n; let up=false;
+  while(S.hx>=xpNeed(S.hl)){ S.hx-=xpNeed(S.hl); S.hl++; S.perkPending++; up=true; }
+  if(up&&S.hero){ S.hero.max=heroMax(); S.hero.hp=S.hero.max; floatText(S.hero.x,S.hero.y,`Level ${S.hl}!`,CSS.gold); sfx('up'); party('small'); }
+}
+function offerPerk(){
+  const pool=PERKS.filter(p=>!hasPerk(p.id)), pick=[];
+  if(!pool.length){ S.perkPending=0; return; }
+  while(pick.length<3&&pool.length) pick.push(pool.splice((Math.random()*pool.length)|0,1)[0]);
+  showOver(`Your hero reached level ${S.hl-S.perkPending+1}`,'Choose a perk.',pick.map(p=>({label:p.name,sub:p.desc,fn:()=>{ S.perks.push(p.id); S.perkPending--; if(S.hero){ S.hero.max=heroMax(); S.hero.hp=S.hero.max; } hideOver(); sfx('build'); save(); ui(); }})));
+}
 const DIFF={easy:{label:'Easy',sub:'Smaller raids and a fuller treasury. Score ×0.7',wave:.75,hp:.85,res:1.35,mult:.7},
   normal:{label:'Normal',sub:'The intended challenge',wave:1,hp:1,res:1,mult:1},
   hard:{label:'Hard',sub:'Bigger, tougher raids and a lean start. Score ×1.5',wave:1.3,hp:1.2,res:.8,mult:1.5}};
@@ -298,7 +359,7 @@ const UPGS=[
   {id:'spikes',branch:'Defense',name:'Barbed spikes',desc:'Traps deal +1 damage and hold 3 more charges.',cost:{wood:6,stone:3},apply:()=>{S.mods.trap++}},
   {id:'counterweights',branch:'Defense',name:'Counterweights',desc:'Catapults fire a third faster.',cost:{gold:12,stone:8},day:4,req:'fletching',apply:()=>{S.mods.cataRate=.67}},
   {id:'drill',branch:'Army',name:'Drill yard',desc:'Soldiers deal +1 damage and have +2 health.',cost:{gold:14,wood:6},day:2,apply:()=>{S.mods.drill++;S.units.forEach(u=>{u.max=unitMax();u.hp=u.max})}},
-  {id:'muster',branch:'Army',name:'Muster roll',desc:'Every barracks fields one more soldier.',cost:{gold:18,stone:6},req:'drill',apply:()=>{S.mods.muster++;S.grid.forEach((t,i)=>{ if(t.b&&t.b.type==='barr') spawnUnits(i); })}},
+  {id:'muster',branch:'Army',name:'Muster roll',desc:'Every barracks and archery range fields one more soldier.',cost:{gold:18,stone:6},req:'drill',apply:()=>{S.mods.muster++;S.grid.forEach((t,i)=>{ if(t.b&&(t.b.type==='barr'||t.b.type==='range')) spawnUnits(i); })}},
   {id:'warhorse',branch:'Hero',name:'Warhorse',desc:'Your hero gains +6 health and +2 damage.',cost:{gold:16},apply:()=>{S.mods.hero++;S.hero.max=heroMax();S.hero.hp=S.hero.max}},
   {id:'horn',branch:'Hero',name:'Great horn',desc:'Rally recharges twice as fast and Charge hits 2 harder.',cost:{gold:14,stone:4},req:'warhorse',apply:()=>{S.mods.horn=1}}
 ];
@@ -332,7 +393,12 @@ const QUESTS=[
   {text:'Build a catapult',goal:()=>[count('cata'),1],reward:{stone:8}},
   {text:'Own 6 kingdom upgrades',goal:()=>[S.upg.length,6],reward:{gold:15,stone:6}},
   {text:'Survive night 10',goal:()=>[S.day-1,10],reward:{gold:20}},
-  {text:'Survive night 15',goal:()=>[S.day-1,15],reward:{gold:25,stone:10}}
+  {text:'Survive night 15',goal:()=>[S.day-1,15],reward:{gold:25,stone:10}},
+  {text:'Build a well to lift your villagers\u2019 mood',goal:()=>[count('well'),1],reward:{stone:4}},
+  {text:'Raise your hero to level 3',goal:()=>[S.hl,3],reward:{gold:12}},
+  {text:'Build an archery range',goal:()=>[count('range'),1],reward:{wood:8}},
+  {text:'Build a shrine',goal:()=>[count('shrine'),1],reward:{gold:10,food:8}},
+  {text:'Reach a mood of 75',goal:()=>[S.mood,75],reward:{gold:20}}
 ];
 const CONF_COL=['#F0BE4E','#D99A60','#E8604F','#8FCB7E','#F2EADD'];
 function party(kind){
@@ -395,14 +461,14 @@ function blank(){
   return {res:{gold:10,food:10,wood:14,stone:2},pop:3,idle:0,price:{...BASEP},day:1,phase:'day',keep:10,keepMax:10,grid:[],enemies:[],shots:[],puffs:[],floats:[],spawns:[],queue:[],
     spawnT:0,kills:0,nightKills:0,dist:[],tool:'farm',over:false,t:0,modal:false,ver:0,
     mods:{dmg:0,range:0,harvest:0,wall:0,trap:0,tax:0,hero:0,drill:0,wood:0,stone:0,housing:0,taxes:0,cataRate:1,muster:0,horn:0},hero:null,units:[],
-    upg:[],quest:0,diff:'normal',won:false,abilUsed:0};
+    upg:[],quest:0,diff:'normal',won:false,abilUsed:0,mood:60,weather:'clear',blood:false,hx:0,hl:1,perks:[],perkPending:0,lostTonight:0,hungry:false,cold:false};
 }
 function newGame(){
   showOver('Found a new kingdom','Choose how hard the raids will be. Hold the keep through 20 nights to win.',
     Object.entries(DIFF).map(([k,d])=>({label:d.label,sub:d.sub,primary:k==='normal',fn:()=>{ startGame(k); maybeTour(); }})));
 }
 function startGame(diff){
-  S=blank(); S.diff=diff||'normal';
+  S=blank(); S.diff=diff||'normal'; S.weather=rollWeather();
   RES.forEach(r=>S.res[r]=Math.round(S.res[r]*DIFF[S.diff].res));
   const off=Math.random()*6.28;
   for(let y=0;y<N;y++)for(let x=0;x<N;x++){
@@ -446,11 +512,12 @@ function pickSpawns(){
 }
 const isSpawn=(x,y)=>S.spawns.some(p=>p[0]===x&&p[1]===y);
 function planWave(){
-  const d=S.day, n=Math.max(2,Math.round((3+2*(d-1))*DIFF[S.diff].wave));
+  const d=S.day, n=Math.max(2,Math.round((3+2*(d-1))*DIFF[S.diff].wave*(S.blood?1.5:1)));
   const run=d>=3?Math.floor(n*.25):0, bru=d>=6?Math.floor(n*.15)+(d>=10?1:0):0, arc=d>=4?Math.max(1,Math.floor(n*.18)):0;
   const q=[]; for(let i=0;i<Math.max(1,n-run-bru-arc);i++)q.push('raider'); for(let i=0;i<run;i++)q.push('runner'); for(let i=0;i<bru;i++)q.push('brute'); for(let i=0;i<arc;i++)q.push('archer');
   if(d>=8) for(let i=0;i<1+Math.floor((d-8)/4);i++) q.push('ram');
   for(let i=q.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[q[i],q[j]]=[q[j],q[i]]}
+  if(d>=7) for(let i=0;i<1+Math.floor((d-7)/5);i++) q.splice(Math.floor(q.length*.6),0,'shaman');
   if(d%5===0) q.push('warlord');
   S.queue=q;
 }
@@ -462,7 +529,7 @@ function dirName(x,y){
 }
 function waveText(){
   const c={}; S.queue.forEach(t=>c[t]=(c[t]||0)+1);
-  const parts=[]; if(c.raider)parts.push(plural(c.raider,'raider')); if(c.runner)parts.push(plural(c.runner,'runner')); if(c.archer)parts.push(plural(c.archer,'archer')); if(c.brute)parts.push(plural(c.brute,'brute')); if(c.ram)parts.push(plural(c.ram,'battering ram')); if(c.warlord)parts.push('a warlord');
+  const parts=[]; if(c.raider)parts.push(plural(c.raider,'raider')); if(c.runner)parts.push(plural(c.runner,'runner')); if(c.archer)parts.push(plural(c.archer,'archer')); if(c.brute)parts.push(plural(c.brute,'brute')); if(c.ram)parts.push(plural(c.ram,'battering ram')); if(c.shaman)parts.push(plural(c.shaman,'shaman')); if(c.warlord)parts.push('a warlord');
   const dirs=[...new Set(S.spawns.map(([x,y])=>dirName(x,y)))];
   return `${joinList(parts)} coming through the ${joinList(dirs)} pass${dirs.length>1?'es':''}`;
 }
@@ -506,14 +573,14 @@ function assignWorkers(){
 function econ(){
   assignWorkers();
   const L={gold:[],food:[],wood:[],stone:[]};
-  let farms=0,lum=0,mines=0,mk=0,cata=0,barr=0,soldiers=0,houses=0,idleP=0;
+  let farms=0,lum=0,mines=0,mk=0,cata=0,barr=0,ranges=0,soldiers=0,houses=0,idleP=0;
   each(b=>{
     if(DEF[b.type].work&&!b.worked&&!b.off) idleP++;
     if(b.worked){ if(b.type==='farm')farms++; if(b.type==='lumber')lum++; if(b.type==='mine')mines++; if(b.type==='market')mk++; }
-    if(b.type==='cata')cata++; if(b.type==='barr'){barr++;soldiers+=b.lvl+1+S.mods.muster;} if(b.type==='house')houses++;
+    if(b.type==='cata')cata++; if(b.type==='barr'){barr++;soldiers+=b.lvl+1+S.mods.muster;} if(b.type==='range'){ranges++;soldiers+=b.lvl+1+S.mods.muster;} if(b.type==='house')houses++;
   });
-  const fo=4+S.mods.harvest, wo=4+S.mods.wood;
-  if(farms) L.food.push([`${plural(farms,'farm')} × ${fo}`,farms*fo]);
+  const sea=season(), fo=farmOut(), wo=4+S.mods.wood, fnote=[sea.farm?`${sea.name} ${sea.farm>0?'+':'−'}${Math.abs(sea.farm)}`:'',S.weather==='rain'?'rain +1':''].filter(Boolean).join(', ');
+  if(farms) L.food.push([`${plural(farms,'farm')} × ${fo}${fnote?` (${fnote})`:''}`,farms*fo]);
   if(S.pop) L.food.push([`${plural(S.pop,'villager')} eat`,-S.pop]);
   if(soldiers) L.food.push([`${plural(soldiers,'soldier')} eat`,-soldiers]);
   if(lum) L.wood.push([`${plural(lum,'lumber camp')} × ${wo}`,lum*wo]);
@@ -521,14 +588,19 @@ function econ(){
   if(mines) L.stone.push([`${plural(mines,'mine')} × ${so}`,mines*so]);
   if(S.pop) L.gold.push([`Taxes from ${plural(S.pop,'villager')}`,S.pop]);
   if(S.mods.taxes&&S.pop>=3) L.gold.push([`Tax collectors`,Math.floor(S.pop/3)*S.mods.taxes]);
-  if(mk) L.gold.push([`Market trade`,mk*3]);
+  if(mk) L.gold.push([`Market trade${sea.name==='Harvest'?' (harvest +2)':''}`,mk*(3+(sea.name==='Harvest'?2:0))]);
+  if(S.pop&&S.mood>=70) L.gold.push(['Content villagers',Math.floor(S.pop/2)]);
+  if(S.pop&&S.mood<35) L.gold.push(['Grumbling villagers',-Math.ceil(S.pop/2)]);
+  if(sea.name==='Winter'&&houses) L.wood.push([`Heating ${plural(houses,'house')}`,-houses]);
+  if(ranges) L.gold.push([`Archery range upkeep`,-ranges]);
   if(cata) L.gold.push([`Catapult upkeep`,-cata]);
   if(barr) L.gold.push([`Barracks upkeep`,-barr]);
   const net={}; RES.forEach(r=>net[r]=L[r].reduce((a,l)=>a+l[1],0));
   const cap=housing(), foodAfter=S.res.food+net.food;
   let popD=0;
   if(foodAfter<0) popD=-Math.min(S.pop,Math.ceil(-foodAfter/3));
-  else if(S.pop<cap) popD=Math.min(cap-S.pop,Math.max(1,Math.floor(houses/2)));
+  else if(S.pop<cap&&S.mood>=35) popD=Math.min(cap-S.pop,Math.max(1,Math.floor(houses/2)));
+  if(S.mood<20&&S.pop>0) popD=Math.min(popD,-1);
   return {L,net,popD,cap,idleP,foodAfter,goldAfter:S.res.gold+net.gold};
 }
 function clampPrices(){ for(const r in S.price) S.price[r]=Math.min(9,Math.max(.6,S.price[r])); }
@@ -573,14 +645,14 @@ function stepWalkers(dt){
     if(w.stuck||d<=stop+.04){ if(!w.stuck&&kind!=='home') w.dir=Math.atan2(gy-w.y,gx-w.x); w.carry=(kind==='home'||w.stuck)?null:kind; w.goal=null; w.wait=1.2+Math.random()*2.4; }
   }
 }
-const heroMax=()=>12+S.mods.hero*6, heroDmg=()=>2+S.mods.hero*2, unitMax=()=>4+S.mods.drill*2, unitDmg=()=>1+S.mods.drill;
+const heroMax=()=>12+S.mods.hero*6+((S&&S.hl)||1)*2-2, heroDmg=()=>2+S.mods.hero*2+Math.floor((((S&&S.hl)||1)-1)/2), unitMax=()=>4+S.mods.drill*2, unitDmg=()=>1+S.mods.drill;
 function mkHero(){ return {x:C,y:C+1,tx:C,ty:C+1,hp:12+((S&&S.mods.hero)||0)*6,max:12+((S&&S.mods.hero)||0)*6,dead:false,respawn:0,atk:0,dir:-Math.PI/2,queue:[],moving:false,age:0,hit:0,swing:0}; }
 function spawnUnits(i){
-  const b=S.grid[i].b; if(!b||b.type!=='barr'||b.unpaid) return;
+  const b=S.grid[i].b; if(!b||(b.type!=='barr'&&b.type!=='range')||b.unpaid) return;
   const want=b.lvl+1+S.mods.muster, have=S.units.filter(u=>u.home===i);
   for(let k=0;k<want;k++){ if(have.some(u=>u.slot===k)) continue;
     const x=i%N,y=(i/N)|0, a=k*2.1+.6;
-    S.units.push({home:i,slot:k,x:x+Math.cos(a)*.48,y:y+Math.sin(a)*.48,hp:unitMax(),max:unitMax(),atk:0,dir:Math.atan2(C-y,C-x),target:null,age:0,hit:0,swing:0,moving:false}); }
+    S.units.push({home:i,slot:k,x:x+Math.cos(a)*.48,y:y+Math.sin(a)*.48,hp:unitMax(),max:unitMax(),atk:0,dir:Math.atan2(C-y,C-x),target:null,age:0,hit:0,swing:0,moving:false,ranged:b.type==='range'}); }
 }
 function removeBuilding(x,y){
   const i=idx(x,y); G(x,y).b=null; S.units=S.units.filter(u=>u.home!==i);
@@ -652,6 +724,7 @@ function jobSpot(job,h){
   job.spot=best; return best;
 }
 function damageAlly(a,d){
+  if(a===S.hero&&hasPerk('shield')) d=Math.max(0,d-1);
   a.hp-=d; a.hit=.14;
   if(a===S.hero){
     if(a.hp<=0&&!a.dead){ a.dead=true; a.respawn=6; a.queue=[]; puff(a.x,a.y,COL.plank,14); sfx('hurt'); say('<b>Your hero is down.</b> He will ride out from the keep again in 6 seconds.'); }
@@ -667,13 +740,13 @@ function useCharge(){
   const h=S.hero; if(!h||h.dead||S.over||S.modal||(h.cdC||0)>0) return;
   let tx=Math.cos(h.dir), ty=Math.sin(h.dir), best=3.2;
   for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-h.x,e.y-h.y); if(d<best){ best=d; tx=(e.x-h.x)/d; ty=(e.y-h.y)/d; } }
-  h.dash={t:.38,dx:tx,dy:ty,hit:new Set()}; h.dir=Math.atan2(ty,tx); h.cdC=CHARGE_CD; if(!(h.queue.length&&S.phase==='day')){ h.tx=h.x; h.ty=h.y; }
+  h.dash={t:hasPerk('lance')?.5:.38,dx:tx,dy:ty,hit:new Set()}; h.dir=Math.atan2(ty,tx); h.cdC=CHARGE_CD*(hasPerk('lance')?.6:1); if(!(h.queue.length&&S.phase==='day')){ h.tx=h.x; h.ty=h.y; }
   S.abilUsed=(S.abilUsed||0)+(S.phase==='night'?1:0); sfx('charge'); camFree=null; ui();
 }
 function useRally(){
   const h=S.hero; if(!h||h.dead||S.over||S.modal||(h.cdR||0)>0) return;
   h.cdR=RALLY_CD*(S.mods.horn?.5:1); h.rallyFx=1;
-  for(const u of S.units){ u.rally=8; u.target=null; u.pathKey=null; }
+  for(const u of S.units){ u.rally=hasPerk('inspire')?12:8; if(hasPerk('inspire')) u.hp=u.max; u.target=null; u.pathKey=null; }
   S.abilUsed=(S.abilUsed||0)+(S.phase==='night'?1:0); sfx('horn');
   say(S.units.length?`<b>Rally!</b> ${plural(S.units.length,'soldier')} rush to your hero.`:'<b>Rally!</b> No soldiers answered. Build a barracks to field some.'); ui();
 }
@@ -684,15 +757,16 @@ function stepHero(dt){
     const v=7*dt; tryStep(h,h.dash.dx*v,h.dash.dy*v); h.moving=true; h.dash.t-=dt;
     if(!reduce) dust(h.x,h.y,.9);
     const dmg=3+S.mods.hero*2+(S.mods.horn?2:0);
-    for(const e of S.enemies){ if(e.gone||h.dash.hit.has(e)) continue; if(Math.hypot(e.x-h.x,e.y-h.y)<.5){ h.dash.hit.add(e); hurt(e,dmg); embers(e.x,e.y,6); e.slow=Math.max(e.slow,.8); h.swing=.25; sfx('slash'); } }
-    if(h.dash.t<=0){ h.dash=null; h.tx=h.x; h.ty=h.y; h.pathKey=null; }
+    for(const e of S.enemies){ if(e.gone||h.dash.hit.has(e)) continue; if(Math.hypot(e.x-h.x,e.y-h.y)<.5){ h.dash.hit.add(e); hurt(e,dmg,'hero'); embers(e.x,e.y,6); e.slow=Math.max(e.slow,.8); h.swing=.25; sfx('slash'); } }
+    if(h.dash.t<=0){ h.dash=null; h.tx=h.x; h.ty=h.y; h.pathKey=null;
+      if(hasPerk('whirlwind')){ for(const e of S.enemies) if(!e.gone&&Math.hypot(e.x-h.x,e.y-h.y)<1.05) hurt(e,dmg,'hero'); embers(h.x,h.y,22); h.swing=.25; shake=Math.max(shake,.1); } }
     return;
   }
   if(h.dead){ h.moving=false; h.respawn-=dt;
     if(h.respawn<=0){ h.dead=false; h.hp=h.max=heroMax(); h.x=C; h.y=C+.8; h.tx=C; h.ty=C+1.1; h.pathKey=null; floatText(C,C,'Hero returns',CSS.ink); } return; }
   let foe=null,fd=9;
   for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-h.x,e.y-h.y); if(d<fd){fd=d;foe=e} }
-  const SPD=3;
+  const SPD=3*(hasPerk('swift')?1.3:1)*(wxNight('snow')?.85:1);
   const mx=(KD.d?1:0)-(KD.a?1:0)+JOY.x, my=(KD.s?1:0)-(KD.w?1:0)+JOY.y, ml=Math.hypot(mx,my);
   if(ml>.12){
     const k=Math.min(1,ml); tryStep(h,mx/ml*SPD*k*dt,my/ml*SPD*k*dt); h.dir=Math.atan2(my,mx); h.moving=true;
@@ -716,7 +790,8 @@ function stepHero(dt){
   }
   if(h.moving&&!reduce){ h.dustT=(h.dustT||0)-dt; if(h.dustT<=0){ h.dustT=.06; dust(h.x-Math.cos(h.dir)*.25,h.y-Math.sin(h.dir)*.25,.7); } }
   h.atk-=dt;
-  if(foe&&fd<=.72&&h.atk<=0){ h.atk=.55; h.dir=Math.atan2(foe.y-h.y,foe.x-h.x); h.swing=.25; hurt(foe,heroDmg()); sfx('slash'); }
+  if(foe&&fd<=.72&&h.atk<=0){ h.atk=.55; h.dir=Math.atan2(foe.y-h.y,foe.x-h.x); h.swing=.25; hurt(foe,heroDmg(),'hero'); sfx('slash'); }
+  if(hasPerk('secondwind')&&h.hp<h.max){ h.regT=(h.regT??3)-dt; if(h.regT<=0){ h.regT=3; h.hp++; } }
 }
 function stepUnits(dt){
   for(const u of S.units){
@@ -724,6 +799,13 @@ function stepUnits(dt){
     if(u.hp<=0) continue;
     if(u.rally>0) u.rally-=dt;
     const rl=u.rally>0&&!S.hero.dead, hx=rl?S.hero.x:u.home%N, hy=rl?S.hero.y:(u.home/N)|0, sp=rl?2.6:1.9;
+    if(u.ranged){
+      let t=null,bd=2.7-wxRange(); for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-u.x,e.y-u.y); if(d<bd){bd=d;t=e} }
+      u.atk-=dt; u.aiming=!!t;
+      if(t){ u.moving=false; u.dir=Math.atan2(t.y-u.y,t.x-u.x); if(u.atk<=0){ u.atk=rl?.9:1.2; u.swing=.25; S.shots.push({kind:'arrow',x:u.x,y:u.y,e:t,dmg:unitDmg()+(rl?1:0),h0:.4,h:.4,d0:Math.max(.5,bd),dir:u.dir}); sfx('shot'); } }
+      else{ const a=u.slot*2.1+.6+(u.home%5), r=rl?.75:.5; navTo(u,hx+Math.cos(a)*r,hy+Math.sin(a)*r,0,rl?2.6:1.6,dt); if(!u.moving&&!rl) u.dir=Math.atan2(C-hy,C-hx); }
+      continue;
+    }
     if(u.target&&(u.target.gone||Math.hypot(u.target.x-hx,u.target.y-hy)>2.6)) u.target=null;
     if(!u.target){ let bd=rl?2.2:1.8; for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-hx,e.y-hy); if(d<bd){bd=d;u.target=e} } }
     if(u.target){
@@ -738,9 +820,10 @@ function stepUnits(dt){
 }
 function weapon(b){
   const m=S.mods;
-  if(b.type==='keep') return {range:1.8+m.range*.5,rate:1.3,dmg:1+m.dmg,min:0,h:1.3};
-  if(b.type==='tower') return {range:2.4+(b.lvl-1)*.35+m.range,rate:Math.max(.36,.75-(b.lvl-1)*.15),dmg:b.lvl+m.dmg,min:0,h:1.15+.18*b.lvl};
-  if(b.type==='cata') return {range:3.6+(b.lvl-1)*.4+m.range,rate:(2.4-(b.lvl-1)*.5)*(m.cataRate||1),dmg:3+(b.lvl-1)*2,min:1,splash:.95,h:.6};
+  const wr=wxRange();
+  if(b.type==='keep') return {range:1.8+m.range*.5-wr,rate:1.3,dmg:1+m.dmg,min:0,h:1.3};
+  if(b.type==='tower') return {range:2.4+(b.lvl-1)*.35+m.range-wr,rate:Math.max(.36,.75-(b.lvl-1)*.15),dmg:b.lvl+m.dmg,min:0,h:1.15+.18*b.lvl};
+  if(b.type==='cata') return {range:3.6+(b.lvl-1)*.4+m.range-wr,rate:(2.4-(b.lvl-1)*.5)*(m.cataRate||1),dmg:3+(b.lvl-1)*2,min:1,splash:.95,h:.6};
   return null;
 }
 const trapMax=()=>TRAP_CHARGES+S.mods.trap*3;
@@ -752,12 +835,13 @@ function enemyStats(type){
     case 'warlord': return {hp:Math.ceil(h*6*DIFF[S.diff].hp),spd:.62,dmg:3,pay:8};
     case 'archer': return {hp:Math.max(1,Math.ceil(h*.75*DIFF[S.diff].hp)),spd:s*.9,dmg:1,pay:2,range:1.9};
     case 'ram': return {hp:Math.ceil(h*4.5*DIFF[S.diff].hp),spd:s*.42,dmg:3,bdmg:7,pay:5};
+    case 'shaman': return {hp:Math.ceil(h*.9*DIFF[S.diff].hp),spd:s*.78,dmg:1,pay:3,heal:2};
     default: return {hp:Math.ceil(h*DIFF[S.diff].hp),spd:s,dmg:1,pay:1};
   }
 }
 function startNight(){
   if(S.phase!=='day'||S.over||S.modal) return;
-  S.phase='night'; S.spawnT=.5; S.nightKills=0; S.keepAtDusk=S.keep;
+  S.phase='night'; S.spawnT=.5; S.nightKills=0; S.keepAtDusk=S.keep; S.lostTonight=0;
   if(S.hero.queue.length){ S.hero.queue=[]; }
   sfx('bell');
   say(`<b>Night ${S.day}.</b> ${waveText().replace(/^./,c=>c.toUpperCase())}.`);
@@ -776,10 +860,10 @@ function dawn(){
   each((b,x,y)=>{
     if(b.type==='keep') return;
     if(b.worked){
-      if(b.type==='farm') floatText(x,y,`+${4+S.mods.harvest} food`,RCOL.food);
+      if(b.type==='farm') floatText(x,y,`+${farmOut()} food`,RCOL.food);
       if(b.type==='lumber') floatText(x,y,`+${4+S.mods.wood} wood`,RCOL.wood);
       if(b.type==='mine') floatText(x,y,`+${3+S.mods.stone} stone`,RCOL.stone);
-      if(b.type==='market') floatText(x,y,'+3 gold',RCOL.gold);
+      if(b.type==='market') floatText(x,y,`+${3+(season().name==='Harvest'?2:0)} gold`,RCOL.gold);
     }
     if(b.type==='trap') b.charges=trapMax();
     else b.hp=Math.min(b.max,b.hp+(b.type==='wall'?2:1));
@@ -787,7 +871,12 @@ function dawn(){
   if(S.pop) floatText(C,C,`+${S.pop} taxes`,RCOL.gold);
   RES.forEach(r=>S.res[r]+=E.net[r]);
   const notes=[];
+  S.hungry=S.res.food<0; S.cold=season().name==='Winter'&&S.res.wood<0;
   if(S.res.food<0) S.res.food=0;
+  if(S.res.wood<0){ S.res.wood=0; notes.push('<b>Cold houses:</b> not enough wood to heat every home'); }
+  const MI=moodInfo(), m0=S.mood; S.mood=Math.max(0,Math.min(100,Math.round(S.mood+(MI.target-S.mood)*.5)));
+  if(S.mood<35&&m0>=35) notes.push('<b>Unrest:</b> your villagers are unhappy');
+  gainXP(5);
   S.pop=Math.max(0,S.pop+E.popD);
   if(E.popD<0) notes.push(`<b>Famine:</b> ${plural(-E.popD,'villager')} left for lack of food`);
   else if(E.popD>0) notes.push(`${E.popD===1?'A new villager':E.popD+' new villagers'} moved in`);
@@ -800,13 +889,18 @@ function dawn(){
   clampPrices();
   S.units=S.units.filter(u=>{ const b=S.grid[u.home].b; return b&&!b.unpaid; });
   S.units.forEach(u=>{u.hp=u.max=unitMax(); u.target=null});
-  S.grid.forEach((t,i)=>{ if(t.b&&t.b.type==='barr') spawnUnits(i); });
+  S.grid.forEach((t,i)=>{ if(t.b&&(t.b.type==='barr'||t.b.type==='range')) spawnUnits(i); });
   if(S.hero.dead){S.hero.dead=false;S.hero.x=C;S.hero.y=C+1;S.hero.tx=C;S.hero.ty=C+1}
   S.hero.hp=S.hero.max=heroMax();
   S.keep=Math.min(S.keepMax,S.keep+1);
   const lost=S.keepAtDusk-S.keep+1, felled=S.nightKills, wasBoss=S.day%5===0;
   S.day++; S.phase='day'; S.shots=[]; ageRubble();
   if(S.day-1>best){best=S.day-1;try{localStorage.setItem(BEST,best)}catch(e){}}
+  const seaBefore=SEASONS[Math.floor((S.day-2)/5)%4];
+  S.weather=rollWeather(); S.blood=S.day>=6&&S.day%5!==0&&Math.random()<.18;
+  if(season()!==seaBefore) notes.push(`<b>${season().name} begins</b>`);
+  if(S.weather!=='clear') notes.push(`<b>${WX[S.weather].name}:</b> ${WX[S.weather].desc}`);
+  if(S.blood) notes.push('<b>Blood moon tonight:</b> half again as many raiders, and every kill pays double');
   pickSpawns(); field(); planWave(); sfx('dawn');
   const justWon=!S.won&&S.day-1>=WIN_NIGHTS; if(justWon) S.won=true;
   const gains=RES.filter(r=>E.net[r]).map(r=>`${E.net[r]>0?'+':''}${E.net[r]} ${r}`).join(', ');
@@ -904,10 +998,10 @@ function buildError(tool,x,y,planning){
 function doBuild(tool,x,y){
   const d=DEF[tool];
   spend(d.cost);
-  const max=d.hp+(tool==='wall'?S.mods.wall*5:0);
+  const max=Math.round((d.hp+(tool==='wall'?S.mods.wall*5:0))*(hasPerk('mason')?1.5:1));
   G(x,y).b={type:tool,hp:max,max,lvl:1,cd:0,day:S.day,spent:0,born:S.t};
   if(tool==='trap') G(x,y).b.charges=trapMax();
-  if(tool==='barr') spawnUnits(idx(x,y));
+  if(tool==='barr'||tool==='range') spawnUnits(idx(x,y));
   puff(x,y,COL.sand,10); dustRing(x,y);
   field(); sfx('build'); save(); ui();
   if(tool==='mine'||tool==='farm') say(`${d.name} built. It produces at dawn once a villager works it.`);
@@ -915,6 +1009,9 @@ function doBuild(tool,x,y){
   else if(tool==='house') say(`House built. Room for ${housing()} villagers now.`);
   else if(tool==='lumber') say('Lumber camp built. It cuts wood at dawn.');
   else if(tool==='market') say('Market built. Tap it to trade goods for gold.');
+  else if(tool==='well') say('Well built. Villagers are happier, and fire keeps away from the buildings around it.');
+  else if(tool==='shrine') say('Shrine built. Your villagers\u2019 mood rises.');
+  else if(tool==='range') say('Archery range built. Its archers shoot raiders from range. Upkeep: 1 gold a dawn.');
 }
 function clearAt(x,y){
   const t=G(x,y), back=refundOf(t.b);
@@ -929,7 +1026,7 @@ function upgradeSel(){
   const c=up[b.lvl-1];
   if(!canPay(c)){ say(`Upgrading needs ${costStr(c)}.`); sfx('no'); return; }
   spend(c); b.lvl++; b.spent=addC(spentOf(b),c); b.max+=b.type==='wall'?10:2; b.hp=b.max; b.born=S.t;
-  if(b.type==='barr') spawnUnits(idx(...sel));
+  if(b.type==='barr'||b.type==='range') spawnUnits(idx(...sel));
   puff(sel[0],sel[1],COL.gold,10); sfx('up'); S.ver++;
   say(`${DEF[b.type].name} raised to level ${b.lvl}.`); save(); ui();
 }
@@ -972,11 +1069,12 @@ function step(dt){
   for(const f of S.floats) f.life-=dt;
   S.floats=S.floats.filter(f=>f.life>0);
 }
-function hurt(e,d){
+function hurt(e,d,src){
   if(e.gone) return;
   e.hp-=d; e.hit=.14;
   if(e.hp<=0){
-    e.gone=true; e.died=true; const pay=e.pay+S.mods.tax;
+    e.gone=true; e.died=true; const pay=(e.pay+S.mods.tax+(src==='hero'&&hasPerk('bounty')?2:0))*(S.blood&&S.phase==='night'?2:1);
+    if(src==='hero') gainXP(e.pay*3);
     S.res.gold+=pay; S.kills++; S.nightKills++;
     puff(e.x,e.y,COL.foeLight,e.type==='warlord'?18:8); embers(e.x,e.y,e.type==='warlord'?30:7); floatText(e.x,e.y,'+'+pay,CSS.gold);
     sfx('kill'); ui();
@@ -993,7 +1091,7 @@ function damageBuilding(x,y,d){
   const b=G(x,y).b; if(!b) return;
   if(b.type==='keep'){ keepHit(d,x,y); return; }
   b.hp-=d; b.hitT=S.t; puff(x,y,b.type==='wall'?COL.wood:COL.stone,4); sfx('chip');
-  if(b.hp<=0){ puff(x,y,COL.woodLight,16); embers(x,y,14); addRubble(x,y,b.type); removeBuilding(x,y); field(); renderInsp(); }
+  if(b.hp<=0){ S.lostTonight++; puff(x,y,COL.woodLight,16); embers(x,y,14); addRubble(x,y,b.type); removeBuilding(x,y); field(); renderInsp(); }
 }
 function archerTarget(e){
   const R=e.range; let best=null,bd=R;
@@ -1015,6 +1113,7 @@ function moveEnemy(e,dt){
   }
   if(foe){ e.dir=Math.atan2(foe.y-e.y,foe.x-e.x); e.atk-=dt; e.swing=Math.max(0,1-e.atk);
     if(e.atk<=0){ e.atk=1; damageAlly(foe,e.dmg); sfx('chip'); } return; }
+  if(e.heal){ e.swing=Math.max(0,(e.swing||0)-dt*1.5); e.healT=(e.healT??1)-dt; if(e.healT<=0){ e.healT=1.6; let n=0; for(const o of S.enemies){ if(o===e||o.gone||o.hp>=o.max||Math.hypot(o.x-e.x,o.y-e.y)>1.4) continue; o.hp=Math.min(o.max,o.hp+e.heal); n++; puff(o.x,o.y,0x7CFF9A,3); } if(n){ e.swing=1; floatText(e.x,e.y,'heal',CSS.good||'#8FCB7E'); } } }
   if(e.type==='archer'&&!e.moving&&e.age>.6){
     const t=archerTarget(e);
     if(t){ e.dir=Math.atan2(t.y-e.y,t.x-e.x); e.shotT=(e.shotT??.5)-dt; e.swing=Math.min(1,Math.max(0,1-e.shotT/1.5));
@@ -1022,7 +1121,7 @@ function moveEnemy(e,dt){
       return; }
   }
   if(e.moving){
-    const dx=e.tx-e.x,dy=e.ty-e.y,d=Math.hypot(dx,dy),v=e.spd*(e.slow>0?.5:1)*dt;
+    const dx=e.tx-e.x,dy=e.ty-e.y,d=Math.hypot(dx,dy),v=e.spd*(e.slow>0?.5:1)*wxSlow()*dt;
     if(d>1e-4) e.dir=Math.atan2(dy,dx);
     if(d<=v){
       e.x=e.tx;e.y=e.ty;e.cx=e.tx;e.cy=e.ty;e.moving=false;
@@ -1106,7 +1205,7 @@ function tree(g,a,c,sc,k){
 function hash(a,b,s){ const v=Math.sin(a*12.9898+b*78.233+s*37.719)*43758.5453; return v-Math.floor(v); }
 
 // ---------- model library (Avramania, CC0) ----------
-const MODEL_NAMES='castle_curtain_01 castle_curtain_gate_01 castle_tower_round_base_01 castle_tower_round_mid_01 castle_tower_round_top_01 castle_tower_round_roof_01 castle_banner_01 nature_cliff_01 nature_cliff_02 nature_cliff_03 nature_cave_01 nature_pine_01 nature_oak_01 nature_oak_sapling_01 nature_rocks_01 nature_boulder_01 nature_stump_01 farm_furrow_01 farm_cabbage_stage_01 farm_cabbage_stage_02 farm_cabbage_stage_03 farm_scarecrow_01 village_cottage_01 village_stall_01 interiors_woodpile_01 props_axe_01 props_wheelbarrow_01 props_crate_01 props_barrel_01 food_produce_crate_01 props_sack_01 weapons_rack_01 weapons_armingsword_01 weapons_shield_round_01 weapons_spear_01 weapons_shield_wooden_01 weapons_handaxe_01'.split(' ')
+const MODEL_NAMES='castle_curtain_01 castle_curtain_gate_01 castle_tower_round_base_01 castle_tower_round_mid_01 castle_tower_round_top_01 castle_tower_round_roof_01 castle_banner_01 nature_cliff_01 nature_cliff_02 nature_cliff_03 nature_cave_01 nature_pine_01 nature_oak_01 nature_oak_sapling_01 nature_rocks_01 nature_boulder_01 nature_stump_01 farm_furrow_01 farm_cabbage_stage_01 farm_cabbage_stage_02 farm_cabbage_stage_03 farm_scarecrow_01 village_cottage_01 village_stall_01 interiors_woodpile_01 props_axe_01 props_wheelbarrow_01 props_crate_01 props_barrel_01 food_produce_crate_01 props_sack_01 weapons_rack_01 weapons_armingsword_01 weapons_shield_round_01 weapons_spear_01 weapons_shield_wooden_01 weapons_handaxe_01 village_well_01 interiors_altar_01 weapons_quiver_01'.split(' ')
   .concat('Cactus_1 Cactus_2 Cactus_3 Cactus_4 Cactus_5 CactusFlower_1 CactusFlowers_2 CactusFlowers_3 CactusFlowers_4 CactusFlowers_5 Rock_1 Rock_2 Rock_3 Rock_5 Rock_6 CommonTree_Dead_1 CommonTree_Dead_2 CommonTree_Dead_4 Grass Grass_Short Grass_2 Plant_1 Plant_3 Bush_1 BushBerries_1 PalmTree_1 PalmTree_2 PalmTree_3 PalmTree_4 Wheat Corn_1 Corn_2 TreeStump WoodLog'.split(' ').map(n=>'q_'+n));   // q_ = Quaternius Ultimate Nature (CC0), vertex-colored
 const CANYON=new Set(['nature_cliff_01','nature_cliff_02','nature_cliff_03','nature_cave_01']);
 const ASSET={m:{},ready:false,pal:null,canyon:null};
@@ -1191,6 +1290,11 @@ function assetModel(b,x,y){
   case 'mine':
     put(g,'nature_cave_01',0,0,0); put(g,'props_wheelbarrow_01',3,0,1.1,-.6); put(g,'props_crate_01',.8,0,.9,.3); put(g,'nature_rocks_01',3.8,0,.3);
     return fitTo(g,.98);
+  case 'well': put(g,'village_well_01',0,0,0); return fitTo(g,.66);
+  case 'shrine':
+    put(g,'interiors_altar_01',0,0,0); put(g,'castle_banner_01',-.9,1.6,-.42); put(g,'castle_banner_01',.9,1.6,-.42);
+    o=fitTo(g,.7); add(o,BX(.6,.06,.5),COL.stone,0,.03,0); o.children[0].position.y+=.06;
+    o.userData.flame=add(o,CN(.05,.12,5),0,0,.32,0,0,0,0,flameMat); return o;
   case 'market':
     put(g,'village_stall_01',0,0,0); put(g,'food_produce_crate_01',.4,0,.45); put(g,'food_produce_crate_01',1.3,0,.55,.4);
     put(g,'props_barrel_01',2.6,0,-.4); put(g,'props_sack_01',2.55,0,.35);
@@ -1433,6 +1537,26 @@ function modelFor(b,x,y){
     for(const [a,col] of [[-.18,COL.gold],[0,COL.crop],[.18,0xC0532F]]) add(g,DO(.05),col,a,.28,.02);
     add(g,BX(.14,.14,.14),COL.woodLight,.34,.07,.28,0,.3,0); add(g,BX(.12,.12,.12),COL.woodLight,-.33,.06,.3,0,-.2,0);
     break;}
+  case 'well':{
+    add(g,CY(.26,.28,.2,10),COL.stone,0,.1,0); add(g,CY(.2,.2,.21,10),0x2A4A6A,0,.11,0);
+    for(const a of [-.22,.22]) add(g,BX(.04,.42,.04),COL.wood,a,.3,0);
+    add(g,BX(.56,.04,.1),COL.wood,0,.51,0); add(g,CN(.36,.18,4),COL.roof,0,.62,0,0,Math.PI/4,0);
+    break;}
+  case 'shrine':{
+    add(g,BX(.6,.08,.6),COL.stone,0,.04,0); add(g,BX(.42,.08,.42),COL.stone,0,.12,0);
+    add(g,BX(.14,.42,.14),0xEDE3CE,0,.37,0); add(g,CN(.1,.14,4),COL.gold,0,.65,0,0,Math.PI/4,0);
+    for(const [a,c] of [[-.24,.24],[.24,.24]]){ add(g,CY(.03,.04,.16,6),COL.dark,a,.24,c); }
+    g.userData.flame=add(g,CN(.05,.12,5),0,-.24,.38,.24,0,0,0,flameMat);
+    break;}
+  case 'range':{
+    add(g,BX(.7,.02,.5),0xB98A5A,0,.01,0);
+    for(const [a,c] of [[-.2,-.16],[.12,-.2]]){ const t=new THREE.Group(); t.position.set(a,0,c); g.add(t);
+      add(t,BX(.03,.3,.03),COL.wood,-.06,.15,.02,0,0,.25); add(t,BX(.03,.3,.03),COL.wood,.06,.15,.02,0,0,-.25);
+      add(t,CY(.13,.13,.04,14),0xEDE3CE,0,.3,0,Math.PI/2,0,0); add(t,CY(.09,.09,.045,14),COL.roof,0,.3,0,Math.PI/2,0,0); add(t,CY(.045,.045,.05,12),0xEDE3CE,0,.3,0,Math.PI/2,0,0); }
+    add(g,BX(.03,.6,.03),COL.wood,.3,.3,.18); g.userData.flag=add(g,BX(.18,.12,.02),b.lvl>=2?COL.gold:0x3A6A5A,.39,.54,.18);
+    if(ASSET.ready){ put(g,'weapons_rack_01',-.18,0,.22,0,.28); put(g,'weapons_quiver_01',.12,0,.22,0,.3); put(g,'props_crate_01',.28,0,-.05,.4,.35); }
+    else add(g,BX(.3,.18,.05),COL.wood,-.18,.09,.22);
+    break;}
   case 'barr':{
     add(g,BX(.8,.3,.52),COL.plank,0,.15,0);
     add(g,BX(.82,.04,.54),COL.wood,0,.31,0);
@@ -1572,14 +1696,18 @@ function enemyModel(e){
   else if(e.type==='runner') g=person({body:COL.foeLight,legs:0x4A2A20,hat:'band',hatCol:COL.foe});
   else if(e.type==='warlord') g=person({body:0x3A3036,legs:COL.dark,hat:'horns',cape:COL.foe,belt:COL.gold});
   else if(e.type==='archer') g=person({body:0x5E4A2E,legs:0x3A2A1E,hat:'hood',hatCol:0x2E3A26,cape:0x4A3A22});
+  else if(e.type==='shaman'){ g=person({body:0x2E4A3A,legs:0x2E4A3A,hat:'hood',hatCol:0xD8CCB0,belt:0x7CFF9A});
+    const st=new THREE.Group(); st.position.set(.02,-.17,0); g.userData.arms[1].add(st); add(st,BX(.022,.42,.022),COL.wood,0,.1,0);
+    const orb=new THREE.Mesh(DO(.045),new THREE.MeshBasicMaterial({color:0x7CFF9A})); orb.position.y=.33; orb.userData.noFlash=true; st.add(orb); }
   else g=person({body:COL.foe,legs:0x4A2A20,hat:'hood',hatCol:0x5A1A22});
   const [armL,armR]=g.userData.arms;
-  if(e.type==='archer'){ bow(armL); add(g.userData.hips,CY(.03,.03,.18,6),COL.wood,-.07,.14,.04,0,0,.3); }
+  if(e.type==='shaman'){}
+  else if(e.type==='archer'){ bow(armL); add(g.userData.hips,CY(.03,.03,.18,6),COL.wood,-.07,.14,.04,0,0,.3); }
   else hold(armR,e.type==='brute'?'club':e.type==='runner'?'dagger':e.type==='warlord'?'sword':'axe');
   if(e.type==='raider'||e.type==='brute'){ g.userData.torch=torch(armL); g.userData.glow=groundGlow(g,.06,.16,1.2); }
   else if(e.type==='warlord'){ shield(armL,true); g.userData.glow=groundGlow(g,0,0,.9); }
   g.userData.seed=Math.random()*9;
-  g.scale.setScalar(e.type==='warlord'?1.45:e.type==='brute'?1.12:e.type==='runner'?.9:1);
+  g.scale.setScalar(e.type==='warlord'?1.45:e.type==='brute'?1.12:e.type==='runner'||e.type==='shaman'?.95:1);
   scene.add(g); return g;
 }
 const hitMat=new THREE.MeshBasicMaterial({color:0xFFF4E0});
@@ -1636,7 +1764,8 @@ function heroModel(){
   ring.rotation.x=-Math.PI/2; ring.position.y=.02; g.add(ring); g.userData.ring=ring;
   g.scale.setScalar(1.25); scene.add(g); return g;
 }
-function unitModel(){
+function unitModel(u){
+  if(u&&u.ranged){ const g=person({body:0x3A6A5A,legs:0x2A3A3E,hat:'cap',hatCol:0x2F5D4E,belt:COL.wood}); bow(g.userData.arms[0]); if(ASSET.ready) put(g.userData.hips,'weapons_quiver_01',-.07,.02,.03,0,.25); g.userData.ranged=true; scene.add(g); return g; }
   const g=person({body:COL.ally,legs:0x2A3A5E,hat:'helm',belt:COL.wood});
   hold(g.userData.arms[1],'spear'); shield(g.userData.arms[0],false);
   scene.add(g); return g;
@@ -1672,9 +1801,10 @@ function syncHero(t,raw){
   const live=new Set(S.units);
   for(const [u,m] of uMeshes) if(!live.has(u)){ scene.remove(m); uMeshes.delete(u); }
   for(const u of S.units){
-    let m=uMeshes.get(u); if(!m){ m=unitModel(); uMeshes.set(u,m); }
+    let m=uMeshes.get(u); if(!m){ m=unitModel(u); uMeshes.set(u,m); }
     m.position.set(W2(u.x),0,W2(u.y)); turnTo(m,-u.dir,10);
-    animPerson(m,u.age*12,u.moving,u.swing>0?u.swing/.25*.6:0,t);
+    animPerson(m,u.age*12,u.moving,m.userData.ranged?0:(u.swing>0?u.swing/.25*.6:0),t);
+    if(m.userData.ranged&&u.aiming&&!u.moving){ m.userData.arms[0].rotation.z=1.5; m.userData.arms[1].rotation.z=1.25+(u.swing>0?.3:0); }
     flashMat(m,u.hit>0);
   }
   // villagers
@@ -1696,15 +1826,16 @@ for(let i=0;i<18;i++){ const m=new THREE.Mesh(geo('glowP',()=>new THREE.PlaneGeo
 let scorchI=0;
 function scorch(x,y){ const s=SCORCH[scorchI++%SCORCH.length]; s.life=25; s.m.position.set(W2(x),.014,W2(y)); s.m.rotation.z=Math.random()*6; const k=.7+Math.random()*.4; s.m.scale.set(k,k,1); s.m.visible=true; }
 function emit(pool,x,y,h,life,sz,col){ const p=pool.find(q=>q.life<=0); if(!p) return; p.life=p.max=life; p.x=W2(x); p.z=W2(y); p.h=h; p.sz=sz; p.vx=(Math.random()-.5)*.12+.08; p.sp.visible=true; if(col!==undefined) p.sp.material.color.setHex(col); }
-const TOPH={keep:1.25,tower:1.1,cata:.45,barr:.55,house:.65,wall:.45,mine:.4,market:.5,lumber:.45};
+const TOPH={well:.4,shrine:.6,range:.4,keep:1.25,tower:1.1,cata:.45,barr:.55,house:.65,wall:.45,mine:.4,market:.5,lumber:.45};
 function buildingFrac(b){ return b.type==='keep'?S.keep/S.keepMax:b.hp/Math.max(1,b.max); }
+function nearWell(x,y){ for(let j=Math.max(0,y-2);j<=Math.min(N-1,y+2);j++)for(let i=Math.max(0,x-2);i<=Math.min(N-1,x+2);i++){ const b=G(i,j).b; if(b&&b.type==='well'&&Math.hypot(i-x,j-y)<=1.6) return true; } return false; }
 function stepBurn(raw,t){
   each((b,x,y)=>{
     if(b.type==='trap'||b.type==='farm') return;
     const f=buildingFrac(b); if(f>=.6) return;
     const top=(TOPH[b.type]||.5)+(b.type==='tower'?.15*b.lvl:0);
     b.sm_=(b.sm_||0)-raw; if(b.sm_<=0){ b.sm_=.12+f*.35; emit(SMK,x+(Math.random()-.5)*.35,y+(Math.random()-.5)*.35,top*.8,2.2+Math.random(),.35+(1-f)*.3,f<.3?0x2E2A28:0x5A544E); }
-    if(f<.32){ b.fl_=(b.fl_||0)-raw; if(b.fl_<=0){ b.fl_=.05; emit(FLM,x+(Math.random()-.5)*.5,y+(Math.random()-.5)*.5,.1+Math.random()*top*.6,.45+Math.random()*.3,.32+Math.random()*.2,Math.random()<.5?0xFF8A2A:0xFFC060); }
+    if(f<.32&&S.weather!=='rain'&&!nearWell(x,y)){ b.fl_=(b.fl_||0)-raw; if(b.fl_<=0){ b.fl_=.05; emit(FLM,x+(Math.random()-.5)*.5,y+(Math.random()-.5)*.5,.1+Math.random()*top*.6,.45+Math.random()*.3,.32+Math.random()*.2,Math.random()<.5?0xFF8A2A:0xFFC060); }
       if(Math.random()<raw*2.5) embers(x,y,2); }
   });
   for(const [k,r] of rubble){ r.t+=raw; if(r.t<7&&Math.random()<raw*5) emit(SMK,r.x+(Math.random()-.5)*.4,r.y+(Math.random()-.5)*.4,.1,2,.4,0x3A3634); }
@@ -1907,10 +2038,33 @@ function drawMini(){
     mx.strokeStyle='rgba(255,255,255,.7)'; mx.lineWidth=Math.max(1,dpr);
     mx.strokeRect(P(camTarget.x-hw+C),P(camTarget.z-hd+C),hw*2*cs,hd*2*cs); }
 }
+const WXP=[]; for(let i=0;i<170;i++) WXP.push({x:Math.random(),y:Math.random(),v:.55+Math.random()*.9,s:Math.random(),p:Math.random()*6.28});
+function drawWeather(){
+  const w=S.weather, sea=season();
+  if(sea.name==='Winter'){ hctx.fillStyle='rgba(215,230,255,.07)'; hctx.fillRect(0,0,BW,BH); }
+  if(w==='clear') return;
+  const mv=reduce?0:FR;
+  if(w==='rain'){
+    hctx.fillStyle='rgba(50,70,100,.12)'; hctx.fillRect(0,0,BW,BH);
+    hctx.strokeStyle='rgba(205,222,255,.42)'; hctx.lineWidth=1; hctx.beginPath();
+    for(const p of WXP){ p.y+=mv*1.7*p.v; p.x+=mv*.22; if(p.y>1){p.y-=1;p.x=Math.random()} if(p.x>1)p.x-=1; const X=p.x*BW,Y=p.y*BH; hctx.moveTo(X,Y); hctx.lineTo(X-3.5,Y-13*p.v); }
+    hctx.stroke();
+  }else if(w==='sandstorm'){
+    hctx.fillStyle=`rgba(205,140,80,${.16+nightA*.1})`; hctx.fillRect(0,0,BW,BH);
+    hctx.strokeStyle='rgba(235,185,125,.5)'; hctx.lineWidth=1.2; hctx.beginPath();
+    for(const p of WXP){ p.x+=mv*.9*p.v; p.y+=mv*.06*Math.sin(p.p+clock); if(p.x>1){p.x-=1;p.y=Math.random()} const X=p.x*BW,Y=p.y*BH; hctx.moveTo(X,Y); hctx.lineTo(X-14*p.v,Y-1.5); }
+    hctx.stroke();
+  }else if(w==='snow'){
+    hctx.fillStyle='rgba(220,232,255,.06)'; hctx.fillRect(0,0,BW,BH);
+    hctx.fillStyle='rgba(255,255,255,.85)';
+    for(const p of WXP){ p.y+=mv*.12*p.v; p.x+=mv*.03*Math.sin(clock*1.3+p.p); if(p.y>1){p.y-=1;p.x=Math.random()} hctx.beginPath(); hctx.arc(p.x*BW,p.y*BH,.8+p.s*1.7,0,6.29); hctx.fill(); }
+  }
+}
 function drawHud(){
   hctx.setTransform(dpr,0,0,dpr,0,0); hctx.clearRect(0,0,BW,BH);
   const u=Math.max(26,BW/16)*(farHH/Math.max(curHH,1))*.75;
   if(nightA>.03){ hctx.fillStyle='#FFFFFF'; for(const p of SPECKS){ hctx.globalAlpha=nightA*(.35+.45*(Math.sin(clock*2+p.ph)+1)/2); hctx.fillRect(p.x*BW,p.y*BH,p.s,p.s); } hctx.globalAlpha=1; }
+  drawWeather();
   hctx.lineCap='round';
   for(const s of S.shots){ if(s.kind!=='arrow'&&s.kind!=='earrow') continue; const red=s.kind==='earrow'; const [ax,ay]=scr(W2(s.x),s.h,W2(s.y)); const [bx,by]=scr(W2(s.x-Math.cos(s.dir)*.7),s.h+.12,W2(s.y-Math.sin(s.dir)*.7));
     const g=hctx.createLinearGradient(ax,ay,bx,by); g.addColorStop(0,red?'rgba(255,120,100,.95)':'rgba(255,250,235,.95)'); g.addColorStop(1,red?'rgba(255,120,100,0)':'rgba(255,250,235,0)'); hctx.strokeStyle=g; hctx.lineWidth=1.6; hctx.beginPath(); hctx.moveTo(ax,ay); hctx.lineTo(bx,by); hctx.stroke(); }
@@ -1998,6 +2152,7 @@ function render(raw,t){
   else renderer.render(scene,camera);
   if(!paused) stepFx(raw);
   const go=(Math.pow(nightA,1.6)*.72).toFixed(2); if(gradeEl.style.opacity!==go) gradeEl.style.opacity=go;
+  const gc=S.blood&&S.phase!=='day'?'#9A2030':'#3756B8'; if(gradeEl.dataset.c!==gc){ gradeEl.dataset.c=gc; gradeEl.style.background=gc; }
   drawHud(); drawMini(); syncAbil(); syncMusicTempo();
 }
 
@@ -2032,7 +2187,7 @@ function sfx(k){
 // =============== SAVE ===============
 function save(){
   if(!S||S.over) return;
-  try{ localStorage.setItem(KEY,JSON.stringify({diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
+  try{ localStorage.setItem(KEY,JSON.stringify({mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
     grid:S.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...t.b,aim:undefined,born:undefined,hitT:undefined,worked:undefined}:null,t.grove?1:0]),spawns:S.spawns,queue:S.queue})); }catch(e){}
 }
 function load(){
@@ -2042,10 +2197,11 @@ function load(){
     Object.assign(S,{res:d.res||{gold:d.gold??10,food:10,wood:12,stone:2},pop:d.pop??3,price:d.price||{...BASEP},day:d.day,keep:d.keep,keepMax:d.keepMax,
       mods:{...S.mods,...d.mods},kills:d.kills||0,spawns:d.spawns,queue:d.queue,seed:d.seed||Math.random()*1000});
     S.grid=d.grid.map(([l,o,b,gr])=>({land:!!l,ore:!!o,grove:!!gr,b}));
+    Object.assign(S,{mood:d.mood??60,weather:d.weather||'clear',blood:!!d.blood,hx:d.hx||0,hl:d.hl||1,perks:d.perks||[],perkPending:d.perkPending||0,hungry:!!d.hungry,cold:!!d.cold});
     S.diff=DIFF[d.diff]?d.diff:'normal'; S.quest=d.quest||0; S.upg=d.upg||[]; S.won=!!d.won; S.abilUsed=d.abilUsed||0;
     if(!S.grid.some(t=>t.grove)) addGroves();
     S.hero=mkHero(); S.hero.hp=S.hero.max=heroMax();
-    S.grid.forEach((t,i)=>{ if(t.b&&t.b.type==='barr') spawnUnits(i); });
+    S.grid.forEach((t,i)=>{ if(t.b&&(t.b.type==='barr'||t.b.type==='range')) spawnUnits(i); });
     field(); buildWorld(); return true;
   }catch(e){ return false; }
 }
@@ -2062,6 +2218,9 @@ function ui(){
     :S.phase==='over'?`The keep has fallen<small>Start again from the board</small>`
     :`Ring the bell<small>Begin night ${S.day} · ${S.queue.length} coming${S.hero.queue.length?` · ${S.hero.queue.length} unbuilt order${S.hero.queue.length>1?'s':''} will be dropped`:''}</small>`;
   renderTools(); renderRes(); renderLedger(); renderQuest(); renderUpgrades();
+  const sea=season(); $('season').textContent=sea.name+(S.weather!=='clear'?` · ${WX[S.weather].name}`:'')+(S.blood?' · Blood moon':''); $('seaDot').setAttribute('fill',sea.col); $('cSeason').classList.toggle('blood',!!S.blood);
+  $('hlv').textContent=`Hero Lv ${S.hl}`; $('xpf').style.width=Math.round(100*S.hx/xpNeed(S.hl))+'%';
+  if(S.phase==='day'&&!S.modal&&!S.over&&S.perkPending>0) offerPerk();
   $('best').textContent=[DIFF[S.diff].label,`score ${score().toLocaleString()}`,bestScore?`best ${bestScore.toLocaleString()}`:''].filter(Boolean).join(' · ');
   renderInsp();
 }
@@ -2100,7 +2259,7 @@ function renderTools(){
 function renderRes(){
   const E=econ(), box=$('res');
   if(!box.dataset.built){
-    box.innerHTML=[...RES,'people'].map(r=>`<div class="rc" id="r-${r}"><div class="lab"><i style="background:${RCOL[r]}"></i>${r==='people'?'Villagers':cap1(r)}</div><div class="v">0</div><div class="d"></div></div>`).join('');
+    box.innerHTML=[...RES,'people','mood'].map(r=>`<div class="rc" id="r-${r}"><div class="lab"><i style="background:${RCOL[r]}"></i>${r==='people'?'Villagers':cap1(r)}</div><div class="v">0</div><div class="d"></div></div>`).join('');
     box.dataset.built=1;
   }
   RES.forEach(r=>{ const c=$('r-'+r), n=E.net[r], d=c.querySelector('.d');
@@ -2110,6 +2269,10 @@ function renderRes(){
   c.querySelector('.v').textContent=`${S.pop}/${E.cap}`;
   d.innerHTML=E.popD<0?`${E.popD} famine`:S.idle?`${S.idle} <span class="ad">un</span>employed`.replace('<span class="ad">un</span>employed',`<span class="ad">unemployed</span><span class="sh">idle</span>`):E.popD>0?`+${E.popD}<span class="ad"> at dawn</span>`:'all working';
   d.className='d'+(E.popD<0?' dn':E.popD>0?' up':'');
+  const mc=$('r-mood'), md=mc.querySelector('.d'), MI=moodInfo();
+  mc.querySelector('.v').textContent=S.mood;
+  md.innerHTML=`${S.mood>=70?'content':S.mood>=35?'steady':'unhappy'}<span class="ad"> → ${MI.target}</span>`; md.className='d'+(S.mood>=70?' up':S.mood<35?' dn':'');
+  mc.title=`Mood ${S.mood}, heading toward ${MI.target} at dawn`;
 }
 function renderLedger(){
   const E=econ();
@@ -2119,6 +2282,7 @@ function renderLedger(){
     return `<tr><th><span class="c${r[0]}">${cap1(r)}</span></th><td>${lines}</td><td class="n ${n<0?'neg':n>0?'pos':''}">${n>0?'+':''}${n}</td></tr>`;
   });
   const grow=E.popD>0?`<span class="pos">+${E.popD}</span> will move in`:E.popD<0?`<span class="neg">${-E.popD}</span> will leave hungry`:S.pop>=E.cap?'Houses are full. Build more to grow':'No change';
+  const MI=moodInfo(); rows.push(`<tr><th style="color:${RCOL.mood}">Mood</th><td>${S.mood} now, heading toward ${MI.target}. ${MI.parts.map(([t,v])=>`${t} <span class="${v<0?'neg':'pos'}">${v>0?'+':''}${v}</span>`).join(', ')||'Nothing yet'}. ${S.mood>=70?'Content villagers pay extra taxes.':S.mood<35?'Unhappy villagers pay less and stop moving in.':''}</td><td class="n">${S.mood}</td></tr>`);
   rows.push(`<tr><th style="color:${RCOL.people}">Villagers</th><td>${S.pop} living here, room for ${E.cap}. ${grow}.${S.idle?` ${plural(S.idle,'villager')} without work still pay taxes.`:''}</td><td class="n ${E.popD<0?'neg':E.popD>0?'pos':''}">${E.popD>0?'+':''}${E.popD}</td></tr>`);
   const warn=[];
   if(E.foodAfter<0) warn.push(`Food will run short by ${-E.foodAfter}. Build farms, buy food at a market, or expect villagers to leave.`);
@@ -2145,7 +2309,10 @@ function renderInsp(){
     case 'trap': det=`${b.charges}/${trapMax()} charges · ${1+S.mods.trap} damage and slows`; break;
     case 'barr': det=`${hp} · ${S.units.filter(u=>u.home===i).length}/${b.lvl+1+S.mods.muster} soldiers · ${unitDmg()} damage each · 1 gold upkeep, soldiers eat 1 food each`+(b.unpaid?' · unpaid, idle tonight':''); break;
     case 'house': det=`${hp} · room for 3 villagers · ${S.pop}/${housing()} housed`; break;
-    case 'farm': det=`${hp} · ${work} · +${4+S.mods.harvest} food at dawn`; break;
+    case 'farm': det=`${hp} · ${work} · +${farmOut()} food at dawn`; break;
+    case 'well': det=`${hp} · +4 mood (up to 3 wells) · keeps fire off the buildings around it`; break;
+    case 'shrine': det=`${hp} · +8 mood (up to 2 shrines)`; break;
+    case 'range': det=`${hp} · ${S.units.filter(u=>u.home===i).length}/${b.lvl+1+S.mods.muster} archers · shoot raiders up to 2.7 tiles away · 1 gold upkeep, archers eat 1 food each`+(b.unpaid?' · unpaid, idle tonight':''); break;
     case 'lumber': det=`${hp} · ${work} · +${4+S.mods.wood} wood at dawn`; break;
     case 'mine': det=`${hp} · ${work} · +${3+S.mods.stone} stone at dawn`; break;
     case 'market': det=`${hp} · ${work} · +3 gold at dawn`; break;
@@ -2263,7 +2430,7 @@ function startTour(){
   try{ D({showProgress:true,nextBtnText:'Next',prevBtnText:'Back',doneBtnText:'Start ruling',progressText:'{{current}} of {{total}}',steps}).drive(); }catch(e){}
   try{ localStorage.setItem('smallcrown-toured','1'); }catch(e){}
 }
-function maybeTour(){ let seen=false; try{ seen=!!localStorage.getItem('smallcrown-toured'); }catch(e){} if(!seen) setTimeout(startTour,700); }
+function maybeTour(){ let seen=false; try{ seen=!!localStorage.getItem('smallcrown-toured'); }catch(e){} if(seen) return; let tries=0; const go=()=>{ if(window.driver&&window.driver.js) startTour(); else if(++tries<20) setTimeout(go,500); }; setTimeout(go,700); }
 $('tourBtn').addEventListener('click',startTour);
 // full screen where the browser allows it
 const fsEl=document.documentElement;

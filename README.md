@@ -38,7 +38,10 @@ three.js r128 and its glTF loader and bloom passes load from the jsDelivr and cd
 - **Goal:** hold the keep through 20 nights, then keep going in endless mode. Pick Easy, Normal or Hard at the start; your score counts nights, kills, villagers, buildings and upgrades.
 - **Hero abilities:** Charge (Q) dashes through raiders; Rally (E) pulls every soldier to the hero and makes them fight harder.
 - **Growth:** quests teach the basics and pay out goods, and twelve kingdom upgrades improve your economy, defenses, army and hero.
-- **Raiders:** bandits, runners, brutes, archers who shoot from range, battering rams that smash buildings, and a warlord every fifth night.
+- **Raiders:** bandits, runners, brutes, archers who shoot from range, battering rams that smash buildings, shamans who heal the others, and a warlord every fifth night. Some nights bring a blood moon.
+- **Seasons and weather:** spring, summer, harvest and winter turn every 5 days and change farm output and heating; rain, sandstorms and snow change how a night plays.
+- **Mood:** wells, shrines and full granaries keep villagers content and paying extra taxes; hunger, cold and losses make them leave.
+- **Hero levels:** felling raiders earns experience, and each level brings a perk choice.
 
 - **Phones and tablets:** steer the hero with the on-screen joystick; a full-screen button appears where the browser supports it.
 - **Music:** tap the sound button once for effects, twice for a generated day and night soundtrack.
