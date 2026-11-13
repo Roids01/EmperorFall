@@ -141,6 +141,22 @@ h1 .crest{width:26px;height:26px;vertical-align:-3px;margin-right:6px}
 .seat.locked .sn{color:var(--muted)}
 .loy{display:inline-block;width:46px;height:4px;border-radius:2px;background:var(--raise);vertical-align:middle;margin-left:4px;overflow:hidden}
 .loy i{display:block;height:100%}
+.goods{display:flex;gap:6px;flex-wrap:wrap;margin-top:-4px}
+.gd2{display:flex;align-items:center;gap:6px;background:var(--surface);border-radius:999px;padding:3px 10px 3px 8px;font-size:12px;color:var(--muted);font-family:var(--f-num)}
+.gd2 i{width:8px;height:8px;border-radius:2px}
+.gd2 b{color:var(--ink);font-weight:500}
+.gd2 .up{color:var(--good)} .gd2 .dn{color:var(--foe)}
+.mkt{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums;margin-top:8px}
+.mkt th,.mkt td{padding:5px 6px;border-top:1px solid var(--line);text-align:left;white-space:nowrap}
+.mkt th{font-weight:500;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.06em}
+.mkt td.n{font-family:var(--f-num);text-align:right}
+.mkt td .pos{color:var(--good)} .mkt td .neg{color:var(--foe)}
+.mkt button{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--raise);color:var(--ink);border-radius:5px;padding:3px 7px;cursor:pointer}
+.mkt button:disabled{opacity:.4;cursor:default}
+.mktwrap{overflow-x:auto}
+.std{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px;font-size:12.5px}
+.std .tier{font-family:var(--f-display);font-weight:800;font-size:17px;color:var(--ink)}
+.std .need{background:var(--surface);border-radius:6px;padding:4px 8px}
 .toasts{position:absolute;top:52px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;z-index:7;width:max-content;max-width:calc(100% - 24px)}
 .toast{display:flex;align-items:center;gap:10px;background:rgba(28,23,20,.92);border:1px solid rgba(240,190,78,.55);border-radius:10px;padding:8px 14px 8px 10px;box-shadow:0 6px 24px rgba(0,0,0,.35);animation:toastIn .45s cubic-bezier(.2,1.4,.4,1) both;max-width:100%}
 .toast.out{animation:toastOut .4s ease-in both}
@@ -311,6 +327,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
   </header>
 
   <div class="res" id="res" aria-live="polite"></div>
+  <div class="goods" id="goods" hidden></div>
   <div class="board" id="board">
     <canvas id="gl" aria-label="Canyon valley. Tap a tile to build or inspect. Drag to look around."></canvas>
     <div class="grade" id="grade"></div>
@@ -366,6 +383,11 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <div id="throne"></div>
   </details>
 
+  <details class="ledger" id="marketD">
+    <summary><span data-t>Market and stores</span><span class="achsum" id="mktsum"></span></summary>
+    <div id="mkt"></div>
+  </details>
+
   <details class="ledger" open>
     <summary data-t>Treasury at dawn</summary>
     <div id="ledger"></div>
@@ -408,6 +430,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <p data-th="help24"><b>Requests, traders and feasts.</b> Now and then a villager asks for something, like a well, roads or a full granary. Fulfill it within three days for gold and a better mood, or they give up and grumble. A wandering trader sometimes sets up by the keep for a day with rare goods. Once each season, tap the keep to hold a feast. New raiders join over time: wolf packs run down from Ironpeak Pass, sappers from night 10 blow up whatever they reach, and pirate captains lead some raids on the cove and carry a sea chest of gold.</p>
     <p data-th="help25"><b>Edicts, neighbors and gear.</b> Proclaim up to two edicts (three from day 10) for 5 gold each; every one helps somewhere and costs somewhere else. Three neighbors raid you: the Sand Wolves ride on The Valley, the Red Brotherhood on the cove and the Iron Clans on the pass. The angrier a neighbor, the bigger and more frequent its raids. Calm them with gifts from the realm map, beat their raids without losses, or kill their champions; once calm, offer a trade pact. Furious neighbors may demand tribute. Warlords and pirate captains drop gear for your hero's weapon, armor and charm slots. A watchtower at level 3 can become a ballista or a fire-arrow tower.</p>
     <p data-th="help26"><b>The throne.</b> Your realm grows in rank from hamlet to village, town, city and capital as it earns renown. Renown comes from defending without losses, slaying warlords and pirate captains, feasts, fulfilled requests and some petitions. Each rank opens a council seat; a town can raise the keep into a castle and a city into a citadel. Set taxes from low to crushing: more gold, unhappier villagers. Appoint a steward, marshal, treasurer, chaplain and spymaster from three candidates each, and watch their loyalty, since disloyal councillors may flee with your gold. Most days a petition reaches the throne: choose one of two answers and live with it.</p>
+    <p data-th="help27"><b>Goods and living standards.</b> Beyond the basics, your villagers want cloth, ale and salt. Goat pastures (<kbd>J</kbd>) give wool, weavers (<kbd>O</kbd>) turn it into cloth, breweries (<kbd>I</kbd>) turn food into ale, and salt pans (<kbd>,</kbd>) on the cove's shore make salt. Meeting those wants lifts their living standard from poor to modest, comfortable and prosperous, which raises mood and multiplies taxes. Workshops (<kbd>.</kbd>) turn iron and wood into tools; with enough tools every producer yields 1 more. Food spoils a little each dawn (less in winter, half with salt), every store holds up to 80 of each good, and storehouses (<kbd>K</kbd>) add 60 more. Idle villagers pay half taxes. Market prices follow the seasons and drop when your stores are full; trade everything from the Market and stores panel. Vellmar buys cloth and Kharum buys salt by sea.</p>
     <p data-th="help4"><b>Seasons</b> turn every 5 days. Spring rains add 1 food per farm, summer heat costs 1, harvest adds 2 and lifts markets, and winter costs 2 while every house burns 1 wood a dawn to stay warm. Weather is rolled each dawn: rain stops fires, sandstorms slow raiders but shorten your towers' sight, snow slows everyone.</p>
     <p data-th="help5"><b>Mood.</b> Villagers are happier with wells and shrines nearby, full granaries and a good harvest, and unhappier after hunger, cold houses and buildings lost to raiders. Content villagers pay extra taxes; unhappy ones pay less, stop moving in, and below 20 they start to leave. Wells also keep fire off the buildings around them.</p>
     <p data-th="help6"><b>Hero levels.</b> Raiders your hero fells, and every night survived, earn experience. Each level adds health, every second level adds damage, and each one lets you pick a perk.</p>
@@ -450,12 +473,24 @@ const DEF={
   smith:{name:'Blacksmith',cost:{wood:6,stone:6},hp:6,enter:9,unlock:6},
   tavern:{name:'Tavern',cost:{wood:8,gold:4},hp:5,enter:8,unlock:4},
   road:{name:'Road',cost:{stone:1},hp:3,enter:1},
+  pasture:{name:'Goat pasture',cost:{wood:5},hp:3,enter:5,work:true,unlock:2},
+  storehouse:{name:'Storehouse',cost:{wood:8,stone:4},hp:6,enter:9,unlock:3},
+  brewery:{name:'Brewery',cost:{wood:6,stone:3},hp:4,enter:7,work:true,unlock:4},
+  weaver:{name:'Weaver',cost:{wood:6,gold:4},hp:4,enter:7,work:true,unlock:4},
+  saltpan:{name:'Salt pans',cost:{stone:4,wood:2},hp:3,enter:4,work:true,need:'shore',unlock:5},
+  workshop:{name:'Workshop',cost:{wood:6,stone:4},hp:5,enter:8,work:true,unlock:6},
   keep:{name:'Keep',cost:{},hp:0,enter:1}
 };
-const TOOLS=['farm','house','lumber','mine','wall','trap','tower','cata','barr','market','well','shrine','range','harbor','lighthouse','smith','tavern','road','clear','ride'];
-const KEYS={farm:'1',house:'2',lumber:'3',mine:'4',wall:'5',trap:'6',tower:'7',cata:'8',barr:'9',market:'0',well:'Z',shrine:'C',range:'B',harbor:'N',lighthouse:'L',smith:'G',tavern:'T',road:'Y',clear:'X',ride:'R'};
-const TNAME={farm:'Farm',house:'House',lumber:'Lumber',mine:'Mine',wall:'Palisade',trap:'Trap',tower:'Tower',cata:'Catapult',barr:'Barracks',market:'Market',well:'Well',shrine:'Shrine',range:'Archers',harbor:'Harbor',lighthouse:'Light',smith:'Smithy',tavern:'Tavern',road:'Road',clear:'Clear',ride:'Ride'};
+const TOOLS=['farm','house','lumber','mine','wall','trap','tower','cata','barr','market','well','shrine','range','harbor','lighthouse','smith','tavern','road','pasture','storehouse','brewery','weaver','saltpan','workshop','clear','ride'];
+const KEYS={farm:'1',house:'2',lumber:'3',mine:'4',wall:'5',trap:'6',tower:'7',cata:'8',barr:'9',market:'0',well:'Z',shrine:'C',range:'B',harbor:'N',lighthouse:'L',smith:'G',tavern:'T',road:'Y',pasture:'J',storehouse:'K',brewery:'I',weaver:'O',saltpan:',',workshop:'.',clear:'X',ride:'R'};
+const TNAME={farm:'Farm',house:'House',lumber:'Lumber',mine:'Mine',wall:'Palisade',trap:'Trap',tower:'Tower',cata:'Catapult',barr:'Barracks',market:'Market',well:'Well',shrine:'Shrine',range:'Archers',harbor:'Harbor',lighthouse:'Light',smith:'Smithy',tavern:'Tavern',road:'Road',pasture:'Pasture',storehouse:'Stores',brewery:'Brewery',weaver:'Weaver',saltpan:'Salt',workshop:'Workshop',clear:'Clear',ride:'Ride'};
 const ICON={
+  pasture:'<path d="M2 18V9M20 18V9M2 11h18M2 15h18" stroke="currentColor" stroke-width="1.6"/><ellipse cx="11" cy="7" rx="4" ry="2.5" fill="currentColor"/><path d="M15 6l2-2" stroke="currentColor" stroke-width="1.4"/>',
+  storehouse:'<path d="M2 10l9-6 9 6v9H2z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8 19v-6h6v6M8 13l6 6M14 13l-6 6" stroke="currentColor" stroke-width="1.3"/>',
+  brewery:'<rect x="4" y="6" width="10" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4 10h10M4 15h10" stroke="currentColor" stroke-width="1.3"/><path d="M14 9h3v6h-3" fill="none" stroke="currentColor" stroke-width="1.5"/>',
+  weaver:'<path d="M4 3v16M18 3v16M4 5h14M4 17h14" stroke="currentColor" stroke-width="1.6"/><path d="M7 5v12M10 5v12M13 5v12M16 5v12" stroke="currentColor" stroke-width="1" opacity=".7"/><path d="M4 11h14" stroke="currentColor" stroke-width="2.2"/>',
+  saltpan:'<rect x="2" y="8" width="8" height="5" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="12" y="8" width="8" height="5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 20l3-5 3 5z" fill="currentColor"/><path d="M2 5c3-2 5 2 9 0s6 2 9 0" fill="none" stroke="currentColor" stroke-width="1.3"/>',
+  workshop:'<path d="M3 20V9l8-5 8 5v11" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M8 18l6-6M12 11l3 3 2-2-3-3z" stroke="currentColor" stroke-width="1.5" fill="currentColor"/>',
   lighthouse:'<path d="M9 7h4l1.4 12H7.6z" fill="currentColor"/><rect x="8.5" y="3.5" width="5" height="3" rx=".6" fill="currentColor"/><path d="M15 5l5-2M15 5.5l5 2M7 5L2 3M7 5.5l-5 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>',
   smith:'<path d="M3 9h12c0 2-1.6 3-4 3v2h3v3H6v-3h3v-2c-3 0-6-1-6-3z" fill="currentColor"/><path d="M15 9h4l-4 2z" fill="currentColor"/>',
   tavern:'<path d="M5 6h9v12H5z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M14 9h2.5a2 2 0 0 1 0 6H14" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M6 6c0-2 2-3 3.5-2 1-1.5 4-1 4 1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>',
@@ -477,8 +512,9 @@ const ICON={
   clear:'<path d="M5 5l12 12M17 5L5 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
   ride:'<path d="M6 18.5V10a5 5 0 0 1 10 0v8.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="7.6" cy="9" r=".9" fill="#28201C"/><circle cx="14.4" cy="9" r=".9" fill="#28201C"/>'
 };
-const RES=['gold','food','wood','stone','iron'], BASEP={food:2,wood:2,stone:3}, LOT=5;
-const RCOL={gold:'#F0BE4E',food:'#C9E07A',wood:'#E0A86A',stone:'#C9CFD8',iron:'#9FB8D0',people:'#86B6FF',mood:'#E89AC0'};
+const RES=['gold','food','wood','stone','iron'], GOODS=['wool','cloth','ale','salt','tools'], ALLR=RES.concat(GOODS), TRADE=['food','wood','stone','iron','wool','cloth','ale','salt','tools'];
+const BASEP={food:2,wood:2,stone:3,iron:5,wool:2,cloth:6,ale:4,salt:4,tools:7}, LOT=5;
+const RCOL={gold:'#F0BE4E',food:'#C9E07A',wood:'#E0A86A',stone:'#C9CFD8',iron:'#9FB8D0',wool:'#EDE3CE',cloth:'#C98AB8',ale:'#D8A848',salt:'#F4F1EA',tools:'#8FA0B0',people:'#86B6FF',mood:'#E89AC0'};
 const cap1=w=>w.charAt(0).toUpperCase()+w.slice(1);
 // ---------- language (i18next): English keys, Spanish translations ----------
 const ES={
@@ -1021,7 +1057,54 @@ const ES={
 "Fill every council seat":"Ocupa todos los asientos del consejo",
 "Appoint a steward to your council":"Nombra un mayordomo para tu consejo",
 "Grow your realm into a village":"Haz crecer tu reino hasta pueblo",
-"Raise the keep into a castle":"Convierte el castillo en fortaleza"
+"Raise the keep into a castle":"Convierte el castillo en fortaleza",
+"help27":"<b>Bienes y nivel de vida.</b> Además de lo básico, tus aldeanos quieren tela, cerveza y sal. Los corrales de cabras (<kbd>J</kbd>) dan lana, los tejedores (<kbd>O</kbd>) la convierten en tela, las cervecerías (<kbd>I</kbd>) convierten comida en cerveza y las salinas (<kbd>,</kbd>) en la orilla de la cala producen sal. Cubrir esos deseos sube su nivel de vida de pobre a modesto, acomodado y próspero, lo que mejora el ánimo y multiplica los impuestos. Los talleres (<kbd>.</kbd>) convierten hierro y madera en herramientas; con suficientes, cada productor rinde 1 más. La comida se estropea un poco cada amanecer (menos en invierno, la mitad con sal), cada almacén guarda hasta 80 de cada bien y los almacenes (<kbd>K</kbd>) suman 60 más. Los aldeanos sin trabajo pagan la mitad de impuestos. Los precios siguen las estaciones y bajan cuando tus almacenes están llenos; comercia con todo desde el panel de mercado. Vellmar compra tela y Kharum compra sal por mar.",
+"wool":"lana",
+"cloth":"tela",
+"ale":"cerveza",
+"salt":"sal",
+"tools":"herramientas",
+"Wool":"Lana",
+"Cloth":"Tela",
+"Ale":"Cerveza",
+"Salt":"Sal",
+"Tools":"Herramientas",
+"Goat pasture":"Corral de cabras",
+"Storehouse":"Almacén",
+"Brewery":"Cervecería",
+"Weaver":"Tejedor",
+"Salt pans":"Salinas",
+"Workshop":"Taller",
+"Pasture":"Corral",
+"Stores":"Almacén",
+"Shepherd":"Pastor",
+"Brewer":"Cervecero",
+"Salt worker":"Salinero",
+"Toolmaker":"Herramentero",
+"Market and stores":"Mercado y almacenes",
+"Living standard":"Nivel de vida",
+"Poor":"Pobre",
+"Modest":"Modesto",
+"Comfortable":"Acomodado",
+"Prosperous":"Próspero",
+"Living":"Vida",
+"Mood +{{m}}, taxes ×{{t}}":"Ánimo +{{m}}, impuestos ×{{t}}",
+"Villagers want 1 cloth per 6, 1 ale per 5 and 1 salt per 8 people each dawn. Meeting their wants raises their living standard, their mood and the taxes they can pay. Prices follow the seasons and fall when your stores are full.":"Los aldeanos quieren cada amanecer 1 de tela por cada 6 personas, 1 de cerveza por cada 5 y 1 de sal por cada 8. Cubrirlo sube su nivel de vida, su ánimo y los impuestos que pueden pagar. Los precios siguen las estaciones y bajan cuando tus almacenes están llenos.",
+"Trading needs a market with a villager working it.":"Para comerciar hace falta un mercado con un aldeano trabajando.",
+"Good":"Bien",
+"Stock":"Existencias",
+"At dawn":"Al amanecer",
+"Sell":"Vender",
+"Trend":"Tendencia",
+"Vellmar":"Vellmar",
+"Kharum":"Kharum",
+"A rich city of tailors. Pays handsomely for cloth.":"Una rica ciudad de sastres. Paga muy bien la tela.",
+"A caravan city that buys salt for the desert roads.":"Una ciudad de caravanas que compra sal para los caminos del desierto.",
+"Raise goats in a pasture":"Cría cabras en un corral",
+"Weave your first cloth":"Teje tu primera tela",
+"Give your villagers a comfortable living":"Da a tus aldeanos una vida acomodada",
+"Land of plenty":"Tierra de abundancia",
+"Reach a prosperous living standard":"Alcanza un nivel de vida próspero"
 };
 
 let lang='en';
@@ -1030,8 +1113,8 @@ const T=(k,o)=>{ if(window.i18next&&i18next.isInitialized) return i18next.t(k,o|
 const ESW={building:'edificio',day:'día',ship:'barco',villager:'aldeano'};
 const TP=(n,w)=>lang==='es'&&ESW[w]?`${n} ${ESW[w]}${n===1?'':'s'}`:plural(n,w);
 const TR=r=>T(r);
-function costStr(c){ return RES.filter(r=>c[r]).map(r=>lang==='es'?`${c[r]} de ${T(r)}`:`${c[r]} ${r}`).join(', '); }
-function costShort(c){ const p=RES.filter(r=>c[r]).map(r=>`<span class="c${r[0]}">${c[r]}${r[0]}</span>`); return p.length?p.join(' '):'free'; }
+function costStr(c){ return ALLR.filter(r=>c[r]).map(r=>lang==='es'?`${c[r]} de ${T(r)}`:`${c[r]} ${r}`).join(', '); }
+function costShort(c){ const p=ALLR.filter(r=>c[r]).map(r=>GOODS.includes(r)?`<span style="color:${RCOL[r]}">${c[r]} ${r}</span>`:`<span class="c${r[0]}">${c[r]}${r[0]}</span>`); return p.length?p.join(' '):'free'; }
 function canPay(c){ return RES.every(r=>S.res[r]>=(c[r]||0)); }
 function spend(c){ RES.forEach(r=>S.res[r]-=(c[r]||0)); }
 function addC(a,b){ const o={...a}; RES.forEach(r=>{ if(b&&b[r]) o[r]=(o[r]||0)+b[r]; }); return o; }
@@ -1058,6 +1141,7 @@ function moodInfo(){
   add(plural(Math.min(2,count('tavern')),'tavern'),Math.min(2,count('tavern'))*4);
   for(const e of EDICTS) if(hasEdict(e.id)&&e.mood) add(T(e.name),e.mood);
   if(TAXES[taxLvl()].mood) add(`${TAXES[taxLvl()].name} taxes`,TAXES[taxLvl()].mood);
+  if(S.stdTier) add(`${STD[S.stdTier].name} living`,STD[S.stdTier].mood);
   if(skill('chaplain')) add('Chaplain',skill('chaplain')*3);
   for(const k in (S.council||{})) if(S.council[k].trait==='pious') add(`${S.council[k].name} is pious`,2);
   if(S.res.food>=15) add('Full granaries',5);
@@ -1140,6 +1224,9 @@ const QUESTS=[
   {text:'Use Charge or Rally in battle',goal:()=>[S.abilUsed||0,1],reward:{gold:5}},
   {text:'Upgrade a palisade to stone',goal:()=>[S.grid.filter(t=>t.b&&t.b.type==='wall'&&t.b.lvl>1).length,1],reward:{gold:6}},
   {text:'Build a market',goal:()=>[count('market'),1],reward:{gold:8}},
+  {text:'Raise goats in a pasture',goal:()=>[count('pasture'),1],reward:{wood:5}},
+  {text:'Weave your first cloth',goal:()=>[S.res.cloth>0?1:0,1],reward:{gold:8}},
+  {text:'Give your villagers a comfortable living',goal:()=>[(S.stdTier||0)>=2?1:0,1],reward:{gold:15}},
   {text:'Defeat the first warlord',goal:()=>[S.day>5?1:0,1],reward:{gold:12,stone:6}},
   {text:'Grow your village to 15 villagers',goal:()=>[S.pop,15],reward:{gold:15}},
   {text:'Build a catapult',goal:()=>[count('cata'),1],reward:{stone:8}},
@@ -1289,6 +1376,8 @@ const PORTS=[
   {id:'salt',name:'The Salt Isles',days:1,good:'stone',amt:8,pay:2.3,desc:'Close by. Buys stone for its sea walls.'},
   {id:'amber',name:'Qasr Amber',days:2,good:'food',amt:10,pay:2.4,bonus:'spice',desc:'A spice port. Pays well for food and sends back spices that lift your villagers’ mood.'},
   {id:'iron',name:'Ironhold',days:3,good:'wood',amt:10,pay:2.6,bonus:'iron',desc:'A mining town short of timber. Sends back iron for your blacksmith.'},
+  {id:'vellmar',name:'Vellmar',days:3,good:'cloth',amt:8,pay:3.4,desc:'A rich city of tailors. Pays handsomely for cloth.'},
+  {id:'kharum',name:'Kharum',days:2,good:'salt',amt:10,pay:2.4,desc:'A caravan city that buys salt for the desert roads.'},
   {id:'cathay',name:'Far Cathay',days:4,good:'gold',amt:20,pay:2.3,desc:'Far and risky. Silks bought with gold sell for much more at home.'}];
 const shipsTotal=()=>count('harbor')*(1+(S.mods.ships||0));
 const shipsFree=()=>Math.max(0,shipsTotal()-S.voyages.length);
@@ -1364,7 +1453,7 @@ function joinList(a){ return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' an
 
 // =============== GAME RULES ===============
 function blank(){
-  return {res:{gold:10,food:10,wood:14,stone:2,iron:0},pop:3,idle:0,price:{...BASEP},day:1,phase:'day',keep:10,keepMax:10,grid:[],enemies:[],shots:[],puffs:[],floats:[],spawns:[],queue:[],
+  return {res:{gold:10,food:10,wood:14,stone:2,iron:0,wool:0,cloth:0,ale:0,salt:0,tools:0},ph:{},pop:3,idle:0,price:{...BASEP},day:1,phase:'day',keep:10,keepMax:10,grid:[],enemies:[],shots:[],puffs:[],floats:[],spawns:[],queue:[],
     spawnT:0,kills:0,nightKills:0,dist:[],tool:'farm',over:false,t:0,modal:false,ver:0,
     mods:{dmg:0,range:0,harvest:0,wall:0,trap:0,tax:0,hero:0,drill:0,wood:0,stone:0,housing:0,taxes:0,cataRate:1,muster:0,horn:0,ships:0},hero:null,units:[],
     upg:[],quest:0,diff:'normal',won:false,abilUsed:0,cur:'home',heroAt:'home',raid:'home',R:{},coastUnlocked:false,mtnUnlocked:false,visitedMtn:false,warships:0,plate:0,mercs:0,sunk:0,kind:'canyon',shore:null,voyages:[],iron:0,portPrice:{},voyagesSent:0,visitedCoast:false,mood:60,weather:'clear',blood:false,hx:0,hl:1,perks:[],perkPending:0,lostTonight:0,hungry:false,cold:false};
@@ -1478,7 +1567,7 @@ function addGroves(){
   for(let i=0;i<4&&c.length;i++){ const [x,y]=c.splice((Math.random()*c.length)|0,1)[0]; G(x,y).grove=true; }
 }
 function assignWorkers(){
-  let free=S.pop; const order={farm:0,harbor:1,mine:2,lumber:3,market:4}, prods=[];
+  let free=S.pop; const order={farm:0,harbor:1,mine:2,lumber:3,market:4,pasture:5,saltpan:6,workshop:7,weaver:8,brewery:9}, prods=[];
   eachAll(b=>{ if(DEF[b.type].work) prods.push(b); else b.worked=false; });
   prods.sort((a,b)=>order[a.type]-order[b.type]||(a.day||0)-(b.day||0));
   for(const b of prods){ b.worked=!b.off&&free>0; if(b.worked) free--; }
@@ -1487,13 +1576,14 @@ function assignWorkers(){
 // One source of truth for what dawn will do: the ledger previews it and dawn applies it.
 function econ(){
   assignWorkers();
-  const L=Object.fromEntries(RES.map(r=>[r,[]]));
-  let farms=0,lum=0,mines=0,mk=0,cata=0,barr=0,ranges=0,soldiers=0,houses=0,idleP=0,hb=0,imines=0,rF=0,rL=0,rS=0,rI=0,tav=0;
+  ensureEco(); const L=Object.fromEntries(ALLR.map(r=>[r,[]]));
+  let farms=0,lum=0,mines=0,mk=0,cata=0,barr=0,ranges=0,soldiers=0,houses=0,idleP=0,hb=0,imines=0,rF=0,rL=0,rS=0,rI=0,tav=0,pas=0,pasM=0,wea=0,bre=0,spn=0,wsh=0;
   eachAll((b,x,y,t,here,rid,g)=>{
     if(DEF[b.type].work&&!b.worked&&!b.off) idleP++;
     if(b.type==='tavern') tav++;
     if(b.worked){ const rd=roadBy(g,x,y); if(b.type==='harbor')hb++; if(b.type==='farm'){farms++; if(rd)rF++;} if(b.type==='lumber'){lum++; if(rd)rL++;}
-      if(b.type==='mine'){ if(rid==='mountain'){imines++; if(rd)rI++;} else {mines++; if(rd)rS++;} } if(b.type==='market')mk++; }
+      if(b.type==='mine'){ if(rid==='mountain'){imines++; if(rd)rI++;} else {mines++; if(rd)rS++;} } if(b.type==='market')mk++;
+      if(b.type==='pasture'){ pas++; if(rid==='mountain') pasM++; } if(b.type==='weaver')wea++; if(b.type==='brewery')bre++; if(b.type==='saltpan')spn++; if(b.type==='workshop')wsh++; }
     if(b.type==='cata')cata++; if(b.type==='barr'){barr++;soldiers+=b.lvl+1+S.mods.muster;} if(b.type==='range'){ranges++;soldiers+=b.lvl+1+S.mods.muster;} if(b.type==='house')houses++;
   });
   const sea=season(), fo=farmOut(), wo=4+S.mods.wood+(hasEdict('shifts')?1:0), fnote=[sea.farm?`${sea.name} ${sea.farm>0?'+':'−'}${Math.abs(sea.farm)}`:'',S.weather==='rain'?'rain +1':''].filter(Boolean).join(', ');
@@ -1513,7 +1603,8 @@ function econ(){
   if(hasEdict('militia')&&S.pop>=3) L.gold.push([`Militia drills`,-Math.floor(S.pop/3)]);
   for(const f in (S.fac||{})){ const o=S.fac[f]; if(o.pact&&o.h<40){ if(f==='nomads') L.gold.push([`Pact with the Sand Wolves`,4]); if(f==='brotherhood') L.food.push([`Pact with the Red Brotherhood`,4]); if(f==='clans') L.iron.push([`Pact with the Iron Clans`,2]); } }
   if(S.warships) L.gold.push([`Warship crews`,-S.warships]);
-  if(S.pop) L.gold.push([`Taxes from ${plural(S.pop,'villager')} (${TAXES[taxLvl()].name.toLowerCase()})`,Math.round(S.pop*TAXES[taxLvl()].mult)]);
+  const idleN=Math.min(S.idle||0,S.pop), stdT=S.stdTier||0;
+  if(S.pop) L.gold.push([`Taxes: ${plural(S.pop-idleN,'worker')}${idleN?` and ${idleN} idle at half`:''} (${TAXES[taxLvl()].name.toLowerCase()}${stdT?`, ${STD[stdT].name.toLowerCase()} ×${STD[stdT].tax}`:''})`,Math.round((S.pop-idleN+idleN*.5)*TAXES[taxLvl()].mult*STD[stdT].tax)]);
   if(skill('treasurer')) L.gold.push([`Treasurer ${cm('treasurer').name}`,skill('treasurer')*2]);
   if(skill('steward')) L.food.push([`Steward ${cm('steward').name}`,skill('steward')*2]);
   for(const k in (S.council||{})) if(S.council[k].trait==='greedy') L.gold.push([`${S.council[k].name} skims`,-2]);
@@ -1525,15 +1616,42 @@ function econ(){
   if(ranges) L.gold.push([`Archery range upkeep`,-ranges]);
   if(cata) L.gold.push([`Catapult upkeep`,-cata]);
   if(barr) L.gold.push([`Barracks upkeep`,-barr]);
-  const net={}; RES.forEach(r=>net[r]=L[r].reduce((a,l)=>a+l[1],0));
+  // ---- crafts, needs, tools, spoilage and storage ----
+  const sum=r=>L[r].reduce((a,l)=>a+l[1],0), avail=r=>Math.max(0,(S.res[r]||0)+sum(r));
+  const toolNeed=Math.ceil((farms+lum+mines+imines+pas)/4), toolsOk=toolNeed>0&&S.res.tools>=toolNeed;
+  if(toolsOk){ L.tools.push([`Tools worn out by ${plural(farms+lum+mines+imines+pas,'producer')}`,-toolNeed]);
+    if(farms) L.food.push([`Good tools on ${plural(farms,'farm')}`,farms]); if(lum) L.wood.push([`Good tools in ${plural(lum,'lumber camp')}`,lum]);
+    if(mines) L.stone.push([`Good tools in ${plural(mines,'mine')}`,mines]); if(imines) L.iron.push([`Good tools in ${plural(imines,'iron mine')}`,imines]); if(pas) L.wool.push([`Good shears`,pas]); }
+  if(pas) L.wool.push([`${plural(pas,'goat pasture')} × 2${pasM?` (+${pasM} mountain goats)`:''}`,pas*2+pasM]);
+  if(spn) L.salt.push([`${plural(spn,'salt pan')} × 3`,spn*3]);
+  if(wsh){ const n=Math.min(wsh,avail('iron'),avail('wood')); if(n>0){ L.iron.push([`Workshops forge tools`,-n]); L.wood.push([`Tool handles`,-n]); L.tools.push([`${plural(n,'workshop')} × 2`,n*2]); } if(n<wsh) L.tools.push([`${wsh-n} workshop${wsh-n>1?'s':''} idle: no iron or wood`,0]); }
+  if(wea){ const n=Math.min(wea*2,avail('wool')); if(n>0){ L.wool.push([`Weavers spin wool`,-n]); L.cloth.push([`${plural(wea,'weaver')}`,n]); } if(n<wea*2) L.cloth.push([`Weavers short of wool`,0]); }
+  if(bre){ const k=Math.min(bre,Math.floor(avail('food')/3)); if(k>0){ L.food.push([`Brewing grain`,-3*k]); L.ale.push([`${k} ${k===1?'brewery':'breweries'}`,2*k]); } }
+  const needs={cloth:S.pop?Math.ceil(S.pop/6):0,ale:S.pop?Math.ceil(S.pop/5):0,salt:S.pop?Math.ceil(S.pop/8):0}, met={};
+  for(const r in needs){ const c=Math.min(needs[r],avail(r)); met[r]=needs[r]?c/needs[r]:0; if(c) L[r].push([r==='cloth'?'Villagers wear out clothes':r==='ale'?'Villagers drink':'Villagers salt their food',-c]); }
+  const avgMet=(met.cloth+met.ale+met.salt)/3, tier=S.pop<3?0:avgMet>=.99?3:avgMet>=.6?2:avgMet>=.3?1:0;
+  S.stdTier=tier;
+  const sea2=season().name, sr=(sea2==='Summer'?.05:sea2==='Winter'?.01:.03)*(met.salt>=1?.5:1), spoil=Math.floor(avail('food')*sr);
+  if(spoil>0) L.food.push([`Food spoils${met.salt>=1?' (salted, halved)':''}`,-spoil]);
+  const capS=storeCap(); for(const r of ALLR){ if(r==='gold') continue; const after=avail(r); if(after>capS) L[r].push([`No room in the stores (${capS})`,capS-after]); }
+  const net={}; ALLR.forEach(r=>net[r]=L[r].reduce((a,l)=>a+l[1],0));
   const cap=housing(), foodAfter=S.res.food+net.food;
   let popD=0;
   if(foodAfter<0) popD=-Math.min(S.pop,Math.ceil(-foodAfter/3));
   else if(S.pop<cap&&S.mood>=35) popD=Math.min(cap-S.pop,Math.max(1,Math.floor(houses/2)));
   if(S.mood<20&&S.pop>0) popD=Math.min(popD,-1);
-  return {L,net,popD,cap,idleP,foodAfter,goldAfter:S.res.gold+net.gold};
+  return {L,net,popD,cap,idleP,foodAfter,goldAfter:S.res.gold+net.gold,needs,met,tier,capS};
 }
-function clampPrices(){ for(const r in S.price) S.price[r]=Math.min(9,Math.max(.6,S.price[r])); }
+function clampPrices(){ for(const r in S.price) S.price[r]=Math.min(16,Math.max(.6,S.price[r])); }
+function ensureEco(){ for(const r of ALLR) if(S.res[r]==null) S.res[r]=0; S.price=S.price||{}; for(const r of TRADE) if(!S.price[r]) S.price[r]=BASEP[r]; S.ph=S.ph||{}; }
+const storeCap=()=>80+60*count('storehouse')+20*((S.keepLvl||1)-1);
+const STD=[{name:'Poor',mood:0,tax:1},{name:'Modest',mood:4,tax:1.1},{name:'Comfortable',mood:8,tax:1.25},{name:'Prosperous',mood:12,tax:1.4}];
+const SEASONF={food:{Winter:1.3,Harvest:.75,Summer:1.1},wood:{Winter:1.2},wool:{Spring:.8,Winter:1.25},ale:{Harvest:1.3,Winter:1.1},salt:{Summer:1.15},cloth:{Winter:1.2},tools:{}};
+const REF={food:40,wood:40,stone:30,iron:20,wool:20,cloth:15,ale:15,salt:15,tools:15};
+function updatePrices(){ ensureEco(); const sn=season().name;
+  for(const r of TRADE){ const sf=(SEASONF[r]||{})[sn]||1, st=Math.max(.7,Math.min(1.3,1.25-(S.res[r]||0)/REF[r]*.3)), tg=BASEP[r]*sf*st;
+    S.price[r]+=(tg-S.price[r])*.3; S.price[r]*=.93+Math.random()*.14; }
+  clampPrices(); for(const r of TRADE){ const h=S.ph[r]||(S.ph[r]=[]); h.push(buyCost(r)); if(h.length>14) h.shift(); } }
 const buyCost=r=>Math.max(1,Math.round(S.price[r]*LOT));
 const sellGain=r=>Math.max(1,Math.floor(S.price[r]*LOT*.6));
 const marketOpen=()=>S.grid.some(t=>t.b&&t.b.type==='market'&&t.b.worked);
@@ -1564,11 +1682,11 @@ function stepWalkers(dt){ stepFolk(dt); }
 const FOLK_NAMES=['Amira','Bilal','Cora','Dario','Esme','Farid','Greta','Hamid','Ines','Jory','Kasim','Lena','Malik','Nadia','Omar','Petra','Quill','Rana','Samir','Tessa','Umar','Vera','Wren','Yusuf','Zara','Bram','Elif','Hugo','Leila','Milo','Noor','Otto','Pia','Rhys','Sana','Tomas','Yara','Idris','Mina','Arlo'];
 const SKINS=[0xF0C8A0,0xE2B488,0xC48A5E,0x9A6844,0x6E4A32], HAIRS=[0x2A1E16,0x4A3020,0x7A5030,0xC8A060,0x1A1A1A,0x8A3A20];
 const CLOTH=[0xA9553E,0x9A6A9A,0x6A8A5A,0xB0884A,0x5A7A9A,0xC9A86A,0x8A4A5A,0x4A6A6A,0xD8C8A8,0x7A8A3A];
-const ROLE={farm:'farmer',lumber:'woodcutter',mine:'miner',market:'merchant',harbor:'fisher',smith:'smith',tavern:'tavernkeeper'};
-const ROLE_NAME={trader:'Trader',farmer:'Farmer',woodcutter:'Woodcutter',miner:'Miner',merchant:'Merchant',fisher:'Fisher',smith:'Smith',tavernkeeper:'Tavern keeper',child:'Child',elder:'Elder',water:'Water carrier',townsfolk:'Townsperson'};
-const ROLE_TOOL={farmer:'hoe',woodcutter:'axe',miner:'pick',fisher:'rod',smith:'hammer',merchant:'basket',tavernkeeper:'mug',elder:'cane'};
-const ACT={farmer:'hoe',woodcutter:'chop',miner:'chop',fisher:'fish',smith:'hammer',merchant:'sell',tavernkeeper:'sweep'};
-const CARGO={farmer:'crop',woodcutter:'wood',miner:'ore',fisher:'fish'};
+const ROLE={pasture:'shepherd',weaver:'weaver',brewery:'brewer',saltpan:'salter',workshop:'artisan',farm:'farmer',lumber:'woodcutter',mine:'miner',market:'merchant',harbor:'fisher',smith:'smith',tavern:'tavernkeeper'};
+const ROLE_NAME={shepherd:'Shepherd',weaver:'Weaver',brewer:'Brewer',salter:'Salt worker',artisan:'Toolmaker',trader:'Trader',farmer:'Farmer',woodcutter:'Woodcutter',miner:'Miner',merchant:'Merchant',fisher:'Fisher',smith:'Smith',tavernkeeper:'Tavern keeper',child:'Child',elder:'Elder',water:'Water carrier',townsfolk:'Townsperson'};
+const ROLE_TOOL={shepherd:'cane',salter:'hoe',artisan:'hammer',farmer:'hoe',woodcutter:'axe',miner:'pick',fisher:'rod',smith:'hammer',merchant:'basket',tavernkeeper:'mug',elder:'cane'};
+const ACT={shepherd:'rest',weaver:'sweep',brewer:'sweep',salter:'hoe',artisan:'hammer',farmer:'hoe',woodcutter:'chop',miner:'chop',fisher:'fish',smith:'hammer',merchant:'sell',tavernkeeper:'sweep'};
+const CARGO={shepherd:'wool',weaver:'cloth',brewer:'ale',salter:'salt',artisan:'tools',farmer:'crop',woodcutter:'wood',miner:'ore',fisher:'fish'};
 const folk=[], animals=[]; let folkSeq=0, folkSpawnT=0, smokeT=0, selFolk=null;
 function folkReset(){ folk.length=0; animals.length=0; selFolk=null; }
 function folkWant(){ let b=0; each(x=>{ if(x.type!=='keep'&&x.type!=='road'&&x.type!=='wall'&&x.type!=='trap') b++; });
@@ -1666,13 +1784,14 @@ function animalWant(){
   const ch=Math.min(8,farms*2+Math.min(2,houses)); for(let i=0;i<ch;i++) L.push('chicken');
   const dg=Math.min(3,Math.floor((houses+1)/2)); for(let i=0;i<dg;i++) L.push('dog');
   if(S.kind==='mountain') for(let i=0;i<4;i++) L.push('goat');
+  { let ps=0; each(b=>{ if(b.type==='pasture') ps++; }); for(let i=0;i<Math.min(6,ps*2);i++) L.push('goat'); }
   if(S.kind==='coast') for(let i=0;i<4;i++) L.push('crab');
   return L;
 }
 function animalAnchor(kind){
   if(kind==='chicken'){ const b=bldOf('farm')||bldOf('house'); if(b){ const p=nearPass(b[0],b[1]); if(p) return p; } }
   if(kind==='crab'){ const c=[]; for(let y=0;y<N;y++)for(let x=0;x<N;x++) if(G(x,y).land&&!G(x,y).b&&NB.some(([a,d])=>isSea(x+a,y+d))) c.push([x,y+.25]); if(c.length) return c[(Math.random()*c.length)|0]; }
-  if(kind==='goat'){ const p=randomSpot(C,C,4.5); if(p) return p; }
+  if(kind==='goat'){ const b=bldOf('pasture'); if(b&&Math.random()<.8){ const p=nearPass(b[0],b[1]); if(p) return p; } const p=randomSpot(C,C,4.5); if(p) return p; }
   return folkDoor();
 }
 function stepAnimals(dt){
@@ -1931,7 +2050,7 @@ function dawn(){
     else b.hp=Math.min(b.max,b.hp+(b.type==='wall'?2:1));
   });
   if(S.pop) floatText(C,C,`+${S.pop} taxes`,RCOL.gold);
-  RES.forEach(r=>S.res[r]+=E.net[r]);
+  ALLR.forEach(r=>S.res[r]=Math.max(0,(S.res[r]||0)+E.net[r]));
   const notes=[];
   S.hungry=S.res.food<0; S.cold=season().name==='Winter'&&S.res.wood<0;
   if(S.res.food<0) S.res.food=0;
@@ -1946,7 +2065,7 @@ function dawn(){
   if(S.res.gold<0){ let short=-S.res.gold; S.res.gold=0;
     eachAll(b=>{ if(short>0&&DEF[b.type].upkeep){ b.unpaid=true; short--; } });
     notes.push('<b>Upkeep unpaid:</b> some catapults or barracks sit out tonight'); }
-  for(const r of ['food','wood','stone']){ S.price[r]+=(BASEP[r]-S.price[r])*.3; S.price[r]*=.92+Math.random()*.16; }
+  updatePrices();
   const ev=rollEvent(); if(ev) notes.push(ev);
   clampPrices();
   S.units=S.units.filter(u=>{ const b=S.grid[u.home].b; return !u.merc&&b&&!b.unpaid; });
@@ -2072,10 +2191,10 @@ function buildError(tool,x,y,planning){
   if(isSpawn(x,y)) return 'raiders enter there tonight. Build further in.';
   if(d.need==='ore'&&!t.ore) return 'mines need ore. Look for the blue-grey stones.';
   if(d.need==='grove'&&!t.grove) return 'lumber camps go in a palm grove.';
-  if(d.need==='shore'&&S.kind!=='coast') return `there is no sea here. Build ${tool==='lighthouse'?'lighthouses':'harbors'} at Saltreach Cove.`;
+  if(d.need==='shore'&&S.kind!=='coast') return `there is no sea here. Build ${tool==='lighthouse'?'lighthouses':tool==='saltpan'?'salt pans':'harbors'} at Saltreach Cove.`;
   if(d.need==='shore'&&tool==='lighthouse'&&count('lighthouse')>=1) return 'one lighthouse lights the whole cove.';
   if(tool==='smith'&&count('smith')>=1) return 'one blacksmith is enough for the whole realm.';
-  if(d.need==='shore'&&!NB.some(([a,c])=>isSea(x+a,y+c))) return `${tool==='lighthouse'?'lighthouses':'harbors'} go on the shore, right next to the water.`;
+  if(d.need==='shore'&&!NB.some(([a,c])=>isSea(x+a,y+c))) return `${tool==='lighthouse'?'lighthouses':tool==='saltpan'?'salt pans':'harbors'} go on the shore, right next to the water.`;
   if(t.grove&&d.need!=='grove') return 'that palm grove is for a lumber camp.';
   if(t.ore&&d.need!=='ore') return 'that ore is for a mine.';
   if(d.unlock&&S.day<d.unlock) return `the ${d.name.toLowerCase()} unlocks on day ${d.unlock}.`;
@@ -2100,6 +2219,12 @@ function doBuild(tool,x,y){
   else if(tool==='market') say('Market built. Tap it to trade goods for gold.');
   else if(tool==='well') say('Well built. Villagers are happier, and fire keeps away from the buildings around it.');
   else if(tool==='shrine') say('Shrine built. Your villagers\u2019 mood rises.');
+  else if(tool==='pasture') say('Goat pasture built. A shepherd raises goats for wool, which weavers turn into cloth.');
+  else if(tool==='storehouse') say(`Storehouse built. Every good can now be stored up to ${storeCap()}.`);
+  else if(tool==='brewery') say('Brewery built. It turns 3 food into 2 ale each dawn. Villagers want ale.');
+  else if(tool==='weaver') say('Weaver built. It turns 2 wool into 2 cloth each dawn. Villagers need clothes, and Vellmar pays well for cloth.');
+  else if(tool==='saltpan') say('Salt pans built. Salt keeps food from spoiling, villagers want it, and Kharum buys it.');
+  else if(tool==='workshop') say('Workshop built. It turns iron and wood into tools. With enough tools, every producer yields 1 more.');
   else if(tool==='lighthouse') say('Lighthouse built. Pirates land weakened, and your warships find their boats more easily.');
   else if(tool==='smith') say('Blacksmith built. Tap it to forge arms and plate from iron.');
   else if(tool==='tavern') say('Tavern built. It cheers your villagers and earns gold. Tap it to hire sellswords for the night.');
@@ -2699,6 +2824,44 @@ function modelFor(b,x,y){
     if(ASSET.ready){ put(dock,'props_crate_01',.2,.09,-.12,.3,.33); put(dock,'props_barrel_01',.32,.09,.12,0,.3); put(dock,'props_sack_01',-.02,.09,.14,0,.3); }
     else add(dock,BX(.14,.14,.14),COL.woodLight,.2,.16,-.12);
     break;}
+  case 'pasture':{
+    add(g,BX(.88,.012,.88),0xA8A05A,0,.006,0);
+    for(const [a,c,w,d] of [[0,-.42,.86,.025],[0,.42,.86,.025],[-.42,0,.025,.86],[.42,0,.025,.86]]){ add(g,BX(w,.025,d),COL.wood,a,.1,c); add(g,BX(w,.025,d),COL.wood,a,.18,c); }
+    for(const [a,c] of [[-.42,-.42],[.42,-.42],[-.42,.42],[.42,.42],[0,-.42],[0,.42]]) add(g,BX(.04,.24,.04),COL.wood,a,.12,c);
+    for(const [a,c,col,r] of [[-.15,-.1,0xEDE8DC,.4],[.18,.12,0x8A7A6A,-.8],[.05,-.25,0xEDE8DC,2]]){ const gt=new THREE.Group(); gt.position.set(a,0,c); gt.rotation.y=r; g.add(gt); add(gt,BX(.16,.08,.08),col,0,.12,0); add(gt,BX(.06,.055,.05),col,.1,.17,0); for(const [x,z] of [[.06,.03],[.06,-.03],[-.06,.03],[-.06,-.03]]) add(gt,BX(.02,.08,.02),0x5A4A3A,x,.04,z); }
+    add(g,BX(.24,.06,.08),COL.wood,.25,.03,-.3);
+    break;}
+  case 'storehouse':{
+    add(g,BX(.82,.36,.62),COL.woodLight,0,.18,0);
+    const prism=geo('prism',()=>{ const p=new THREE.CylinderGeometry(.34,.34,.86,3,1); p.rotateZ(Math.PI/2); p.rotateX(-Math.PI/2); p.scale(1,.62,1); return p; });
+    add(g,prism,0x8A5A3A,0,.5,0).scale.set(1.05,.85,1); add(g,BX(.22,.24,.02),COL.wood,0,.12,.315); add(g,BX(.02,.24,.022),COL.dark,0,.12,.32);
+    add(g,BX(.12,.12,.12),COL.woodLight,.3,.06,.4); add(g,BX(.1,.1,.1),COL.woodLight,.33,.17,.38,0,.4,0); add(g,CY(.05,.05,.12,8),COL.wood,-.32,.06,.4);
+    break;}
+  case 'brewery':{
+    add(g,BX(.6,.24,.5),COL.stone,-.08,.12,0); add(g,BX(.62,.18,.52),COL.wood,-.08,.33,0);
+    const prism=geo('prism',()=>{ const p=new THREE.CylinderGeometry(.34,.34,.86,3,1); p.rotateZ(Math.PI/2); p.rotateX(-Math.PI/2); p.scale(1,.62,1); return p; });
+    add(g,prism,COL.roof,-.08,.52,0).scale.set(.78,.62,.62);
+    add(g,CY(.15,.15,.2,10),0x8A5A30,.3,.1,.18); add(g,CY(.155,.155,.02,10),COL.dark,.3,.06,.18); add(g,CY(.155,.155,.02,10),COL.dark,.3,.15,.18);
+    for(const z of [-.2,0]) add(g,CY(.06,.06,.13,8),COL.wood,.36,.07,z,Math.PI/2,0,0);
+    break;}
+  case 'weaver':{
+    add(g,BX(.5,.28,.42),0xE8D8B8,-.1,.14,-.05);
+    const prism=geo('prism',()=>{ const p=new THREE.CylinderGeometry(.34,.34,.86,3,1); p.rotateZ(Math.PI/2); p.rotateX(-Math.PI/2); p.scale(1,.62,1); return p; });
+    add(g,prism,0x6A7A9A,-.1,.38,-.05).scale.set(.66,.7,.62);
+    for(const x of [.2,.42]) add(g,BX(.03,.28,.03),COL.wood,x,.14,.25); add(g,BX(.26,.03,.03),COL.wood,.31,.27,.25); add(g,BX(.2,.16,.012),0xC98AB8,.31,.16,.25);
+    [0xC98AB8,0x6A8A5A,0xD8A848].forEach((c,i)=>add(g,CY(.035,.035,.18,8),c,.3+i*.0,.04+i*.07,-.2+i*0,Math.PI/2,0,0));
+    break;}
+  case 'saltpan':{
+    for(let i=0;i<3;i++)for(let j=0;j<2;j++){ add(g,BX(.26,.03,.36),0xC8B898,-.28+i*.28,.015,-.19+j*.38); add(g,BX(.22,.012,.32),0xF4F1EA,-.28+i*.28,.035,-.19+j*.38); }
+    add(g,CN(.1,.14,8),0xF4F1EA,.36,.07,.34); add(g,BX(.02,.24,.02),COL.wood,-.42,.12,.42);
+    break;}
+  case 'workshop':{
+    for(const [a,c] of [[-.32,-.25],[.32,-.25],[-.32,.25],[.32,.25]]) add(g,BX(.04,.34,.04),COL.wood,a,.17,c);
+    add(g,BX(.76,.04,.62),0x8A5A3A,0,.36,0,.12,0,0); add(g,BX(.56,.3,.04),COL.plank,0,.15,-.26);
+    add(g,BX(.36,.04,.16),COL.woodLight,.05,.18,.05); for(const x of [-.1,.2]) add(g,BX(.03,.16,.12),COL.wood,x,.08,.05);
+    add(g,BX(.03,.1,.02),COL.steel,-.12,.27,-.24); add(g,BX(.06,.02,.02),COL.steel,.0,.27,-.24); add(g,BX(.02,.12,.02),COL.wood,.12,.25,-.24);
+    add(g,BX(.12,.12,.12),COL.woodLight,.32,.06,.36);
+    break;}
   case 'road':{
     add(g,BX(.96,.03,.96),0xB89A74,0,.015,0);
     const st=[[-.28,-.27,.3,.26],[.06,-.3,.32,.22],[.34,-.22,.2,.34],[-.3,.06,.26,.3],[.0,.0,.3,.3],[.32,.14,.24,.28],[-.22,.33,.36,.2],[.16,.36,.3,.18]];
@@ -3079,7 +3242,7 @@ function folkModel(f){
   g.scale.setScalar(f.child?.62:f.elder?.9:.92); g.traverse(o=>{ if(o.isMesh) o.castShadow=!f.child; });
   scene.add(g); return g;
 }
-const CARGOCOL={crop:COL.crop,wood:COL.woodLight,ore:COL.stoneDark,iron:0x9FB8D0,fish:0x9AB8C8};
+const CARGOCOL={wool:0xEDE3CE,cloth:0xC98AB8,ale:0xB07A30,salt:0xF4F1EA,tools:0x6A7A8A,crop:COL.crop,wood:COL.woodLight,ore:COL.stoneDark,iron:0x9FB8D0,fish:0x9AB8C8};
 function animalModel(a){
   const g=new THREE.Group(), b=new THREE.Group(); g.add(b); g.userData.body=b;
   if(a.kind==='chicken'){ const c=hash(a.ax*7|0,a.ay*3|0,1)<.6?0xF4EEE2:0xA8683C; add(b,BX(.07,.055,.05),c,0,.05,0); const hd=new THREE.Group(); hd.position.set(.04,.08,0); b.add(hd); add(hd,BX(.03,.035,.03),c,0,0,0); add(hd,BX(.012,.012,.008),0xD84030,0,.022,0); add(hd,BX(.014,.008,.01),0xF0A030,.018,0,0); g.userData.head=hd; add(b,BX(.02,.04,.04),c,-.04,.07,0); g.scale.setScalar(.9); }
@@ -3192,7 +3355,7 @@ for(let i=0;i<18;i++){ const m=new THREE.Mesh(geo('glowP',()=>new THREE.PlaneGeo
 let scorchI=0;
 function scorch(x,y){ const s=SCORCH[scorchI++%SCORCH.length]; s.life=25; s.m.position.set(W2(x),.014,W2(y)); s.m.rotation.z=Math.random()*6; const k=.7+Math.random()*.4; s.m.scale.set(k,k,1); s.m.visible=true; }
 function emit(pool,x,y,h,life,sz,col){ const p=pool.find(q=>q.life<=0); if(!p) return; p.life=p.max=life; p.x=W2(x); p.z=W2(y); p.h=h; p.sz=sz; p.vx=(Math.random()-.5)*.12+.08; p.sp.visible=true; if(col!==undefined) p.sp.material.color.setHex(col); }
-const TOPH={lighthouse:1.1,smith:.6,tavern:.7,harbor:.45,well:.4,shrine:.6,range:.4,keep:1.25,tower:1.1,cata:.45,barr:.55,house:.65,wall:.45,mine:.4,market:.5,lumber:.45};
+const TOPH={storehouse:.6,brewery:.6,weaver:.55,workshop:.5,pasture:.2,saltpan:.15,lighthouse:1.1,smith:.6,tavern:.7,harbor:.45,well:.4,shrine:.6,range:.4,keep:1.25,tower:1.1,cata:.45,barr:.55,house:.65,wall:.45,mine:.4,market:.5,lumber:.45};
 function buildingFrac(b){ return b.type==='keep'?S.keep/S.keepMax:b.hp/Math.max(1,b.max); }
 function nearWell(x,y){ for(let j=Math.max(0,y-2);j<=Math.min(N-1,y+2);j++)for(let i=Math.max(0,x-2);i<=Math.min(N-1,x+2);i++){ const b=G(i,j).b; if(b&&b.type==='well'&&Math.hypot(i-x,j-y)<=1.6) return true; } return false; }
 function stepBurn(raw,t){
@@ -3763,7 +3926,7 @@ function encRegion(r){ return {grid:r.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...
 function save(){
   if(!S||S.over||!saveOn) return;
   stash();
-  try{ writeSlot(slot,JSON.stringify({R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,mtnUnlocked:S.mtnUnlocked,visitedMtn:S.visitedMtn,daily:S.daily||null,survivedBlood:!!S.survivedBlood,renown:S.renown||0,tax:taxLvl(),council:S.council||{},petition:S.petition||null,lastPet:S.lastPet||null,debt:S.debt||null,keepLvl:S.keepLvl||1,edicts:S.edicts||[],fac:S.fac||{},gear:S.gear||{},lootPending:S.lootPending||0,demand:S.demand||null,req:S.req||null,lastReq:S.lastReq||null,trader:S.trader||null,seedDays:S.seedDays||0,oilNights:S.oilNights||0,banner:S.banner||0,spy:!!S.spy,feastSeason:S.feastSeason??null,feastDay:S.feastDay||0,sapperWarned:!!S.sapperWarned,warships:S.warships,plate:S.plate,mercs:S.mercs,sunk:S.sunk,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
+  try{ writeSlot(slot,JSON.stringify({R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,mtnUnlocked:S.mtnUnlocked,visitedMtn:S.visitedMtn,daily:S.daily||null,survivedBlood:!!S.survivedBlood,ph:S.ph||{},renown:S.renown||0,tax:taxLvl(),council:S.council||{},petition:S.petition||null,lastPet:S.lastPet||null,debt:S.debt||null,keepLvl:S.keepLvl||1,edicts:S.edicts||[],fac:S.fac||{},gear:S.gear||{},lootPending:S.lootPending||0,demand:S.demand||null,req:S.req||null,lastReq:S.lastReq||null,trader:S.trader||null,seedDays:S.seedDays||0,oilNights:S.oilNights||0,banner:S.banner||0,spy:!!S.spy,feastSeason:S.feastSeason??null,feastDay:S.feastDay||0,sapperWarned:!!S.sapperWarned,warships:S.warships,plate:S.plate,mercs:S.mercs,sunk:S.sunk,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
     grid:S.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...t.b,aim:undefined,born:undefined,hitT:undefined,worked:undefined}:null,t.grove?1:0]),spawns:S.spawns,queue:S.queue})); }catch(e){}
 }
 function load(d){
@@ -3774,6 +3937,7 @@ function load(d){
       mods:{...S.mods,...d.mods},kills:d.kills||0,spawns:d.spawns,queue:d.queue,seed:d.seed||Math.random()*1000});
     if(d.R){ S.R={}; for(const id in d.R){ const r=d.R[id]; S.R[id]={grid:r.grid.map(([l,o,b,gr,w])=>({land:!!l,ore:!!o,grove:!!gr,water:!!w,b})),spawns:r.spawns||[],seed:r.seed,keep:r.keep,keepMax:r.keepMax,kind:r.kind||'canyon',shore:r.shore||null,units:[]}; } unstash(d.cur&&S.R[d.cur]?d.cur:'home'); }
     else{ S.grid=d.grid.map(([l,o,b,gr])=>({land:!!l,ore:!!o,grove:!!gr,b})); Object.assign(S,{kind:'canyon',shore:null,units:[],cur:'home'}); stash(); }
+    S.ph=d.ph||{}; ensureEco();
     Object.assign(S,{renown:d.renown||0,tax:d.tax??1,council:d.council||{},petition:d.petition||null,lastPet:d.lastPet||null,debt:d.debt||null,keepLvl:d.keepLvl||1});
     Object.assign(S,{edicts:d.edicts||[],fac:d.fac||{},gear:d.gear||{},lootPending:d.lootPending||0,demand:d.demand||null});
     Object.assign(S,{req:d.req||null,lastReq:d.lastReq||null,trader:d.trader||null,seedDays:d.seedDays||0,oilNights:d.oilNights||0,banner:d.banner||0,spy:!!d.spy,feastSeason:d.feastSeason??null,feastDay:d.feastDay||0,sapperWarned:!!d.sapperWarned});
@@ -3824,6 +3988,7 @@ const ACH=[
   {id:'roads',icon:'≡',name:'All roads',desc:'Lay 10 roads',test:()=>count('road')>=10},
   {id:'hero5',icon:'★',name:'Legend',desc:'Raise your hero to level 5',test:()=>S.hl>=5},
   {id:'blood',icon:'●',name:'Red night',desc:'Survive a blood moon',test:()=>!!S.survivedBlood},
+  {id:'prosper',icon:'⚱',name:'Land of plenty',desc:'Reach a prosperous living standard',test:()=>(S.stdTier||0)>=3},
   {id:'capital',icon:'♛',name:'Capital of the desert',desc:'Raise your realm to a capital',test:()=>rankIdx()>=4},
   {id:'council',icon:'⚖',name:'Full council',desc:'Fill every council seat',test:()=>SEATS.every(st=>cm(st.id))},
   {id:'daily',icon:'☀',name:'Daily devotion',desc:'Survive 5 nights of a daily challenge',test:()=>!!S.daily&&S.day>=6}];
@@ -4290,8 +4455,31 @@ function renderRes(){
   md.innerHTML=`${T(S.mood>=70?'content':S.mood>=35?'steady':'unhappy')}<span class="ad"> → ${MI.target}</span>`; md.className='d'+(S.mood>=70?' up':S.mood<35?' dn':'');
   mc.title=`Mood ${S.mood}, heading toward ${MI.target} at dawn`;
 }
+function spark(h){ if(!h||h.length<2) return ''; const mn=Math.min(...h), mx=Math.max(...h), w=56, ht=16, k=mx>mn?ht/(mx-mn):0;
+  const pts=h.map((v,i)=>`${(i/(h.length-1)*w).toFixed(1)},${(ht-(v-mn)*k+1).toFixed(1)}`).join(' '), up=h[h.length-1]>=h[h.length-2];
+  return `<svg width="${w}" height="${ht+2}" viewBox="0 0 ${w} ${ht+2}" aria-hidden="true"><polyline points="${pts}" fill="none" stroke="${up?'#E0904A':'#8FCB7E'}" stroke-width="1.5" stroke-linejoin="round"/></svg>`; }
+let mktKey='';
+function renderMarket(E){
+  ensureEco(); const open=marketOpen(), cap=E.capS;
+  const key=JSON.stringify([S.res,S.price,E.net,open,S.day,lang,E.tier]); if(key===mktKey) return; mktKey=key;
+  $('mktsum').textContent=T(STD[E.tier].name);
+  const nd=E.needs, pc=r=>nd[r]?Math.round(E.met[r]*100)+'%':'—';
+  const rows=TRADE.map(r=>{ const n=E.net[r]||0;
+    return `<tr><td><span style="color:${RCOL[r]}">■</span> ${T(cap1(r))}</td><td class="n">${S.res[r]}<span style="color:var(--muted)">/${cap}</span></td><td class="n ${n>0?'pos':n<0?'neg':''}"><span class="${n>0?'pos':n<0?'neg':''}">${n>0?'+':''}${n}</span></td><td class="n">${buyCost(r)}g</td><td class="n">${sellGain(r)}g</td><td>${spark(S.ph[r])}</td>
+      <td><button type="button" data-mb="${r}" ${!open||S.res.gold<buyCost(r)?'disabled':''}>${T('Buy')} ${LOT}</button> <button type="button" data-ms="${r}" ${!open||S.res[r]<LOT?'disabled':''}>${T('Sell')} ${LOT}</button></td></tr>`; }).join('');
+  $('mkt').innerHTML=`<div class="std"><span>${T('Living standard')}:</span><span class="tier">${T(STD[E.tier].name)}</span><span class="need">${T('Cloth')} ${pc('cloth')}</span><span class="need">${T('Ale')} ${pc('ale')}</span><span class="need">${T('Salt')} ${pc('salt')}</span><span style="color:var(--muted)">${T('Mood +{{m}}, taxes ×{{t}}',{m:STD[E.tier].mood,t:STD[E.tier].tax})}</span></div>
+    <p class="info" style="margin:6px 0 0">${T('Villagers want 1 cloth per 6, 1 ale per 5 and 1 salt per 8 people each dawn. Meeting their wants raises their living standard, their mood and the taxes they can pay. Prices follow the seasons and fall when your stores are full.')}${open?'':' <b>'+T('Trading needs a market with a villager working it.')+'</b>'}</p>
+    <div class="mktwrap"><table class="mkt"><thead><tr><th>${T('Good')}</th><th>${T('Stock')}</th><th>${T('At dawn')}</th><th>${T('Buy')}</th><th>${T('Sell')}</th><th>${T('Trend')}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  $('mkt').querySelectorAll('[data-mb]').forEach(b=>b.addEventListener('click',()=>trade(b.dataset.mb,true)));
+  $('mkt').querySelectorAll('[data-ms]').forEach(b=>b.addEventListener('click',()=>trade(b.dataset.ms,false)));
+}
+function renderGoods(E){
+  const box=$('goods'), show=GOODS.filter(r=>S.res[r]>0||(E.net[r]||0)!==0||(r==='tools'&&count('workshop'))||(r==='salt'&&count('saltpan'))||(r==='ale'&&count('brewery'))||(r==='wool'&&count('pasture'))||(r==='cloth'&&count('weaver')));
+  box.hidden=!show.length; if(!show.length) return;
+  box.innerHTML=show.map(r=>{ const n=E.net[r]||0; return `<span class="gd2" title="${T(cap1(r))}"><i style="background:${RCOL[r]}"></i>${T(cap1(r))} <b>${S.res[r]}</b>${n?`<span class="${n>0?'up':'dn'}">${n>0?'+':''}${n}</span>`:''}</span>`; }).join('')+`<span class="gd2">${T('Living')}: <b>${T(STD[E.tier].name)}</b></span>`;
+}
 function renderLedger(){
-  const E=econ();
+  const E=econ(); renderMarket(E); renderGoods(E);
   const rows=RES.map(r=>{
     const lines=E.L[r].map(([t,v])=>`${t} <span class="${v<0?'neg':'pos'}">${v>0?'+':''}${v}</span>`).join('<br>')||'Nothing yet';
     const n=E.net[r];
@@ -4304,7 +4492,7 @@ function renderLedger(){
   if(E.foodAfter<0) warn.push(`Food will run short by ${-E.foodAfter}. Build farms, buy food at a market, or expect villagers to leave.`);
   if(E.goldAfter<0) warn.push(`Gold won't cover upkeep. ${plural(Math.min(-E.goldAfter,99),'military building')} will sit out the next night.`);
   if(E.idleP) warn.push(`${plural(E.idleP,'producer')} ${E.idleP===1?'has':'have'} no worker. Build houses so more villagers move in.`);
-  const prices=marketOpen()?`<p class="info">Market prices for ${LOT}: ${['food','wood','stone'].map(r=>`${r} ${buyCost(r)}g to buy, ${sellGain(r)}g to sell`).join(' · ')}.</p>`:'';
+  const prices='';
   $('ledger').innerHTML=`<div class="tw"><table><tbody>${rows.join('')}</tbody></table></div>${warn.map(w=>`<p class="warn">${w}</p>`).join('')}${prices}`;
 }
 function renderInsp(){
@@ -4330,6 +4518,12 @@ function renderInsp(){
   const work=b.off?'paused':b.worked?'worked by a villager':'idle, no free villager';
   switch(b.type){
     case 'keep': det=S.cur==='home'&&keepLvl()>1?`${T(['Keep','Castle','Citadel'][keepLvl()-1])} · Health ${S.keep}/${S.keepMax} · houses ${4*keepLvl()} villagers · shoots raiders close by`:S.cur!=='home'?`Health ${S.keep}/${S.keepMax} · if it falls, raiders plunder a third of your gold and food · shoots raiders close by`:`Health ${S.keep}/${S.keepMax} · houses 4 villagers · shoots raiders close by`; break;
+    case 'pasture': det=`${hp} · ${work} · +${2+(S.kind==='mountain'?1:0)} wool at dawn`; break;
+    case 'storehouse': det=`${hp} · every good can be stored up to ${storeCap()}`; break;
+    case 'brewery': det=`${hp} · ${work} · 3 food into 2 ale at dawn`; break;
+    case 'weaver': det=`${hp} · ${work} · 2 wool into 2 cloth at dawn`; break;
+    case 'saltpan': det=`${hp} · ${work} · +3 salt at dawn`; break;
+    case 'workshop': det=`${hp} · ${work} · 1 iron and 1 wood into 2 tools at dawn`; break;
     case 'road': det=`${hp} · your hero rides 40% faster on roads · farms, lumber camps and mines next to a road yield 1 more`; break;
     case 'lighthouse': det=`${hp} · pirates land with a quarter less health · warships are more likely to find pirate boats`; break;
     case 'smith': det=`${hp} · arms ${S.iron||0}/3 (+${S.iron||0} damage for your hero and soldiers) · plate ${S.plate||0}/3 (+${(S.plate||0)*2} soldier health, +${(S.plate||0)*3} hero health)`; break;
@@ -4373,7 +4567,7 @@ function renderInsp(){
     extra=`<div class="ports">${PORTS.map(p=>`<div class="port"><span class="pn">${T(p.name)} · ${TP(p.days,'day')}</span><span class="pd">${T(p.desc)} ${T('Ship {{a}} {{g}}, get about {{e}} gold · {{r}}% risk',{a:p.amt,g:T(p.good),e:portEst(p),r:Math.round(portRisk(p)*100)})}</span><button type="button" data-port="${p.id}" ${!shipsFree()||S.res[p.good]<p.amt?'disabled':''}>${T('Send')} <span class="c">${p.amt}${p.good[0]}</span></button></div>`).join('')}</div>${sea.length?`<div class="prod">${T('At sea:')} ${sea.join(', ')}</div>`:''}<div class="ports"><div class="port"><span class="pn">${T('Warships')} · ${S.warships||0}/${count('harbor')}</span><span class="pd">${T('Each warship sails out to meet a pirate boat when raiders come to the cove, and may sink it with its crew aboard. 1 gold upkeep each.')}</span><button type="button" data-war="1" ${(S.warships||0)>=count('harbor')||!canPay(WARSHIP)?'disabled':''}>${T('Build')} <span class="c">${costShort(WARSHIP)}</span></button></div></div>`;
   }
   if(b.type==='market'){
-    extra=b.worked?`<div class="trade">${['food','wood','stone'].map(r=>`<span class="tn c${r[0]}">${cap1(r)}</span><span class="ts">you have ${S.res[r]}</span><button type="button" data-buy="${r}" ${S.res.gold<buyCost(r)?'disabled':''}>Buy ${LOT} <span class="c">${buyCost(r)}g</span></button><button type="button" data-sell="${r}" ${S.res[r]<LOT?'disabled':''}>Sell ${LOT} <span class="c">+${sellGain(r)}g</span></button>`).join('')}</div>`
+    extra=b.worked?`<div class="trade">${TRADE.map(r=>`<span class="tn" style="color:${RCOL[r]}">${T(cap1(r))}</span><span class="ts">you have ${S.res[r]}</span><button type="button" data-buy="${r}" ${S.res.gold<buyCost(r)?'disabled':''}>Buy ${LOT} <span class="c">${buyCost(r)}g</span></button><button type="button" data-sell="${r}" ${S.res[r]<LOT?'disabled':''}>Sell ${LOT} <span class="c">+${sellGain(r)}g</span></button>`).join('')}</div>`
       :`<div class="prod">Trading opens once a villager works the market.</div>`;
   }
   box.innerHTML=`<div class="info"><div class="name"></div><div class="det"></div></div><div class="acts">${acts}</div>${extra}`;
@@ -4469,7 +4663,7 @@ function applyLang(){
   document.querySelectorAll('[data-th]').forEach(el=>{ if(el.dataset.en==null) el.dataset.en=el.innerHTML; el.innerHTML=lang==='es'?T(el.dataset.th,{defaultValue:el.dataset.en}):el.dataset.en; });
   const lb=$('lang'); lb.textContent=lang.toUpperCase(); lb.setAttribute('aria-label',lang==='es'?'Idioma: español. Cambiar a inglés':'Language: English. Switch to Spanish');
   $('install').textContent=T('Install');
-  delete $('tools').dataset.built; delete $('res').dataset.built; upgKey=''; achKey=''; edictKey=''; heroKey=''; throneKey='';
+  delete $('tools').dataset.built; delete $('res').dataset.built; upgKey=''; achKey=''; edictKey=''; heroKey=''; throneKey=''; mktKey='';
   if(S){ ui(); if(!$('realm').hidden) renderRealm(); }
   $('qual').textContent=T(quality==='high'?'High':'Low');
 }
