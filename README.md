@@ -59,6 +59,7 @@ three.js r128 and every library load from the jsDelivr and cdnjs CDNs, pinned to
 - **Edicts:** proclaim up to two laws (three from day 10), such as Conscription, Rationing, Long shifts or Night watch. Each one helps somewhere and costs somewhere else.
 - **Neighbors:** the Sand Wolves, the Red Brotherhood and the Iron Clans each raid their own region. Their hostility sets how big and how frequent their raids are. Send gifts, win cleanly or kill their champions to calm them, sign trade pacts once they're calm, and decide whether to pay when they demand tribute.
 - **Hero gear and tower paths:** warlords and pirate captains drop a choice of weapons, armor and charms for your hero. Watchtowers at level 3 become either ballistas or fire-arrow towers.
+- **The throne:** your realm rises from hamlet to village, town, city and capital as it earns renown from clean defenses, slain champions, feasts, requests and petitions. Set taxes from low to crushing, appoint a royal council (steward, marshal, treasurer, chaplain, spymaster) with skills, traits and loyalty, answer a petition most days, and raise the keep into a castle and then a citadel.
 - **Save slots and language:** three kingdoms can be saved side by side, and the EN/ES button switches the interface to Spanish.
 
 - **Phones and tablets:** steer the hero with the on-screen joystick; a full-screen button appears where the browser supports it.

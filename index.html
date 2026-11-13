@@ -112,6 +112,35 @@ h1 .crest{width:26px;height:26px;vertical-align:-3px;margin-right:6px}
 .fac button.alt{background:var(--raise);color:var(--ink)}
 .fac button:disabled{background:var(--raise);color:var(--muted);cursor:default}
 .realm h3{font-family:var(--f-display);font-size:16px;margin:4px 0 0}
+.req.petition{border-color:rgba(232,154,192,.3);flex-direction:column;flex-wrap:nowrap;align-items:stretch;gap:8px}
+.req.petition>*{flex:none}
+.req.petition .rl{color:#E89AC0}
+.req.petition .ph{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap}
+.req.petition .pc{display:flex;gap:6px;flex-wrap:wrap;align-items:stretch}
+.req.petition .pc button{flex:1 1 220px;height:auto;min-height:0;display:block;text-align:left;background:var(--raise);color:var(--ink);border:1px solid var(--line);font-weight:500;line-height:1.35}
+.req.petition .pc button:hover{border-color:var(--sand)}
+.req.petition .pc button small{display:block;color:var(--muted);font-size:11.5px}
+.th{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px;margin-top:8px}
+.tc{background:var(--surface);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.tc h4{margin:0;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.tc .big{font-family:var(--f-display);font-weight:800;font-size:20px;color:var(--ink);line-height:1.1}
+.tc .sub{font-size:12px;color:var(--muted);line-height:1.4}
+.tc .rbar{height:6px;border-radius:3px;background:var(--raise);overflow:hidden}
+.tc .rbar i{display:block;height:100%;background:linear-gradient(90deg,#C98A2E,#F0BE4E)}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.seg button{font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);border-radius:6px;padding:6px 4px;background:var(--raise);color:var(--ink);cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--sand);color:#2A1A10;border-color:var(--sand)}
+.seg button:disabled{opacity:.5;cursor:default}
+.seat{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+.seat:first-of-type{border-top:0}
+.seat .sn{font-size:12.5px;color:var(--ink);font-weight:600}
+.seat .sd{font-size:11.5px;color:var(--muted);grid-column:1;line-height:1.35}
+.seat button,.tc>button{font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);border-radius:6px;padding:5px 9px;background:var(--raise);color:var(--ink);cursor:pointer;grid-row:1/3;grid-column:2;white-space:nowrap}
+.tc>button{align-self:flex-start;background:var(--sand);color:#2A1A10;border-color:var(--sand)}
+.seat button:disabled,.tc>button:disabled{opacity:.5;cursor:default}
+.seat.locked .sn{color:var(--muted)}
+.loy{display:inline-block;width:46px;height:4px;border-radius:2px;background:var(--raise);vertical-align:middle;margin-left:4px;overflow:hidden}
+.loy i{display:block;height:100%}
 .toasts{position:absolute;top:52px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;z-index:7;width:max-content;max-width:calc(100% - 24px)}
 .toast{display:flex;align-items:center;gap:10px;background:rgba(28,23,20,.92);border:1px solid rgba(240,190,78,.55);border-radius:10px;padding:8px 14px 8px 10px;box-shadow:0 6px 24px rgba(0,0,0,.35);animation:toastIn .45s cubic-bezier(.2,1.4,.4,1) both;max-width:100%}
 .toast.out{animation:toastOut .4s ease-in both}
@@ -309,6 +338,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
   </div>
 
   <div class="quest" id="quest" aria-live="polite"></div>
+  <div class="req petition" id="petition" hidden aria-live="polite"></div>
   <div class="req" id="req" hidden aria-live="polite"></div>
   <div class="req trader" id="trader" hidden></div>
 
@@ -330,6 +360,11 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <button class="ic" id="sound" type="button" aria-label="Sound" aria-pressed="false" title="Sound">
       <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 7h3l4-3v10l-4-3H3z" fill="currentColor"/><path id="sndwave" d="M12.5 6.5a3.5 3.5 0 0 1 0 5M14.5 4.5a6.5 6.5 0 0 1 0 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".3"/></svg></button>
   </div>
+
+  <details class="ledger throne" id="throneD" open>
+    <summary><span data-t>The throne</span><span class="achsum" id="thronesum"></span></summary>
+    <div id="throne"></div>
+  </details>
 
   <details class="ledger" open>
     <summary data-t>Treasury at dawn</summary>
@@ -372,6 +407,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <p data-th="help23"><b>Chapters, achievements and the daily challenge.</b> The story unfolds in five chapters across the 20 nights. Achievements are kept on this device. The daily challenge, chosen from the save menu, gives everyone the same valley and the same twist for the day.</p>
     <p data-th="help24"><b>Requests, traders and feasts.</b> Now and then a villager asks for something, like a well, roads or a full granary. Fulfill it within three days for gold and a better mood, or they give up and grumble. A wandering trader sometimes sets up by the keep for a day with rare goods. Once each season, tap the keep to hold a feast. New raiders join over time: wolf packs run down from Ironpeak Pass, sappers from night 10 blow up whatever they reach, and pirate captains lead some raids on the cove and carry a sea chest of gold.</p>
     <p data-th="help25"><b>Edicts, neighbors and gear.</b> Proclaim up to two edicts (three from day 10) for 5 gold each; every one helps somewhere and costs somewhere else. Three neighbors raid you: the Sand Wolves ride on The Valley, the Red Brotherhood on the cove and the Iron Clans on the pass. The angrier a neighbor, the bigger and more frequent its raids. Calm them with gifts from the realm map, beat their raids without losses, or kill their champions; once calm, offer a trade pact. Furious neighbors may demand tribute. Warlords and pirate captains drop gear for your hero's weapon, armor and charm slots. A watchtower at level 3 can become a ballista or a fire-arrow tower.</p>
+    <p data-th="help26"><b>The throne.</b> Your realm grows in rank from hamlet to village, town, city and capital as it earns renown. Renown comes from defending without losses, slaying warlords and pirate captains, feasts, fulfilled requests and some petitions. Each rank opens a council seat; a town can raise the keep into a castle and a city into a citadel. Set taxes from low to crushing: more gold, unhappier villagers. Appoint a steward, marshal, treasurer, chaplain and spymaster from three candidates each, and watch their loyalty, since disloyal councillors may flee with your gold. Most days a petition reaches the throne: choose one of two answers and live with it.</p>
     <p data-th="help4"><b>Seasons</b> turn every 5 days. Spring rains add 1 food per farm, summer heat costs 1, harvest adds 2 and lifts markets, and winter costs 2 while every house burns 1 wood a dawn to stay warm. Weather is rolled each dawn: rain stops fires, sandstorms slow raiders but shorten your towers' sight, snow slows everyone.</p>
     <p data-th="help5"><b>Mood.</b> Villagers are happier with wells and shrines nearby, full granaries and a good harvest, and unhappier after hunger, cold houses and buildings lost to raiders. Content villagers pay extra taxes; unhappy ones pay less, stop moving in, and below 20 they start to leave. Wells also keep fire off the buildings around them.</p>
     <p data-th="help6"><b>Hero levels.</b> Raiders your hero fells, and every night survived, earn experience. Each level adds health, every second level adds damage, and each one lets you pick a perk.</p>
@@ -855,7 +891,137 @@ const ES={
 "Shield wall":"Muro de escudos",
 "Your hero takes 1 less damage from every hit.":"Tu héroe recibe 1 de daño menos por golpe.",
 "Long lance":"Lanza larga",
-"Charge recharges 40% faster and carries further.":"Carga se recarga un 40% más rápido y llega más lejos."
+"Charge recharges 40% faster and carries further.":"Carga se recarga un 40% más rápido y llega más lejos.",
+"help26":"<b>El trono.</b> Tu reino sube de rango de aldea a pueblo, villa, ciudad y capital a medida que gana renombre. El renombre llega al defender sin pérdidas, matar caudillos y capitanes piratas, celebrar banquetes, cumplir peticiones y con algunas decisiones del trono. Cada rango abre un asiento del consejo; una villa puede convertir el castillo en fortaleza y una ciudad en ciudadela. Fija los impuestos de bajos a abusivos: más oro, aldeanos más descontentos. Nombra a un mayordomo, mariscal, tesorero, capellán y maestro espía entre tres candidatos cada uno, y vigila su lealtad: los consejeros desleales pueden huir con tu oro. Casi cada día llega una petición al trono: elige una de dos respuestas y asume las consecuencias.",
+"The throne":"El trono",
+"Hamlet":"Aldea",
+"Village":"Pueblo",
+"Town":"Villa",
+"City":"Ciudad",
+"Capital":"Capital",
+"Your realm is now a {{r}}":"Tu reino ahora es: {{r}}",
+"New rank":"Nuevo rango",
+"A second council seat opens: the Marshal.":"Se abre un segundo asiento del consejo: el mariscal.",
+"The Treasurer and Chaplain may join your council, and the keep can be raised into a castle.":"El tesorero y el capellán pueden unirse a tu consejo, y el castillo puede convertirse en fortaleza.",
+"The keep can become a citadel, and a third edict slot opens.":"El castillo puede convertirse en ciudadela y se abre un tercer edicto.",
+"The Spymaster joins your council. Bards across the desert sing your name.":"El maestro espía se une a tu consejo. Los bardos del desierto cantan tu nombre.",
+"Low":"Bajos",
+"Fair":"Justos",
+"High":"Altos",
+"Crushing":"Abusivos",
+"Steward":"Mayordomo",
+"Marshal":"Mariscal",
+"Treasurer":"Tesorero",
+"Chaplain":"Capellán",
+"Spymaster":"Maestro espía",
+"Shrewd":"Astuto",
+"+1 skill":"+1 de habilidad",
+"Loyal":"Leal",
+"Loyalty never falls below 40":"Su lealtad nunca baja de 40",
+"Greedy":"Codicioso",
+"Skims 2 gold each dawn":"Se queda 2 de oro cada amanecer",
+"Pious":"Piadoso",
+"Mood +2":"Ánimo +2",
+"Ambitious":"Ambicioso",
+"+1 skill, but loyalty falls twice as fast":"+1 de habilidad, pero su lealtad cae el doble de rápido",
+"Brave":"Valiente",
+"Your hero deals 1 more damage":"Tu héroe hace 1 de daño más",
+"Appoint a {{s}}":"Nombrar {{s}}",
+"Three candidates seek the seat. Skill sets how strong their effect is; traits bend it.":"Tres candidatos buscan el asiento. La habilidad marca la fuerza de su efecto; los rasgos lo matizan.",
+"skill {{n}}":"habilidad {{n}}",
+"Not now":"Ahora no",
+"Betrayal":"Traición",
+"Petition at the throne":"Petición al trono",
+"renown":"renombre",
+"+{{n}} villagers":"+{{n}} aldeanos",
+"+{{n}} hero XP":"+{{n}} XP del héroe",
+"repay {{n}} gold later":"devolver {{n}} de oro más tarde",
+"{{f}} calmer":"{{f}} más tranquilos",
+"{{f}} angrier":"{{f}} más enojados",
+"council more loyal":"consejo más leal",
+"council less loyal":"consejo menos leal",
+"a gamble":"una apuesta",
+"no effect":"sin efecto",
+"Opens when your realm becomes a {{r}}":"Se abre cuando tu reino sea {{r}}",
+"vacant":"vacante",
+"(at skill 2)":"(con habilidad 2)",
+"Appoint":"Nombrar",
+"Loyalty":"Lealtad",
+"Dismiss":"Destituir",
+"Realm":"Reino",
+"{{r}} renown · {{n}} more to become a {{x}}":"{{r}} de renombre · faltan {{n}} para ser {{x}}",
+"{{r}} renown · the greatest realm in the desert":"{{r}} de renombre · el mayor reino del desierto",
+"Renown comes from clean defenses, slain champions, feasts, fulfilled requests and wise petitions.":"El renombre llega con defensas limpias, campeones abatidos, banquetes, peticiones cumplidas y decisiones sabias.",
+"Taxes":"Impuestos",
+"Each villager pays {{g}} gold a dawn":"Cada aldeano paga {{g}} de oro por amanecer",
+"no effect on mood":"sin efecto en el ánimo",
+"families leave when unhappy":"las familias se van si están descontentas",
+"The keep":"El castillo",
+"Keep":"Castillo",
+"Castle":"Fortaleza",
+"Citadel":"Ciudadela",
+"Raise it into a {{n}}: +6 health, +1 damage and range for its archers, room for 4 more villagers, +15 renown.":"Conviértelo en {{n}}: +6 de vida, +1 de daño y alcance para sus arqueros, sitio para 4 aldeanos más, +15 de renombre.",
+"Needs a {{r}}.":"Requiere ser {{r}}.",
+"Raise the {{n}}":"Levantar la {{n}}",
+"Your citadel is complete.":"Tu ciudadela está completa.",
+"Royal council":"Consejo real",
+"Two farmers both claim the same field.":"Dos granjeros reclaman el mismo campo.",
+"Split it between them":"Repartirlo entre los dos",
+"Give it to the elder farmer":"Dárselo al granjero mayor",
+"A merchant offers a loan: 40 gold now, 60 back in five days.":"Un mercader ofrece un préstamo: 40 de oro ahora, 60 de vuelta en cinco días.",
+"Take the loan":"Aceptar el préstamo",
+"Politely refuse":"Rechazarlo con cortesía",
+"Refugees from the east beg for shelter.":"Refugiados del este piden asilo.",
+"Take them in":"Acogerlos",
+"Turn them away":"Rechazarlos",
+"The priests ask you to fund a grand procession.":"Los sacerdotes piden que pagues una gran procesión.",
+"Fund it":"Pagarla",
+"Refuse":"Negarse",
+"A knight errant offers to train your hero, for a fee.":"Un caballero andante se ofrece a entrenar a tu héroe, por un precio.",
+"Pay him":"Pagarle",
+"Send him off":"Despedirlo",
+"Thieves were caught raiding the granary.":"Pillaron a unos ladrones saqueando el granero.",
+"Pardon them":"Perdonarlos",
+"Make an example of them":"Darles un escarmiento",
+"An envoy of the Sand Wolves offers a truce for gold.":"Un enviado de los Lobos de Arena ofrece una tregua a cambio de oro.",
+"Pay 20 gold":"Pagar 20 de oro",
+"Send him back":"Mandarlo de vuelta",
+"Rumors of sickness spread through the houses.":"Corren rumores de enfermedad por las casas.",
+"Quarantine the sick":"Poner en cuarentena a los enfermos",
+"Ignore the rumors":"Ignorar los rumores",
+"Miners broke into an ancient tomb.":"Los mineros abrieron una tumba antigua.",
+"Take the treasure":"Llevarse el tesoro",
+"Seal it with honor":"Sellarla con honor",
+"The children beg for a festival of kites.":"Los niños piden una fiesta de cometas.",
+"Let them fly":"Que vuelen",
+"Not this year":"Este año no",
+"A traveling scholar asks to stay and teach.":"Una erudita viajera pide quedarse a enseñar.",
+"Welcome her":"Darle la bienvenida",
+"There is no room":"No hay sitio",
+"Smugglers of the Red Brotherhood offer cheap iron.":"Contrabandistas de la Hermandad Roja ofrecen hierro barato.",
+"Buy the iron":"Comprar el hierro",
+"Arrest them":"Arrestarlos",
+"Your councillors quarrel over who sits nearest the throne.":"Tus consejeros discuten por quién se sienta más cerca del trono.",
+"Host a banquet to make peace":"Dar un banquete para hacer las paces",
+"Let them sort it out":"Que lo arreglen ellos",
+"Woodcutters want to clear the old sacred grove.":"Los leñadores quieren talar la vieja arboleda sagrada.",
+"Allow it":"Permitirlo",
+"Forbid it":"Prohibirlo",
+"A wedding in the village! The couple hope you will come.":"¡Una boda en el pueblo! Los novios esperan que vengas.",
+"Attend with a gift":"Ir con un regalo",
+"Send your regrets":"Excusarte",
+"The Iron Clans offer iron in return for timber.":"Los Clanes de Hierro ofrecen hierro a cambio de madera.",
+"Trade 15 wood":"Cambiar 15 de madera",
+"Keep your timber":"Quedarte la madera",
+"Masons offer to carve a statue of your hero.":"Los canteros ofrecen esculpir una estatua de tu héroe.",
+"Commission it":"Encargarla",
+"Capital of the desert":"Capital del desierto",
+"Raise your realm to a capital":"Convierte tu reino en capital",
+"Full council":"Consejo completo",
+"Fill every council seat":"Ocupa todos los asientos del consejo",
+"Appoint a steward to your council":"Nombra un mayordomo para tu consejo",
+"Grow your realm into a village":"Haz crecer tu reino hasta pueblo",
+"Raise the keep into a castle":"Convierte el castillo en fortaleza"
 };
 
 let lang='en';
@@ -870,7 +1036,7 @@ function canPay(c){ return RES.every(r=>S.res[r]>=(c[r]||0)); }
 function spend(c){ RES.forEach(r=>S.res[r]-=(c[r]||0)); }
 function addC(a,b){ const o={...a}; RES.forEach(r=>{ if(b&&b[r]) o[r]=(o[r]||0)+b[r]; }); return o; }
 const count=t=>allGrids().reduce((a,g)=>a+g.filter(x=>x.b&&x.b.type===t).length,0);
-const housing=()=>4+(3+S.mods.housing)*count('house')+2*countLvl('house',2);
+const housing=()=>4+4*((S.keepLvl||1)-1)+(3+S.mods.housing)*count('house')+2*countLvl('house',2);
 const WIN_NIGHTS=20;
 const SEASONS=[
   {name:'Spring',farm:1,col:'#8FCB7E',wx:[['rain',.5]]},
@@ -891,6 +1057,9 @@ function moodInfo(){
   add(plural(Math.min(2,count('shrine')),'shrine'),Math.min(2,count('shrine'))*8);
   add(plural(Math.min(2,count('tavern')),'tavern'),Math.min(2,count('tavern'))*4);
   for(const e of EDICTS) if(hasEdict(e.id)&&e.mood) add(T(e.name),e.mood);
+  if(TAXES[taxLvl()].mood) add(`${TAXES[taxLvl()].name} taxes`,TAXES[taxLvl()].mood);
+  if(skill('chaplain')) add('Chaplain',skill('chaplain')*3);
+  for(const k in (S.council||{})) if(S.council[k].trait==='pious') add(`${S.council[k].name} is pious`,2);
   if(S.res.food>=15) add('Full granaries',5);
   if(season().name==='Harvest') add('Harvest festival',5);
   if(S.hungry) add('Hunger at the last dawn',-20);
@@ -964,7 +1133,9 @@ const QUESTS=[
   {text:'Send a ship on a trade voyage',goal:()=>[S.voyagesSent||0,1],reward:{stone:4}},
   {text:'Lay a road beside a farm or mine',goal:()=>[count('road'),1],reward:{stone:3}},
   {text:'Build a tavern',goal:()=>[count('tavern'),1],reward:{gold:6}},
+  {text:'Appoint a steward to your council',goal:()=>[cm('steward')?1:0,1],reward:{gold:6}},
   {text:'Buy a kingdom upgrade',goal:()=>[S.upg.length,1],reward:{stone:4}},
+  {text:'Grow your realm into a village',goal:()=>[rankIdx()>=1?1:0,1],reward:{gold:8}},
   {text:'Raise a barracks',goal:()=>[count('barr'),1],reward:{wood:6}},
   {text:'Use Charge or Rally in battle',goal:()=>[S.abilUsed||0,1],reward:{gold:5}},
   {text:'Upgrade a palisade to stone',goal:()=>[S.grid.filter(t=>t.b&&t.b.type==='wall'&&t.b.lvl>1).length,1],reward:{gold:6}},
@@ -980,6 +1151,7 @@ const QUESTS=[
   {text:'Build an archery range',goal:()=>[count('range'),1],reward:{wood:8}},
   {text:'Build a shrine',goal:()=>[count('shrine'),1],reward:{gold:10,food:8}},
   {text:'Reach a mood of 75',goal:()=>[S.mood,75],reward:{gold:20}},
+  {text:'Raise the keep into a castle',goal:()=>[keepLvl()>=2?1:0,1],reward:{stone:15}},
   {text:'Ride to Ironpeak Pass',goal:()=>[S.visitedMtn?1:0,1],reward:{food:8}},
   {text:'Open an iron mine in Ironpeak Pass',goal:()=>[S.res.iron>0||S.iron||S.plate?1:0,1],reward:{gold:10}},
   {text:'Build a blacksmith and forge arms or plate',goal:()=>[(S.iron||0)+(S.plate||0),1],reward:{gold:15}},
@@ -1009,7 +1181,7 @@ function checkQuests(){
 }
 function score(){
   let b=0; eachAll(x=>{ if(x.type!=='keep') b++; });
-  return Math.round(((S.day-1)*100+S.kills*5+S.pop*25+b*10+S.upg.length*20)*DIFF[S.diff].mult*(dmod('lean')?1.3:1));
+  return Math.round(((S.day-1)*100+S.kills*5+S.pop*25+b*10+S.upg.length*20+(S.renown||0)*3)*DIFF[S.diff].mult*(dmod('lean')?1.3:1));
 }
 let bestScore=0; try{ bestScore=+localStorage.getItem('smallcrown-bestscore')||0 }catch(e){}
 function recordScore(){ const sc=score(); if(sc>bestScore){ bestScore=sc; try{ localStorage.setItem('smallcrown-bestscore',sc) }catch(e){} } return sc; }
@@ -1341,7 +1513,10 @@ function econ(){
   if(hasEdict('militia')&&S.pop>=3) L.gold.push([`Militia drills`,-Math.floor(S.pop/3)]);
   for(const f in (S.fac||{})){ const o=S.fac[f]; if(o.pact&&o.h<40){ if(f==='nomads') L.gold.push([`Pact with the Sand Wolves`,4]); if(f==='brotherhood') L.food.push([`Pact with the Red Brotherhood`,4]); if(f==='clans') L.iron.push([`Pact with the Iron Clans`,2]); } }
   if(S.warships) L.gold.push([`Warship crews`,-S.warships]);
-  if(S.pop) L.gold.push([`Taxes from ${plural(S.pop,'villager')}`,S.pop]);
+  if(S.pop) L.gold.push([`Taxes from ${plural(S.pop,'villager')} (${TAXES[taxLvl()].name.toLowerCase()})`,Math.round(S.pop*TAXES[taxLvl()].mult)]);
+  if(skill('treasurer')) L.gold.push([`Treasurer ${cm('treasurer').name}`,skill('treasurer')*2]);
+  if(skill('steward')) L.food.push([`Steward ${cm('steward').name}`,skill('steward')*2]);
+  for(const k in (S.council||{})) if(S.council[k].trait==='greedy') L.gold.push([`${S.council[k].name} skims`,-2]);
   if(S.mods.taxes&&S.pop>=3) L.gold.push([`Tax collectors`,Math.floor(S.pop/3)*S.mods.taxes]);
   if(mk) L.gold.push([`Market trade${sea.name==='Harvest'?' (harvest +2)':''}`,mk*(3+(sea.name==='Harvest'?2:0))]);
   if(S.pop&&S.mood>=70) L.gold.push(['Content villagers',Math.floor(S.pop/2)]);
@@ -1515,7 +1690,7 @@ function stepAnimals(dt){
     if(passHero(Math.round(x),Math.round(y))&&(a.kind!=='crab'||!isSea(Math.round(x),Math.round(y)))) a.goal=[x,y]; else a.t=.4;
   }
 }
-const heroMax=()=>12+gearHp()+S.mods.hero*6+((S&&S.hl)||1)*2-2+((S&&S.plate)||0)*3, heroDmg=()=>2+((S&&S.banner)||0)+gearDmg()+S.mods.hero*2+Math.floor((((S&&S.hl)||1)-1)/2), unitMax=()=>4+S.mods.drill*2+((S&&S.plate)||0)*2, unitDmg=()=>1+S.mods.drill+((S&&S.iron)||0)+(hasEdict('militia')?1:0);
+const heroMax=()=>12+gearHp()+S.mods.hero*6+((S&&S.hl)||1)*2-2+((S&&S.plate)||0)*3, heroDmg=()=>2+((S&&S.banner)||0)+(Object.values((S&&S.council)||{}).some(m=>m.trait==='brave')?1:0)+gearDmg()+S.mods.hero*2+Math.floor((((S&&S.hl)||1)-1)/2), unitMax=()=>4+skill('marshal')+S.mods.drill*2+((S&&S.plate)||0)*2, unitDmg=()=>1+S.mods.drill+((S&&S.iron)||0)+(hasEdict('militia')?1:0);
 function mkHero(){ return {x:C,y:C+1,tx:C,ty:C+1,hp:12+((S&&S.mods.hero)||0)*6,max:12+((S&&S.mods.hero)||0)*6,dead:false,respawn:0,atk:0,dir:-Math.PI/2,queue:[],moving:false,age:0,hit:0,swing:0}; }
 function spawnUnits(i){
   const b=S.grid[i].b; if(!b||(b.type!=='barr'&&b.type!=='range')||b.unpaid) return;
@@ -1698,7 +1873,8 @@ function weapon(b){
   const wr=wxRange();
   const oil=S.oilNights>0?1:0;
   const wf=hasEdict('watch')?.75:1;
-  if(b.type==='keep') return {range:1.8+m.range*.5-wr,rate:1.3*wf,dmg:1+m.dmg+oil,min:0,h:1.3};
+  const kl=S.cur==='home'?(S.keepLvl||1)-1:0;
+  if(b.type==='keep') return {range:1.8+m.range*.5-wr+kl*.3,rate:1.3*wf,dmg:1+m.dmg+oil+kl,min:0,h:1.3};
   if(b.type==='tower'){ const sp=b.spec, rate=Math.max(.36,.75-(b.lvl-1)*.15)*wf*(sp==='ballista'?1.5:1); return {range:2.4+(b.lvl-1)*.35+m.range-wr+(sp==='ballista'?.7:0),rate,dmg:b.lvl+m.dmg+oil+(sp==='ballista'?3:0),min:0,h:1.15+.18*b.lvl,burn:sp==='fire'}; }
   if(b.type==='cata') return {range:3.6+(b.lvl-1)*.4+m.range-wr,rate:(2.4-(b.lvl-1)*.5)*(m.cataRate||1),dmg:3+(b.lvl-1)*2,min:1,splash:.95,h:.6};
   return null;
@@ -1811,6 +1987,7 @@ function dawn(){
   if(E.popD) bump('r-people',E.popD>0?'bump':'hurt');
   const ch=CHAPTERS.find(c=>c.day===S.day); if(ch) setTimeout(()=>showChapter(ch),600);
   factionDawn(REP);
+  { const kn=[]; kingdomDawn(kn,REP); if(kn.length) $('msg').innerHTML+=' '+kn.join('. ')+'.'; }
   recordDaily(); checkAch(); if(REP.total) setTimeout(()=>showReport(REP),300);
   dawnExtras();
   if(justWon) offerVictory(wasBoss); else if(wasBoss) offerBoons();
@@ -1993,7 +2170,7 @@ function hurt(e,d,src){
     e.gone=true; e.died=true; const pay=(e.pay+S.mods.tax+(src==='hero'&&hasPerk('bounty')?2:0))*(S.blood&&S.phase==='night'?2:1);
     if(src==='hero') gainXP(e.pay*3);
     S.res.gold+=pay; S.kills++; S.nightKills++; S.nightGold=(S.nightGold||0)+pay; const nr=S.nr||(S.nr={}); nr[src||'other']=(nr[src||'other']||0)+1;
-    if(e.type==='warlord'||e.type==='captain'){ S.lootPending=(S.lootPending||0)+1; shiftHost(facOf(S.cur),-15,true); }
+    if(e.type==='warlord'||e.type==='captain'){ addRenown(10); S.lootPending=(S.lootPending||0)+1; shiftHost(facOf(S.cur),-15,true); }
     if(src==='hero'&&gearOn('coin')){ S.res.gold+=2; }
     if(e.type==='captain'){ S.res.gold+=25; S.nightGold+=25; toast(T('Pirate captain defeated'),T('+25 gold from his sea chest'),'☠'); }
     puff(e.x,e.y,COL.foeLight,e.type==='warlord'?18:8); embers(e.x,e.y,e.type==='warlord'?30:7); floatText(e.x,e.y,'+'+pay,CSS.gold);
@@ -2190,8 +2367,10 @@ function assetModel(b,x,y){
   switch(b.type){
   case 'keep':
     if(S.kind!=='canyon'){ put(g,'castle_curtain_gate_01',0,0,0); towerStack(g,-.4,-.5,1); towerStack(g,4.4,-.5,1); put(g,'castle_banner_01',2,5.6,.55); o=fitTo(g,1.15); o.userData.flame=add(o,BX(.08,.1,.08),0,0,.28,.38,0,0,0,flameMat); return o; }
-    put(g,'castle_curtain_gate_01',0,0,0); put(g,'castle_curtain_01',-2,0,0); put(g,'castle_curtain_01',4,0,0); towerStack(g,-2.2,-.5,2); towerStack(g,6.2,-.5,2); put(g,'castle_banner_01',2,6.4,.55);
-    o=fitTo(g,1.45); o.userData.flame=add(o,BX(.08,.1,.08),0,0,.3,.42,0,0,0,flameMat); return o;
+    { const kl=b.lvl||1; put(g,'castle_curtain_gate_01',0,0,0); put(g,'castle_curtain_01',-2,0,0); put(g,'castle_curtain_01',4,0,0); towerStack(g,-2.2,-.5,1+kl); towerStack(g,6.2,-.5,1+kl); put(g,'castle_banner_01',2,6.4,.55);
+      if(kl>=2){ towerStack(g,2,-4,kl+1); put(g,'castle_curtain_01',-2,0,-3.5); put(g,'castle_curtain_01',4,0,-3.5); put(g,'castle_banner_01',2,4+2.4*(kl+2),-3.5); }
+      if(kl>=3){ put(g,'castle_banner_01',-2.2,2.4*(kl+1)+4,-.5); put(g,'castle_banner_01',6.2,2.4*(kl+1)+4,-.5); } }
+    o=fitTo(g,(b.lvl||1)>=2?1.5:1.45); o.userData.flame=add(o,BX(.08,.1,.08),0,0,.3,.42,0,0,0,flameMat); return o;
   case 'tower':
     towerStack(g,0,0,b.lvl-1); o=fitTo(g,.78);
     o.userData.flame=add(o,BX(.06,.09,.06),0,.36,o.userData.h*.55,.1,0,0,0,flameMat); return o;
@@ -3584,7 +3763,7 @@ function encRegion(r){ return {grid:r.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...
 function save(){
   if(!S||S.over||!saveOn) return;
   stash();
-  try{ writeSlot(slot,JSON.stringify({R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,mtnUnlocked:S.mtnUnlocked,visitedMtn:S.visitedMtn,daily:S.daily||null,survivedBlood:!!S.survivedBlood,edicts:S.edicts||[],fac:S.fac||{},gear:S.gear||{},lootPending:S.lootPending||0,demand:S.demand||null,req:S.req||null,lastReq:S.lastReq||null,trader:S.trader||null,seedDays:S.seedDays||0,oilNights:S.oilNights||0,banner:S.banner||0,spy:!!S.spy,feastSeason:S.feastSeason??null,feastDay:S.feastDay||0,sapperWarned:!!S.sapperWarned,warships:S.warships,plate:S.plate,mercs:S.mercs,sunk:S.sunk,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
+  try{ writeSlot(slot,JSON.stringify({R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,mtnUnlocked:S.mtnUnlocked,visitedMtn:S.visitedMtn,daily:S.daily||null,survivedBlood:!!S.survivedBlood,renown:S.renown||0,tax:taxLvl(),council:S.council||{},petition:S.petition||null,lastPet:S.lastPet||null,debt:S.debt||null,keepLvl:S.keepLvl||1,edicts:S.edicts||[],fac:S.fac||{},gear:S.gear||{},lootPending:S.lootPending||0,demand:S.demand||null,req:S.req||null,lastReq:S.lastReq||null,trader:S.trader||null,seedDays:S.seedDays||0,oilNights:S.oilNights||0,banner:S.banner||0,spy:!!S.spy,feastSeason:S.feastSeason??null,feastDay:S.feastDay||0,sapperWarned:!!S.sapperWarned,warships:S.warships,plate:S.plate,mercs:S.mercs,sunk:S.sunk,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
     grid:S.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...t.b,aim:undefined,born:undefined,hitT:undefined,worked:undefined}:null,t.grove?1:0]),spawns:S.spawns,queue:S.queue})); }catch(e){}
 }
 function load(d){
@@ -3595,6 +3774,7 @@ function load(d){
       mods:{...S.mods,...d.mods},kills:d.kills||0,spawns:d.spawns,queue:d.queue,seed:d.seed||Math.random()*1000});
     if(d.R){ S.R={}; for(const id in d.R){ const r=d.R[id]; S.R[id]={grid:r.grid.map(([l,o,b,gr,w])=>({land:!!l,ore:!!o,grove:!!gr,water:!!w,b})),spawns:r.spawns||[],seed:r.seed,keep:r.keep,keepMax:r.keepMax,kind:r.kind||'canyon',shore:r.shore||null,units:[]}; } unstash(d.cur&&S.R[d.cur]?d.cur:'home'); }
     else{ S.grid=d.grid.map(([l,o,b,gr])=>({land:!!l,ore:!!o,grove:!!gr,b})); Object.assign(S,{kind:'canyon',shore:null,units:[],cur:'home'}); stash(); }
+    Object.assign(S,{renown:d.renown||0,tax:d.tax??1,council:d.council||{},petition:d.petition||null,lastPet:d.lastPet||null,debt:d.debt||null,keepLvl:d.keepLvl||1});
     Object.assign(S,{edicts:d.edicts||[],fac:d.fac||{},gear:d.gear||{},lootPending:d.lootPending||0,demand:d.demand||null});
     Object.assign(S,{req:d.req||null,lastReq:d.lastReq||null,trader:d.trader||null,seedDays:d.seedDays||0,oilNights:d.oilNights||0,banner:d.banner||0,spy:!!d.spy,feastSeason:d.feastSeason??null,feastDay:d.feastDay||0,sapperWarned:!!d.sapperWarned});
     Object.assign(S,{daily:d.daily||null,survivedBlood:!!d.survivedBlood,mtnUnlocked:!!d.mtnUnlocked,visitedMtn:!!d.visitedMtn,warships:d.warships||0,plate:d.plate||0,mercs:d.mercs||0,sunk:d.sunk||0});
@@ -3644,6 +3824,8 @@ const ACH=[
   {id:'roads',icon:'≡',name:'All roads',desc:'Lay 10 roads',test:()=>count('road')>=10},
   {id:'hero5',icon:'★',name:'Legend',desc:'Raise your hero to level 5',test:()=>S.hl>=5},
   {id:'blood',icon:'●',name:'Red night',desc:'Survive a blood moon',test:()=>!!S.survivedBlood},
+  {id:'capital',icon:'♛',name:'Capital of the desert',desc:'Raise your realm to a capital',test:()=>rankIdx()>=4},
+  {id:'council',icon:'⚖',name:'Full council',desc:'Fill every council seat',test:()=>SEATS.every(st=>cm(st.id))},
   {id:'daily',icon:'☀',name:'Daily devotion',desc:'Survive 5 nights of a daily challenge',test:()=>!!S.daily&&S.day>=6}];
 let achGot={}; try{ achGot=JSON.parse(localStorage.getItem('smallcrown-ach')||'{}')||{}; }catch(e){}
 let achKey='';
@@ -3692,7 +3874,7 @@ const EDICTS=[
   {id:'holy',name:'Holy days',good:'Mood +10',bad:'Farms grow 1 less food',mood:10},
   {id:'militia',name:'Militia drills',good:'Soldiers deal 1 more damage',bad:'−1 gold for every 3 villagers',mood:0}];
 const hasEdict=id=>!!(S&&S.edicts&&S.edicts.includes(id));
-const edictSlots=()=>S.day>=10?3:2;
+const edictSlots=()=>S.day>=10||rankIdx()>=3?3:2;
 function toggleEdict(id){
   if(S.phase!=='day'||S.over) return; S.edicts=S.edicts||[];
   if(hasEdict(id)){ S.edicts=S.edicts.filter(x=>x!==id); say(`<b>${T(EDICTS.find(e=>e.id===id).name)}</b> repealed.`); }
@@ -3740,7 +3922,7 @@ function factionsHtml(){
       ${o.pact?'':`<button type="button" class="alt" data-pact="${f}" ${o.h>=30?'disabled':''}>${T('Trade pact')}</button>`}</span></div>`; }).join('')}</div>`;
 }
 function factionDawn(rep){
-  for(const f of Object.keys(FACTIONS)){ if(!facKnown(f)) continue; const o=host(f); o.h=Math.min(100,o.h+3);
+  for(const f of Object.keys(FACTIONS)){ if(!facKnown(f)) continue; const o=host(f); o.h=Math.max(0,Math.min(100,o.h+3-skill('spymaster')));
     if(o.pact){ if(f==='nomads') S.res.gold+=4; if(f==='brotherhood') S.res.food+=4; if(f==='clans') S.res.iron+=2; } }
   const rf=facOf(rep.region);
   if(rep.total&&rep.keep===0&&!rep.lost) shiftHost(rf,-8,true); else if(rep.keep>=4) shiftHost(rf,6,true);
@@ -3785,6 +3967,139 @@ function renderHeroPanel(){
     +slot('weapon','Weapon')+slot('armor','Armor')+slot('charm','Charm')
     +(pk.length?`<div class="gs"><span class="gl">${T('Perks')}</span>${pk.map(p=>`<span class="gn">${T(p.name)}</span><span class="gd">${T(p.desc)}</span>`).join('')}</div>`:'');
 }
+// ================= THE KINGDOM =================
+const RANKS=[{name:'Hamlet',at:0},{name:'Village',at:30},{name:'Town',at:80},{name:'City',at:160},{name:'Capital',at:280}];
+const rankIdx=()=>{ let i=0; RANKS.forEach((r,k)=>{ if((S.renown||0)>=r.at) i=k; }); return i; };
+const rankName=()=>RANKS[rankIdx()].name;
+function addRenown(n,why){
+  if(!n) return; const before=rankIdx(); S.renown=Math.max(0,(S.renown||0)+n); const after=rankIdx();
+  if(after>before){ const nm=RANKS[after].name; party('win'); sfx('dawn');
+    showChapter({n:'★',name:T('Your realm is now a {{r}}',{r:T(nm)}),text:T(RANK_TEXT[nm]||'')}); toast(T('New rank'),T(nm),'♛');
+    if(nm==='Town'||nm==='City') say(`<b>Your realm is now a ${T(nm).toLowerCase()}.</b> ${T(RANK_TEXT[nm])}`); }
+}
+const RANK_TEXT={Village:'A second council seat opens: the Marshal.',Town:'The Treasurer and Chaplain may join your council, and the keep can be raised into a castle.',City:'The keep can become a citadel, and a third edict slot opens.',Capital:'The Spymaster joins your council. Bards across the desert sing your name.'};
+// taxes
+const TAXES=[{name:'Low',mult:.5,mood:8},{name:'Fair',mult:1,mood:0},{name:'High',mult:1.5,mood:-8},{name:'Crushing',mult:2,mood:-18}];
+const taxLvl=()=>S.tax??1;
+function setTax(i){ if(S.phase!=='day'||S.over) return; S.tax=i; councilShift(i>=2?-3:i===0?2:0); say(`<b>Taxes set to ${T(TAXES[i].name).toLowerCase()}.</b>`); sfx('order'); save(); ui(); }
+// the royal council
+const SEATS=[
+  {id:'steward',name:'Steward',rank:0,eff:c=>`+${c*2} food each dawn`},
+  {id:'marshal',name:'Marshal',rank:1,eff:c=>`Soldiers have ${c} more health`},
+  {id:'treasurer',name:'Treasurer',rank:2,eff:c=>`+${c*2} gold each dawn`},
+  {id:'chaplain',name:'Chaplain',rank:2,eff:c=>`Mood +${c*3}`},
+  {id:'spymaster',name:'Spymaster',rank:4,eff:c=>`Every neighbor's hostility grows ${c} less each dawn`}];
+const TRAITS={shrewd:{name:'Shrewd',desc:'+1 skill'},loyal:{name:'Loyal',desc:'Loyalty never falls below 40'},greedy:{name:'Greedy',desc:'Skims 2 gold each dawn'},pious:{name:'Pious',desc:'Mood +2'},ambitious:{name:'Ambitious',desc:'+1 skill, but loyalty falls twice as fast'},brave:{name:'Brave',desc:'Your hero deals 1 more damage'}};
+const council=()=>S.council||(S.council={});
+const cm=id=>council()[id]||null;
+const skill=id=>{ const m=cm(id); return m?m.skill+(m.trait==='shrewd'||m.trait==='ambitious'?1:0):0; };
+function candidates(){ const out=[], tr=Object.keys(TRAITS);
+  for(let i=0;i<3;i++) out.push({name:FOLK_NAMES[(Math.random()*FOLK_NAMES.length)|0],skill:1+((Math.random()*3)|0),trait:tr[(Math.random()*tr.length)|0],loy:55+((Math.random()*25)|0)});
+  return out; }
+function appoint(seat){
+  const st=SEATS.find(x=>x.id===seat); if(rankIdx()<st.rank||S.phase!=='day') return;
+  const cs=candidates();
+  showOver(T('Appoint a {{s}}',{s:T(st.name)}),T('Three candidates seek the seat. Skill sets how strong their effect is; traits bend it.'),cs.map(c=>({label:`${c.name} · ${T('skill {{n}}',{n:c.skill})} · ${T(TRAITS[c.trait].name)}`,sub:`${T(TRAITS[c.trait].desc)} · ${T(st.eff(c.skill+(c.trait==='shrewd'||c.trait==='ambitious'?1:0)))}`,
+    fn:()=>{ if(cm(seat)) S.mood=Math.max(0,S.mood-3); council()[seat]=c; hideOver(); sfx('bell'); toast(T(st.name),c.name,'♛'); say(`<b>${c.name}</b> is your new ${T(st.name).toLowerCase()}.`); applyCouncilUnits(); save(); ui(); }})).concat([{label:T('Not now'),sub:'',fn:()=>{ hideOver(); ui(); }}]));
+}
+function dismiss(seat){ const m=cm(seat); if(!m||S.phase!=='day') return; delete council()[seat]; S.mood=Math.max(0,S.mood-3); say(`<b>${m.name}</b> leaves the council. Mood −3.`); applyCouncilUnits(); save(); ui(); }
+function applyCouncilUnits(){ S.units.forEach(u=>{ u.max=unitMax(); u.hp=Math.min(u.hp,u.max); }); if(S.hero){ S.hero.max=heroMax(); S.hero.hp=Math.min(S.hero.hp,S.hero.max); } }
+function councilShift(d){ for(const k in council()){ const m=cm(k); const dd=d<0&&m.trait==='ambitious'?d*2:d; m.loy=Math.max(m.trait==='loyal'?40:0,Math.min(100,m.loy+dd)); } }
+function councilDawn(notes){
+  const c=council(); if(!Object.keys(c).length) return;
+  councilShift(-1+(taxLvl()>=2?-2:0)+(S.mood>=70?1:0)+(S.mood<35?-2:0));
+  for(const k of Object.keys(c)){ const m=c[k];
+    if(m.trait==='greedy'){ S.res.gold=Math.max(0,S.res.gold-2); }
+    if(m.loy<20&&Math.random()<.5){ const g=Math.min(S.res.gold,10+S.day); S.res.gold-=g; delete c[k]; notes.push(`<b>${m.name} the ${T(SEATS.find(x=>x.id===k).name).toLowerCase()} fled in the night</b> with ${g} gold from the treasury`); toast(T('Betrayal'),m.name,'✖'); } }
+  applyCouncilUnits();
+}
+// petitions at the throne
+const PETITIONS=[
+  {id:'field',text:'Two farmers both claim the same field.',a:['Split it between them',{mood:2}],b:['Give it to the elder farmer',{gold:4,mood:-2,renown:1}]},
+  {id:'loan',text:'A merchant offers a loan: 40 gold now, 60 back in five days.',a:['Take the loan',{gold:40,debt:60}],b:['Politely refuse',{}]},
+  {id:'refugees',text:'Refugees from the east beg for shelter.',a:['Take them in',{pop:3,food:-10,renown:5,mood:-2}],b:['Turn them away',{mood:-3}]},
+  {id:'procession',text:'The priests ask you to fund a grand procession.',a:['Fund it',{gold:-12,mood:8,renown:3}],b:['Refuse',{mood:-3}]},
+  {id:'knight',text:'A knight errant offers to train your hero, for a fee.',a:['Pay him',{gold:-15,xp:20,renown:2}],b:['Send him off',{}]},
+  {id:'thieves',text:'Thieves were caught raiding the granary.',a:['Pardon them',{mood:3,food:-5}],b:['Make an example of them',{mood:-4,gold:4,renown:3}]},
+  {id:'envoy',text:'An envoy of the Sand Wolves offers a truce for gold.',a:['Pay 20 gold',{gold:-20,host:['nomads',-20]}],b:['Send him back',{host:['nomads',6],renown:2}]},
+  {id:'plague',text:'Rumors of sickness spread through the houses.',a:['Quarantine the sick',{gold:-8,mood:-2}],b:['Ignore the rumors',{gamble:true}]},
+  {id:'tomb',text:'Miners broke into an ancient tomb.',a:['Take the treasure',{gold:20,mood:-5}],b:['Seal it with honor',{renown:5,mood:2}]},
+  {id:'festival',text:'The children beg for a festival of kites.',a:['Let them fly',{gold:-6,mood:5}],b:['Not this year',{mood:-1}]},
+  {id:'scholar',text:'A traveling scholar asks to stay and teach.',a:['Welcome her',{gold:-10,renown:8}],b:['There is no room',{}]},
+  {id:'smugglers',text:'Smugglers of the Red Brotherhood offer cheap iron.',a:['Buy the iron',{gold:-10,iron:6,host:['brotherhood',-5]}],b:['Arrest them',{renown:3,host:['brotherhood',6]}],need:()=>S.coastUnlocked},
+  {id:'quarrel',text:'Your councillors quarrel over who sits nearest the throne.',a:['Host a banquet to make peace',{gold:-8,loyal:8}],b:['Let them sort it out',{loyal:-8}],need:()=>Object.keys(council()).length>=2},
+  {id:'grove',text:'Woodcutters want to clear the old sacred grove.',a:['Allow it',{wood:15,mood:-4}],b:['Forbid it',{mood:2}]},
+  {id:'wedding',text:'A wedding in the village! The couple hope you will come.',a:['Attend with a gift',{gold:-5,mood:6,renown:2}],b:['Send your regrets',{mood:-1}]},
+  {id:'clans',text:'The Iron Clans offer iron in return for timber.',a:['Trade 15 wood',{wood:-15,iron:6,host:['clans',-8]}],b:['Keep your timber',{host:['clans',3]}],need:()=>S.mtnUnlocked},
+  {id:'statue',text:'Masons offer to carve a statue of your hero.',a:['Commission it',{stone:-12,gold:-8,renown:10,mood:3}],b:['Not now',{}]}];
+function effText(e){ const o=[];
+  for(const r of ['gold','food','wood','stone','iron']) if(e[r]) o.push(`${e[r]>0?'+':''}${e[r]} ${T(r)}`);
+  if(e.mood) o.push(`${T('mood')} ${e.mood>0?'+':''}${e.mood}`); if(e.renown) o.push(`${T('renown')} +${e.renown}`);
+  if(e.pop) o.push(T('+{{n}} villagers',{n:e.pop})); if(e.xp) o.push(T('+{{n}} hero XP',{n:e.xp})); if(e.debt) o.push(T('repay {{n}} gold later',{n:e.debt}));
+  if(e.host) o.push(T(e.host[1]<0?'{{f}} calmer':'{{f}} angrier',{f:T(FACTIONS[e.host[0]].name)})); if(e.loyal) o.push(T(e.loyal>0?'council more loyal':'council less loyal'));
+  if(e.gamble) o.push(T('a gamble')); return o.join(', ')||T('no effect'); }
+function decide(which){
+  const pt=S.petition&&PETITIONS.find(x=>x.id===S.petition); if(!pt||S.phase!=='day') return;
+  const [label,e]=pt[which];
+  for(const r of ['gold','food','wood','stone','iron']) if(e[r]){ if(e[r]<0&&S.res[r]<-e[r]){ say(`You need ${-e[r]} ${r} for that.`); sfx('no'); return; } }
+  for(const r of ['gold','food','wood','stone','iron']) if(e[r]) S.res[r]+=e[r];
+  if(e.mood) S.mood=Math.max(0,Math.min(100,S.mood+e.mood)); if(e.renown) addRenown(e.renown);
+  if(e.pop) S.pop=Math.min(housing(),S.pop+e.pop); if(e.xp) gainXP(e.xp);
+  if(e.debt) S.debt={amt:e.debt,due:S.day+5}; if(e.host) shiftHost(e.host[0],e.host[1],true); if(e.loyal) councilShift(e.loyal);
+  let extra='';
+  if(e.gamble){ if(Math.random()<.5){ const n=Math.min(2,S.pop); S.pop-=n; S.mood=Math.max(0,S.mood-6); extra=` The sickness was real: ${plural(n,'villager')} died. Mood −6.`; } else extra=' The rumors were only rumors.'; }
+  say(`<b>${T(label)}.</b>${extra}`); S.petition=null; sfx('order'); save(); ui();
+}
+function renderPetition(){
+  const box=$('petition'), pt=S.petition&&PETITIONS.find(x=>x.id===S.petition);
+  if(!pt||S.phase!=='day'||S.over){ box.hidden=true; return; }
+  box.hidden=false;
+  box.innerHTML=`<div class="ph"><span class="rl">${T('Petition at the throne')}</span><span class="rt"></span></div><div class="pc"><button type="button" data-pt="a"><span></span><small></small></button><button type="button" data-pt="b"><span></span><small></small></button></div>`;
+  box.querySelector('.rt').textContent=T(pt.text);
+  for(const w of ['a','b']){ const b=box.querySelector(`[data-pt="${w}"]`); b.querySelector('span').textContent=T(pt[w][0]); b.querySelector('small').textContent=effText(pt[w][1]); b.addEventListener('click',()=>decide(w)); }
+}
+// the keep itself
+const KEEP_UP=[null,{name:'Castle',rank:2,cost:{stone:30,wood:20,gold:30}},{name:'Citadel',rank:3,cost:{stone:50,iron:10,gold:60}}];
+const keepLvl=()=>S.keepLvl||1;
+function raiseKeep(){
+  const up=KEEP_UP[keepLvl()]; if(!up||rankIdx()<up.rank||S.phase!=='day') return;
+  if(!canPay(up.cost)){ say(`Raising the ${T(up.name).toLowerCase()} needs ${costStr(up.cost)}.`); sfx('no'); return; }
+  spend(up.cost); S.keepLvl=keepLvl()+1;
+  withRegion('home',()=>{ S.keepMax+=6; S.keep+=6; const k=G(C,C).b; if(k){ k.lvl=S.keepLvl; k.born=S.t; } });
+  addRenown(15); party('win'); sfx('up'); S.ver++; say(`<b>The keep is now a ${T(up.name).toLowerCase()}.</b> More health, sharper archers and room for 4 more villagers.`); save(); ui();
+}
+// dawn upkeep for the kingdom layer
+function kingdomDawn(notes,rep){
+  addRenown(rep&&rep.total?(rep.keep===0&&!rep.lost?4:2):0);
+  const st=skill('steward'), tr=skill('treasurer');
+  if(st) S.res.food+=st*2; if(tr) S.res.gold+=tr*2;
+  councilDawn(notes);
+  if(S.debt&&S.day>=S.debt.due){ const pay=Math.min(S.res.gold,S.debt.amt); S.res.gold-=pay; if(pay<S.debt.amt){ S.mood=Math.max(0,S.mood-10); notes.push(`<b>Debt unpaid:</b> the merchant could only collect ${pay} of ${S.debt.amt} gold, and the town talks. Mood −10`); } else notes.push(`<b>Loan repaid:</b> ${pay} gold to the merchant`); S.debt=null; }
+  if(taxLvl()===3&&S.mood<35&&S.pop>3){ S.pop--; notes.push('<b>Crushing taxes:</b> a family packed up and left'); }
+  S.petition=S.day>=2&&Math.random()<.65?(()=>{ const ok=PETITIONS.filter(x=>x.id!==S.lastPet&&(!x.need||x.need())); const pt=ok[(Math.random()*ok.length)|0]; S.lastPet=pt.id; return pt.id; })():null;
+}
+let throneKey='';
+function renderThrone(){
+  const key=[S.renown,taxLvl(),JSON.stringify(council()),keepLvl(),S.phase,lang,S.res.gold,S.res.stone,S.res.wood,S.res.iron,S.day].join('|'); if(key===throneKey) return; throneKey=key;
+  const ri=rankIdx(), nx=RANKS[ri+1], rn=S.renown||0, pct=nx?Math.round((rn-RANKS[ri].at)/(nx.at-RANKS[ri].at)*100):100, night=S.phase!=='day';
+  $('thronesum').textContent=T(rankName());
+  const up=KEEP_UP[keepLvl()];
+  const seats=SEATS.map(st=>{ const m=cm(st.id), lock=ri<st.rank;
+    if(lock) return `<div class="seat locked"><span class="sn">${T(st.name)}</span><span class="sd">${T('Opens when your realm becomes a {{r}}',{r:T(RANKS[st.rank].name).toLowerCase()})}</span></div>`;
+    if(!m) return `<div class="seat"><span class="sn">${T(st.name)} · <span style="color:var(--muted);font-weight:500">${T('vacant')}</span></span><span class="sd">${T(st.eff(2))} ${T('(at skill 2)')}</span><button type="button" data-appoint="${st.id}" ${night?'disabled':''}>${T('Appoint')}</button></div>`;
+    const lc=m.loy<25?'#E8604F':m.loy<50?'#F0BE4E':'#8FCB7E';
+    return `<div class="seat"><span class="sn">${m.name} · ${T(st.name)} <span class="loy" title="${T('Loyalty')} ${m.loy}"><i style="width:${m.loy}%;background:${lc}"></i></span></span><span class="sd">${T(st.eff(skill(st.id)))} · ${T(TRAITS[m.trait].name)}: ${T(TRAITS[m.trait].desc)}</span><button type="button" data-dismiss="${st.id}" ${night?'disabled':''}>${T('Dismiss')}</button></div>`; }).join('');
+  $('throne').innerHTML=`<div class="th">
+    <div class="tc"><h4>${T('Realm')}</h4><span class="big">${T(rankName())}</span><div class="rbar"><i style="width:${pct}%"></i></div><span class="sub">${nx?T('{{r}} renown · {{n}} more to become a {{x}}',{r:rn,n:nx.at-rn,x:T(nx.name).toLowerCase()}):T('{{r}} renown · the greatest realm in the desert',{r:rn})}</span><span class="sub">${T('Renown comes from clean defenses, slain champions, feasts, fulfilled requests and wise petitions.')}</span></div>
+    <div class="tc"><h4>${T('Taxes')}</h4><div class="seg">${TAXES.map((t,i)=>`<button type="button" data-tax="${i}" aria-pressed="${taxLvl()===i}" ${night?'disabled':''}>${T(t.name)}</button>`).join('')}</div><span class="sub">${T('Each villager pays {{g}} gold a dawn',{g:TAXES[taxLvl()].mult})} · ${TAXES[taxLvl()].mood?`${T('mood')} ${TAXES[taxLvl()].mood>0?'+':''}${TAXES[taxLvl()].mood}`:T('no effect on mood')}${taxLvl()===3?' · '+T('families leave when unhappy'):''}</span>
+      <h4 style="margin-top:6px">${T('The keep')}</h4><span class="big" style="font-size:16px">${T(['Keep','Castle','Citadel'][keepLvl()-1])}</span>
+      ${up?`<span class="sub">${T('Raise it into a {{n}}: +6 health, +1 damage and range for its archers, room for 4 more villagers, +15 renown.',{n:T(up.name).toLowerCase()})}${ri<up.rank?' '+T('Needs a {{r}}.',{r:T(RANKS[up.rank].name).toLowerCase()}):''}</span><button type="button" id="raiseKeep" ${night||ri<up.rank||!canPay(up.cost)?'disabled':''}>${T('Raise the {{n}}',{n:T(up.name).toLowerCase()})} <span class="c">${costShort(up.cost)}</span></button>`:`<span class="sub">${T('Your citadel is complete.')}</span>`}</div>
+    <div class="tc"><h4>${T('Royal council')}</h4>${seats}</div></div>`;
+  $('throne').querySelectorAll('[data-tax]').forEach(b=>b.addEventListener('click',()=>setTax(+b.dataset.tax)));
+  $('throne').querySelectorAll('[data-appoint]').forEach(b=>b.addEventListener('click',()=>appoint(b.dataset.appoint)));
+  $('throne').querySelectorAll('[data-dismiss]').forEach(b=>b.addEventListener('click',()=>dismiss(b.dataset.dismiss)));
+  $('raiseKeep')?.addEventListener('click',raiseKeep);
+}
 function showReport(r){
   const box=$('board'); box.querySelectorAll('.report').forEach(e=>e.remove());
   const by=r.by, parts=[['hero',T('Your hero'),'#F2EADD'],['tower',T('Towers and keep'),'#F0BE4E'],['soldier',T('Soldiers'),'#5E8DFF'],['cata',T('Catapults'),'#E0904A'],['trap',T('Traps'),'#B9C6D8']].filter(p=>by[p[0]]);
@@ -3823,7 +4138,7 @@ function newRequest(){
 }
 function checkRequest(){
   const q=S.req; if(!q||S.phase!=='day') return; const r=REQS[q.id]; if(!r){ S.req=null; return; }
-  if(r.done(q)){ for(const k in r.reward) S.res[k]=(S.res[k]||0)+r.reward[k]; S.mood=Math.min(100,S.mood+r.mood);
+  if(r.done(q)){ addRenown(4); for(const k in r.reward) S.res[k]=(S.res[k]||0)+r.reward[k]; S.mood=Math.min(100,S.mood+r.mood);
     toast(T('Request fulfilled'),T('{{n}} thanks you',{n:q.name}),'♥'); say(`<b>${q.name} is delighted.</b> +${costStr(r.reward)}, mood +${r.mood}.`);
     const f=folk.find(o=>o.name===q.name); if(f) emote(f,'♥',3); S.req=null; sfx('up'); save(); }
 }
@@ -3875,7 +4190,7 @@ function buyWare(id){
 function holdFeast(){
   if(S.phase!=='day'||S.over||S.feastSeason===seasonIdx()) return;
   const c={food:20,gold:10}; if(!canPay(c)){ say(`A feast needs ${costStr(c)}.`); sfx('no'); return; }
-  spend(c); S.feastSeason=seasonIdx(); S.feastDay=S.day; S.mood=Math.min(100,S.mood+12);
+  spend(c); S.feastSeason=seasonIdx(); S.feastDay=S.day; S.mood=Math.min(100,S.mood+12); addRenown(6); councilShift(10);
   for(const f of folk){ if(f.job==null&&!f.goal){ f.state='act'; f.act='dance'; f.t=6+Math.random()*4; f.after=null; emote(f,'♪',3); } }
   party('win'); sfx('dawn'); toast(T('Feast'),T('The whole town is dancing'),'♪'); say('<b>A feast!</b> Tables in the square, music until dark. Mood +12.'); save(); ui();
 }
@@ -3908,13 +4223,13 @@ function ui(){
   $('region').textContent=T(regionName(S.cur))+(heroHere()?'':T(' · hero away')); if(!$('realm').hidden) renderRealm();
   const sea=season(); $('season').textContent=T(sea.name)+(S.weather!=='clear'?` · ${T(WX[S.weather].name)}`:'')+(S.blood?' · '+T('Blood moon'):''); $('seaDot').setAttribute('fill',sea.col); $('cSeason').classList.toggle('blood',!!S.blood);
   $('hlv').textContent=T('Hero Lv {{n}}',{n:S.hl}); $('xpf').style.width=Math.round(100*S.hx/xpNeed(S.hl))+'%';
-  checkRequest(); renderReq();
+  checkRequest(); renderReq(); renderPetition(); renderThrone();
   if(S.phase==='day'&&!S.modal&&!S.over&&S.perkPending>0) offerPerk();
   if(S.phase==='day'&&!S.modal&&!S.over&&S.lootPending>0) offerLoot();
   if(S.phase==='day'&&!S.modal&&!S.over&&S.demand) offerDemand();
   renderEdicts(); renderHeroPanel();
   if(S.phase==='day') checkAch(); else renderAch();
-  $('best').textContent=[T(DIFF[S.diff].label),T('score {{n}}',{n:score().toLocaleString()}),bestScore?T('best {{n}}',{n:bestScore.toLocaleString()}):''].filter(Boolean).join(' · ');
+  $('best').textContent=[T(rankName()),T(DIFF[S.diff].label),T('score {{n}}',{n:score().toLocaleString()}),bestScore?T('best {{n}}',{n:bestScore.toLocaleString()}):''].filter(Boolean).join(' · ');
   renderInsp();
 }
 function renderQuest(){
@@ -4014,7 +4329,7 @@ function renderInsp(){
   let det='';
   const work=b.off?'paused':b.worked?'worked by a villager':'idle, no free villager';
   switch(b.type){
-    case 'keep': det=S.cur!=='home'?`Health ${S.keep}/${S.keepMax} · if it falls, raiders plunder a third of your gold and food · shoots raiders close by`:`Health ${S.keep}/${S.keepMax} · houses 4 villagers · shoots raiders close by`; break;
+    case 'keep': det=S.cur==='home'&&keepLvl()>1?`${T(['Keep','Castle','Citadel'][keepLvl()-1])} · Health ${S.keep}/${S.keepMax} · houses ${4*keepLvl()} villagers · shoots raiders close by`:S.cur!=='home'?`Health ${S.keep}/${S.keepMax} · if it falls, raiders plunder a third of your gold and food · shoots raiders close by`:`Health ${S.keep}/${S.keepMax} · houses 4 villagers · shoots raiders close by`; break;
     case 'road': det=`${hp} · your hero rides 40% faster on roads · farms, lumber camps and mines next to a road yield 1 more`; break;
     case 'lighthouse': det=`${hp} · pirates land with a quarter less health · warships are more likely to find pirate boats`; break;
     case 'smith': det=`${hp} · arms ${S.iron||0}/3 (+${S.iron||0} damage for your hero and soldiers) · plate ${S.plate||0}/3 (+${(S.plate||0)*2} soldier health, +${(S.plate||0)*3} hero health)`; break;
@@ -4154,7 +4469,7 @@ function applyLang(){
   document.querySelectorAll('[data-th]').forEach(el=>{ if(el.dataset.en==null) el.dataset.en=el.innerHTML; el.innerHTML=lang==='es'?T(el.dataset.th,{defaultValue:el.dataset.en}):el.dataset.en; });
   const lb=$('lang'); lb.textContent=lang.toUpperCase(); lb.setAttribute('aria-label',lang==='es'?'Idioma: español. Cambiar a inglés':'Language: English. Switch to Spanish');
   $('install').textContent=T('Install');
-  delete $('tools').dataset.built; delete $('res').dataset.built; upgKey=''; achKey=''; edictKey=''; heroKey='';
+  delete $('tools').dataset.built; delete $('res').dataset.built; upgKey=''; achKey=''; edictKey=''; heroKey=''; throneKey='';
   if(S){ ui(); if(!$('realm').hidden) renderRealm(); }
   $('qual').textContent=T(quality==='high'?'High':'Low');
 }
