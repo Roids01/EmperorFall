@@ -47,6 +47,11 @@ three.js r128 and every library load from the jsDelivr and cdnjs CDNs, pinned to
 - **Hero levels:** felling raiders earns experience, and each level brings a perk choice.
 - **The realm:** from day 3 your scouts find Saltreach Cove on the coast. Open the realm map (M) to ride between The Valley and the cove. Each dawn announces which region the night's raid will strike; a region without your hero defends itself. Lose the cove's fort and raiders plunder your stores; lose the valley's keep and the kingdom falls.
 - **Harbor and trade:** build harbors on the cove's shore to fish and berth ships, then send voyages to four foreign ports for gold, spices and iron. Longer voyages pay more and risk more. Pirates land from the sea.
+- **Ironpeak Pass:** a third region, found on day 7. Its mines dig iron, avalanches can bury buildings in winter, and from day 9 raiders come down from the north.
+- **Iron, blacksmith, tavern and roads:** iron comes from the pass and from Ironhold. A blacksmith forges arms and plate, a tavern lifts the mood and hires sellswords for a night, and roads speed up your hero and add 1 to the farms, lumber camps and mines beside them.
+- **Naval defense:** a lighthouse weakens pirates as they land, and warships built at the harbor sail out to sink pirate boats before they reach the shore.
+- **Story and goals:** five chapters across the 20 nights, 16 achievements, and a daily challenge where everyone gets the same valley and the same twist for the day.
+- **Look:** a tilt-shift, color-graded finish on High graphics, golden-hour dusks and dawns, drifting cloud shadows, swaying palms and pines, surf along the cove, and buildings that rise out of scaffolding.
 - **Save slots and language:** three kingdoms can be saved side by side, and the EN/ES button switches the interface to Spanish.
 
 - **Phones and tablets:** steer the hero with the on-screen joystick; a full-screen button appears where the browser supports it.

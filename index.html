@@ -50,12 +50,37 @@ main{max-width:820px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
 header{display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap}
 h1{font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1;margin:0;letter-spacing:-.02em}
 h1 span{color:var(--sand)}
+h1 .crest{width:26px;height:26px;vertical-align:-3px;margin-right:6px}
 #best{font-size:13px;color:var(--muted)}
 .board{position:relative;width:100%;max-width:100%;aspect-ratio:16/10;border-radius:8px;overflow:hidden;background:#7A3A2B;touch-action:manipulation;user-select:none;-webkit-user-select:none}
 @media (max-width:560px){.board{aspect-ratio:1}}
 #gl,#hud{position:absolute;inset:0;width:100%;height:100%;display:block}
 #gl{cursor:pointer;touch-action:none}
 .grade{position:absolute;inset:0;pointer-events:none;background:#3756B8;mix-blend-mode:color;opacity:0}
+.vig{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse at 50% 46%,transparent 55%,rgba(20,10,6,.38) 100%)}
+.board.post .vig{display:none}
+.chapter{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:13%!important;gap:4px;pointer-events:none;z-index:5;text-align:center;padding:20px;background:radial-gradient(ellipse at 50% 74%,rgba(16,10,6,.62),rgba(16,10,6,0) 62%);animation:chapIn 4.8s ease both}
+.chapter .ck{font-family:var(--f-num);font-size:12px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold)}
+.chapter .cn{font-family:var(--f-display);font-weight:800;font-size:clamp(26px,5vw,44px);line-height:1.05;color:#FFF4E0;text-shadow:0 2px 18px rgba(0,0,0,.6);text-wrap:balance}
+.chapter .cd{max-width:44ch;color:#EADFCB;font-size:14px;text-shadow:0 1px 8px rgba(0,0,0,.7);text-wrap:balance}
+.chapter .rule{width:120px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent);margin:6px 0}
+@keyframes chapIn{0%{opacity:0;transform:scale(1.04)}12%{opacity:1;transform:none}80%{opacity:1}100%{opacity:0}}
+.ach{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:6px;margin-top:8px}
+.ab2{display:flex;gap:9px;align-items:center;background:var(--surface);border-radius:8px;padding:7px 9px;min-width:0}
+.ab2 .ai{width:28px;height:28px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:14px;background:var(--raise);color:var(--muted);filter:grayscale(1);opacity:.55}
+.ab2.got .ai{background:radial-gradient(circle at 35% 30%,#FFE29A,#C98A2E);color:#2A1A10;filter:none;opacity:1}
+.ab2 .an{font-size:12.5px;font-weight:600;color:var(--ink);line-height:1.25}
+.ab2 .ad2{font-size:11.5px;color:var(--muted);line-height:1.3}
+.ab2:not(.got) .an{color:var(--muted)}
+.achsum{font-family:var(--f-num);font-size:12px;color:var(--gold);margin-left:6px}
+.toasts{position:absolute;top:52px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;z-index:7;width:max-content;max-width:calc(100% - 24px)}
+.toast{display:flex;align-items:center;gap:10px;background:rgba(28,23,20,.92);border:1px solid rgba(240,190,78,.55);border-radius:10px;padding:8px 14px 8px 10px;box-shadow:0 6px 24px rgba(0,0,0,.35);animation:toastIn .45s cubic-bezier(.2,1.4,.4,1) both;max-width:100%}
+.toast.out{animation:toastOut .4s ease-in both}
+.toast .ti{width:30px;height:30px;border-radius:50%;flex:none;display:grid;place-items:center;background:radial-gradient(circle at 35% 30%,#FFE29A,#C98A2E);color:#2A1A10;font-size:15px}
+.toast .tt{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);font-weight:600;line-height:1.2}
+.toast .tb{font-size:13.5px;color:var(--ink);font-weight:600;line-height:1.25}
+@keyframes toastIn{from{opacity:0;transform:translateY(-10px) scale(.94)}}
+@keyframes toastOut{to{opacity:0;transform:translateY(-8px)}}
 #mini{position:absolute;right:10px;bottom:10px;width:min(30%,160px);aspect-ratio:1;max-width:100%;border-radius:8px;background:rgba(18,16,28,.5);cursor:pointer;touch-action:none}
 #hud{pointer-events:none}
 .chips{position:absolute;top:10px;left:10px;display:flex;gap:6px;pointer-events:none;flex-wrap:wrap}
@@ -64,9 +89,10 @@ h1 span{color:var(--sand)}
 .chip i svg{width:12px;height:12px}
 .chip.bump{color:var(--good)}
 .chip.hurt{color:var(--foe)}
-.res{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
-@media (max-width:560px){.res{grid-template-columns:repeat(3,1fr)}}
-.rc{background:var(--surface);border-radius:8px;padding:6px 9px 5px;display:flex;flex-direction:column;min-width:0;transition:background .4s}
+.res{display:grid;grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:6px}
+@media (max-width:560px){.res{grid-template-columns:repeat(3,1fr)}.res:has(#r-iron:not([hidden])){grid-template-columns:repeat(4,1fr)}}
+.rc{position:relative;background:linear-gradient(180deg,#2D241F,var(--surface));border-radius:8px;padding:7px 9px 5px;display:flex;flex-direction:column;min-width:0;transition:background .4s;overflow:hidden}
+.rc::before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--rcol,var(--sand));opacity:.75}
 .rc .lab{font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;align-items:center;gap:5px;white-space:nowrap;overflow:hidden}
 .rc .lab i{width:8px;height:8px;border-radius:2px;flex:none}
 .rc .v{font-family:var(--f-num);font-size:18px;font-variant-numeric:tabular-nums;line-height:1.25}
@@ -76,7 +102,7 @@ h1 span{color:var(--sand)}
 @media (max-width:480px){.rc .ad{display:none}.rc .sh{display:inline}}
 .rc .sh{display:none}
 @media (max-width:420px){.rc{padding:5px 6px}.rc .v{font-size:15px}.rc .lab{font-size:9px;letter-spacing:.04em}}
-.cg{color:var(--gold)} .cf{color:#C9E07A} .cw{color:#E0A86A} .cs{color:#C9CFD8}
+.cg{color:var(--gold)} .cf{color:#C9E07A} .cw{color:#E0A86A} .cs{color:#C9CFD8} .ci{color:#9FB8D0}
 .ledger table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;margin-top:8px}
 .ledger .tw{overflow-x:auto}
 .ledger th,.ledger td{padding:6px 6px;text-align:left;border-top:1px solid var(--line);vertical-align:top}
@@ -90,7 +116,7 @@ h1 span{color:var(--sand)}
 .prod{font-size:12px;color:var(--muted)}
 #msg{margin:0;min-height:3em;color:var(--muted);font-size:14px}
 #msg b{color:var(--ink);font-weight:600}
-.insp{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 10px;border-radius:8px;background:var(--surface);flex-wrap:wrap}
+.insp{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 10px 8px 12px;border-radius:8px;background:var(--surface);flex-wrap:wrap;border-left:3px solid var(--sand)}
 .insp .info{flex:1;min-width:0;line-height:1.3}
 .insp .name{font-weight:600;font-size:14px}
 .insp .det{font-size:12.5px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -109,32 +135,43 @@ h1 span{color:var(--sand)}
 .tool.poor .c{color:var(--muted);text-decoration:line-through}
 .tool.locked{opacity:.5}
 .tool.locked .c{color:var(--muted)}
-.tool[aria-pressed="true"]{border-color:var(--sand);background:var(--raise)}
+.tool[aria-pressed="true"]{border-color:var(--sand);background:var(--raise);box-shadow:inset 0 -2px 0 var(--sand)}
+.tool:not(:disabled):hover{background:var(--raise)}
+.tool{transition:background .15s}
 .tool:disabled{opacity:.35;cursor:default}
 .row{display:flex;gap:6px}
-.bell{flex:1;min-width:0;font:inherit;font-weight:600;font-size:15px;border:0;border-radius:8px;padding:12px 14px;background:var(--sand);color:#2A1A10;cursor:pointer;line-height:1.2}
+.bell{flex:1;min-width:0;font:inherit;font-weight:600;font-size:15px;border:0;border-radius:8px;padding:12px 14px;background:linear-gradient(180deg,#E8AE72,#CF8A4E);color:#2A1A10;cursor:pointer;line-height:1.2;box-shadow:0 2px 0 #8A5530,inset 0 1px 0 rgba(255,240,210,.35);transition:transform .12s,filter .15s}
+.bell:not(:disabled):hover{filter:brightness(1.06)}
+.bell:not(:disabled):active{transform:translateY(1px);box-shadow:0 1px 0 #8A5530}
 .bell small{display:block;font-weight:500;font-size:12px;opacity:.75}
-.bell:disabled{background:var(--raise);color:var(--ink);cursor:default}
+.bell:disabled{background:var(--raise);color:var(--ink);cursor:default;box-shadow:none}
 .ic{width:46px;flex:none;display:flex;align-items:center;justify-content:center;font:inherit;font-family:var(--f-num);font-size:13px;border:1px solid transparent;background:var(--surface);color:var(--ink);border-radius:8px;cursor:pointer}
 .ic svg{width:18px;height:18px}
 .ic[aria-pressed="true"]{border-color:var(--sand)}
 button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
 details{font-size:13px;color:var(--muted);border-top:1px solid var(--line);padding-top:10px}
-summary{cursor:pointer;color:var(--ink);font-weight:500}
+summary{cursor:pointer;color:var(--ink);font-weight:600;font-family:var(--f-display);font-size:15px;letter-spacing:-.005em}
 details p{margin:8px 0 0;max-width:68ch}
 details b{color:var(--ink);font-weight:600}
 kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-radius:3px;padding:0 4px;background:var(--surface)}
-.over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;background:rgba(28,23,20,.8);padding:20px;overflow:auto}
+.over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;background:radial-gradient(ellipse at 50% 40%,rgba(40,30,24,.55),rgba(16,12,10,.86));padding:20px;overflow:auto;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);animation:fadeIn .25s ease-out both}
+.over .card{display:flex;flex-direction:column;align-items:center;gap:10px;width:100%;max-width:420px;background:linear-gradient(180deg,#30261F,#251D18);border:1px solid #4A3B31;border-radius:14px;padding:20px 18px 18px;box-shadow:0 18px 50px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,235,200,.06);animation:cardIn .35s cubic-bezier(.2,1.25,.4,1) both;margin:auto}
+.over .orn{display:flex;align-items:center;gap:8px;width:70%;color:var(--gold)}
+.over .orn::before,.over .orn::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,rgba(240,190,78,.6),transparent)}
+.over .orn svg{width:22px;height:14px}
+@keyframes fadeIn{from{opacity:0}}
+@keyframes cardIn{from{opacity:0;transform:translateY(12px) scale(.96)}}
 .over h2{font-family:var(--f-display);font-weight:800;font-size:28px;line-height:1.1;margin:0;text-wrap:balance;letter-spacing:-.01em}
 .over p{margin:0;color:var(--muted);max-width:38ch}
-.over .opts{display:flex;flex-direction:column;gap:8px;width:100%;max-width:330px;margin-top:6px}
-.over .opt{font:inherit;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:8px;padding:10px 12px;cursor:pointer}
+.over .opts{display:flex;flex-direction:column;gap:8px;width:100%;max-width:360px;margin-top:6px}
+.over .opt{font:inherit;text-align:left;border:1px solid var(--line);background:rgba(20,15,12,.45);color:var(--ink);border-radius:9px;padding:10px 12px;cursor:pointer;transition:border-color .15s,transform .15s,background .15s}
+.over .opt:active{transform:scale(.985)}
 .over .opt b{display:block;font-weight:600}
 .over .opt span{font-size:13px;color:var(--muted)}
-.over .opt.primary{background:var(--sand);color:#2A1A10;border-color:var(--sand);text-align:center}
+.over .opt.primary{background:linear-gradient(180deg,#E8AE72,#CF8A4E);color:#2A1A10;border-color:#E8AE72;text-align:center;box-shadow:0 2px 0 #8A5530}
 .over .opt.primary span{color:inherit;opacity:.75}
 .over .opt:hover{border-color:var(--sand)}
-.quest{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:8px;padding:8px 12px;font-size:13.5px;flex-wrap:wrap}
+.quest{display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,rgba(240,190,78,.10),var(--surface) 38%);border-radius:8px;padding:8px 12px;font-size:13.5px;flex-wrap:wrap;border:1px solid rgba(240,190,78,.18)}
 .quest .ql{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);font-weight:600}
 .quest .qt{flex:1;min-width:0}
 .quest .qp{font-family:var(--f-num);font-size:12px;color:var(--muted)}
@@ -201,7 +238,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
 <body>
 <main>
   <header>
-    <h1>Small <span>Crown</span></h1>
+    <h1><svg class="crest" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 12.5V6l3 3 3-5.5 3 5.5 3-3v6.5z" fill="#F0BE4E"/><rect x="2" y="13.2" width="12" height="1.4" rx=".4" fill="#D99A60"/><circle cx="2" cy="6" r=".9" fill="#E8604F"/><circle cx="8" cy="3.5" r=".9" fill="#E8604F"/><circle cx="14" cy="6" r=".9" fill="#E8604F"/></svg>Small <span>Crown</span></h1>
     <span id="best"></span>
   </header>
 
@@ -209,6 +246,8 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
   <div class="board" id="board">
     <canvas id="gl" aria-label="Canyon valley. Tap a tile to build or inspect. Drag to look around."></canvas>
     <div class="grade" id="grade"></div>
+    <div class="vig" aria-hidden="true"></div>
+    <div class="toasts" id="toasts" aria-live="polite"></div>
     <canvas id="hud" aria-hidden="true"></canvas>
     <canvas id="mini" aria-label="Minimap. Tap to look at that part of the valley."></canvas>
     <div class="joy" id="joy" hidden><span class="lab" data-t>Ride</span></div>
@@ -256,6 +295,11 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <div id="ledger"></div>
   </details>
 
+  <details class="ledger">
+    <summary><span data-t>Achievements</span><span class="achsum" id="achsum"></span></summary>
+    <div class="ach" id="ach"></div>
+  </details>
+
   <details class="ledger" open>
     <summary data-t>Kingdom upgrades</summary>
     <div class="upg" id="upg"></div>
@@ -265,7 +309,11 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <summary data-t>How to rule</summary>
     <p data-th="help1"><b>The goal</b> is to hold the keep through 20 nights. Your score counts nights held, raiders felled, villagers and buildings, and Hard raises it. After night 20 you can keep ruling in endless mode. Quests along the way teach the basics and pay out goods.</p>
     <p data-th="help2"><b>The realm.</b> From day 3 your scouts find Saltreach Cove on the coast. Open the realm map (<kbd>M</kbd>, or the map button on the valley) to travel there. Your hero can only be in one region at a time. Each dawn announces which region tonight's raid will hit, so ride there in time; a region without your hero stands on its own. If the cove's fort falls, raiders plunder a third of your gold and food. If the valley's keep falls, the kingdom falls.</p>
-    <p data-th="help3"><b>Harbor and trade.</b> Build a harbor (<kbd>N</kbd>) on the cove's shore. It fishes for food and berths a ship. Tap the harbor to send ships to foreign ports: the Salt Isles buy stone, Qasr Amber buys food and sends back spices that lift the mood, Ironhold buys wood and sends back iron for your soldiers' weapons, and Far Cathay turns gold into more gold. Longer voyages pay more but risk more, especially in winter. Pirates raid the cove from the sea.</p>
+    <p data-th="help3"><b>Harbor and trade.</b> Build a harbor (<kbd>N</kbd>) on the cove's shore. It fishes for food and berths a ship. Tap the harbor to send ships to foreign ports: the Salt Isles buy stone, Qasr Amber buys food and sends back spices that lift the mood, Ironhold buys wood and sends back iron for your blacksmith, and Far Cathay turns gold into more gold. Longer voyages pay more but risk more, especially in winter. Pirates raid the cove from the sea.</p>
+    <p data-th="help20"><b>Ironpeak Pass.</b> On day 7 your scouts find a snowy pass to the north. Mines there dig iron instead of stone, and pines stand in for palm groves. From day 9 raiders may come down from its northern heights. In winter or snow, avalanches can bury buildings beside the cliffs.</p>
+    <p data-th="help21"><b>Iron and the blacksmith.</b> Iron comes from the mines of Ironpeak Pass and from voyages to Ironhold. Build one blacksmith (<kbd>G</kbd>) anywhere and tap it to forge arms (+1 damage for your hero and soldiers) or plate (+2 health for soldiers, +3 for your hero), three times each.</p>
+    <p data-th="help22"><b>Taverns, roads and the sea.</b> A tavern (<kbd>T</kbd>) lifts the mood and earns 2 gold a dawn; tap it to hire three sellswords who guard the raided region's keep for one night. Roads (<kbd>Y</kbd>) cost 1 stone: your hero rides 40% faster on them, and farms, lumber camps and mines next to one yield 1 more. At the cove, a lighthouse (<kbd>L</kbd>) weakens landing pirates, and warships built from a harbor's panel sail out to sink pirate boats before they land.</p>
+    <p data-th="help23"><b>Chapters, achievements and the daily challenge.</b> The story unfolds in five chapters across the 20 nights. Achievements are kept on this device. The daily challenge, chosen from the save menu, gives everyone the same valley and the same twist for the day.</p>
     <p data-th="help4"><b>Seasons</b> turn every 5 days. Spring rains add 1 food per farm, summer heat costs 1, harvest adds 2 and lifts markets, and winter costs 2 while every house burns 1 wood a dawn to stay warm. Weather is rolled each dawn: rain stops fires, sandstorms slow raiders but shorten your towers' sight, snow slows everyone.</p>
     <p data-th="help5"><b>Mood.</b> Villagers are happier with wells and shrines nearby, full granaries and a good harvest, and unhappier after hunger, cold houses and buildings lost to raiders. Content villagers pay extra taxes; unhappy ones pay less, stop moving in, and below 20 they start to leave. Wells also keep fire off the buildings around them.</p>
     <p data-th="help6"><b>Hero levels.</b> Raiders your hero fells, and every night survived, earn experience. Each level adds health, every second level adds damage, and each one lets you pick a perk.</p>
@@ -278,7 +326,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <p data-th="help13"><b>By night</b> raiders take the easiest road and smash anything blocking it. Runners appear from night 3, brutes from night 6, and a warlord every fifth night. Shamans appear from night 7 and heal the raiders around them, so strike them first. Some nights bring a blood moon: half again as many raiders, but every kill pays double. Archers appear from night 4 and shoot from range at your hero, soldiers and buildings. Battering rams roll in from night 8, ignore soldiers and smash buildings fast. Beat a warlord and you choose a boon. Kingdom upgrades are permanent improvements you buy with your goods at any time. Progress saves after every build and each dawn.</p>
     <p data-th="help14"><b>The view</b> follows your hero. Drag the board to look around, scroll or pinch to zoom, tap the minimap to jump anywhere, and use the frame button (<kbd>V</kbd>) to see the whole valley at once.</p>
     <p data-th="help15"><b>Moving and building.</b> Your hero rides around buildings and cliffs on his own. Right-click anywhere to send him there. With the palisade or trap tool, drag across the ground to lay a whole line of orders at once. Right-click an order to cancel it.</p>
-    <p data-th="help16">Keys: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> ride the hero, arrow keys pan the view, <kbd>H</kbd> back to the hero, <kbd>+</kbd> <kbd>−</kbd> zoom, <kbd>1</kbd>–<kbd>0</kbd>, <kbd>Z</kbd>, <kbd>C</kbd>, <kbd>B</kbd>, <kbd>N</kbd> build tools, <kbd>X</kbd> clear, <kbd>M</kbd> realm map, <kbd>R</kbd> ride, <kbd>Space</kbd> ring the bell, <kbd>U</kbd> upgrade, <kbd>P</kbd> pause, <kbd>F</kbd> speed, <kbd>Esc</kbd> deselect. Speed, zoom, sound and graphics quality are remembered.</p>
+    <p data-th="help16">Keys: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> ride the hero, arrow keys pan the view, <kbd>H</kbd> back to the hero, <kbd>+</kbd> <kbd>−</kbd> zoom, <kbd>1</kbd>–<kbd>0</kbd>, <kbd>Z</kbd>, <kbd>C</kbd>, <kbd>B</kbd>, <kbd>N</kbd>, <kbd>L</kbd>, <kbd>G</kbd>, <kbd>T</kbd>, <kbd>Y</kbd> build tools, <kbd>X</kbd> clear, <kbd>M</kbd> realm map, <kbd>R</kbd> ride, <kbd>Space</kbd> ring the bell, <kbd>U</kbd> upgrade, <kbd>P</kbd> pause, <kbd>F</kbd> speed, <kbd>Esc</kbd> deselect. Speed, zoom, sound and graphics quality are remembered.</p>
     <p data-th="help17"><b>On a phone or tablet</b>, steer your hero with the joystick in the bottom-left corner of the valley. Tapping tiles still builds and selects.</p>
     <p data-th="help18"><b>Sound</b> button: tap once for sound effects, twice to add music, a third time for silence. <button class="linkbtn" id="tourBtn" type="button">Take the guided tour</button></p>
     <p data-th="help19"><b>Damage</b> shows: buildings smoke when hurt and burn when badly hurt. Tap one and use <b>Repair</b> during the day, or wait for dawn to patch them slowly. Destroyed buildings leave rubble that clears after two days.</p>
@@ -304,12 +352,20 @@ const DEF={
   shrine:{name:'Shrine',cost:{stone:6,gold:6},hp:5,enter:8,unlock:5},
   harbor:{name:'Harbor',cost:{wood:10,stone:4},hp:8,enter:10,work:true,need:'shore',unlock:3},
   range:{name:'Archery range',cost:{wood:6,gold:5},hp:6,enter:10,unlock:3,upkeep:1,upg:[{wood:6,gold:8}]},
+  lighthouse:{name:'Lighthouse',cost:{stone:10,wood:4},hp:7,enter:10,need:'shore',unlock:5},
+  smith:{name:'Blacksmith',cost:{wood:6,stone:6},hp:6,enter:9,unlock:6},
+  tavern:{name:'Tavern',cost:{wood:8,gold:4},hp:5,enter:8,unlock:4},
+  road:{name:'Road',cost:{stone:1},hp:3,enter:1},
   keep:{name:'Keep',cost:{},hp:0,enter:1}
 };
-const TOOLS=['farm','house','lumber','mine','wall','trap','tower','cata','barr','market','well','shrine','range','harbor','clear','ride'];
-const KEYS={farm:'1',house:'2',lumber:'3',mine:'4',wall:'5',trap:'6',tower:'7',cata:'8',barr:'9',market:'0',well:'Z',shrine:'C',range:'B',harbor:'N',clear:'X',ride:'R'};
-const TNAME={farm:'Farm',house:'House',lumber:'Lumber',mine:'Mine',wall:'Palisade',trap:'Trap',tower:'Tower',cata:'Catapult',barr:'Barracks',market:'Market',well:'Well',shrine:'Shrine',range:'Archers',harbor:'Harbor',clear:'Clear',ride:'Ride'};
+const TOOLS=['farm','house','lumber','mine','wall','trap','tower','cata','barr','market','well','shrine','range','harbor','lighthouse','smith','tavern','road','clear','ride'];
+const KEYS={farm:'1',house:'2',lumber:'3',mine:'4',wall:'5',trap:'6',tower:'7',cata:'8',barr:'9',market:'0',well:'Z',shrine:'C',range:'B',harbor:'N',lighthouse:'L',smith:'G',tavern:'T',road:'Y',clear:'X',ride:'R'};
+const TNAME={farm:'Farm',house:'House',lumber:'Lumber',mine:'Mine',wall:'Palisade',trap:'Trap',tower:'Tower',cata:'Catapult',barr:'Barracks',market:'Market',well:'Well',shrine:'Shrine',range:'Archers',harbor:'Harbor',lighthouse:'Light',smith:'Smithy',tavern:'Tavern',road:'Road',clear:'Clear',ride:'Ride'};
 const ICON={
+  lighthouse:'<path d="M9 7h4l1.4 12H7.6z" fill="currentColor"/><rect x="8.5" y="3.5" width="5" height="3" rx=".6" fill="currentColor"/><path d="M15 5l5-2M15 5.5l5 2M7 5L2 3M7 5.5l-5 2" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>',
+  smith:'<path d="M3 9h12c0 2-1.6 3-4 3v2h3v3H6v-3h3v-2c-3 0-6-1-6-3z" fill="currentColor"/><path d="M15 9h4l-4 2z" fill="currentColor"/>',
+  tavern:'<path d="M5 6h9v12H5z" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M14 9h2.5a2 2 0 0 1 0 6H14" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M6 6c0-2 2-3 3.5-2 1-1.5 4-1 4 1.5" fill="none" stroke="currentColor" stroke-width="1.5"/>',
+  road:'<path d="M8 2L4 20M14 2l4 18" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M11 4v3M11 10v3M11 16v3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>',
   harbor:'<circle cx="11" cy="5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 7v12M7 10h8M4 13c1 4 4 6 7 6s6-2 7-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
   well:'<ellipse cx="11" cy="16" rx="7" ry="3" fill="currentColor"/><rect x="4" y="11" width="14" height="5" fill="currentColor"/><path d="M5 11V6M17 11V6M3 6l8-3 8 3z" stroke="currentColor" stroke-width="1.6" fill="currentColor"/>',
   shrine:'<path d="M11 2l2 5h-4z" fill="currentColor"/><rect x="9" y="7" width="4" height="9" fill="currentColor"/><rect x="5" y="16" width="12" height="3" fill="currentColor"/>',
@@ -327,8 +383,8 @@ const ICON={
   clear:'<path d="M5 5l12 12M17 5L5 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>',
   ride:'<path d="M6 18.5V10a5 5 0 0 1 10 0v8.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="7.6" cy="9" r=".9" fill="#28201C"/><circle cx="14.4" cy="9" r=".9" fill="#28201C"/>'
 };
-const RES=['gold','food','wood','stone'], BASEP={food:2,wood:2,stone:3}, LOT=5;
-const RCOL={gold:'#F0BE4E',food:'#C9E07A',wood:'#E0A86A',stone:'#C9CFD8',people:'#86B6FF',mood:'#E89AC0'};
+const RES=['gold','food','wood','stone','iron'], BASEP={food:2,wood:2,stone:3}, LOT=5;
+const RCOL={gold:'#F0BE4E',food:'#C9E07A',wood:'#E0A86A',stone:'#C9CFD8',iron:'#9FB8D0',people:'#86B6FF',mood:'#E89AC0'};
 const cap1=w=>w.charAt(0).toUpperCase()+w.slice(1);
 // ---------- language (i18next): English keys, Spanish translations ----------
 const ES={
@@ -430,7 +486,108 @@ const ES={
 "help16":"Teclas: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mueven al héroe, las flechas mueven la vista, <kbd>H</kbd> vuelve al héroe, <kbd>+</kbd> <kbd>−</kbd> zoom, <kbd>1</kbd>–<kbd>0</kbd>, <kbd>Z</kbd>, <kbd>C</kbd>, <kbd>B</kbd>, <kbd>N</kbd> herramientas, <kbd>X</kbd> quitar, <kbd>M</kbd> mapa del reino, <kbd>R</kbd> cabalgar, <kbd>Espacio</kbd> tocar la campana, <kbd>U</kbd> mejorar, <kbd>P</kbd> pausa, <kbd>F</kbd> velocidad, <kbd>Esc</kbd> deseleccionar. Se recuerdan la velocidad, el zoom, el sonido, la calidad gráfica y el idioma.",
 "help17":"<b>En un teléfono o tableta</b>, guía a tu héroe con el joystick de la esquina inferior izquierda del valle. Tocar casillas sigue sirviendo para construir y seleccionar.",
 "help18":"Botón de <b>sonido</b>: tócalo una vez para los efectos, dos para añadir música y una tercera para silencio. <button class=\"linkbtn\" id=\"tourBtn\" type=\"button\">Hacer la visita guiada</button>",
-"help19":"<b>Los daños</b> se ven: los edificios echan humo al ser dañados y arden si están muy dañados. Toca uno y usa <b>Reparar</b> de día, o espera al amanecer para que se arreglen poco a poco. Los edificios destruidos dejan escombros que desaparecen en dos días."
+"help19":"<b>Los daños</b> se ven: los edificios echan humo al ser dañados y arden si están muy dañados. Toca uno y usa <b>Reparar</b> de día, o espera al amanecer para que se arreglen poco a poco. Los edificios destruidos dejan escombros que desaparecen en dos días.",
+"Lighthouse":"Faro",
+"Blacksmith":"Herrería",
+"Tavern":"Taberna",
+"Road":"Camino",
+"Light":"Faro",
+"Smithy":"Herrería",
+"iron":"hierro",
+"Iron":"Hierro",
+"Watch fort":"Fuerte del paso",
+"Ironpeak Pass":"Paso de Ferrocumbre",
+"A high, snowy pass to the north. Mines here dig iron. Avalanches can bury buildings near the cliffs.":"Un paso alto y nevado al norte. Aquí las minas sacan hierro. Los aludes pueden sepultar edificios junto a los acantilados.",
+"Your scouts are crossing the northern mountains. They should find a way by day 7.":"Tus exploradores cruzan las montañas del norte. Deberían encontrar un camino hacia el día 7.",
+"{{n}} iron":"{{n}} de hierro",
+"New region":"Nueva región",
+"Forge arms":"Forjar armas",
+"Sharper blades: +1 damage for your hero and every soldier.":"Hojas más afiladas: +1 de daño para tu héroe y cada soldado.",
+"Forge plate":"Forjar armaduras",
+"Iron plate: +2 health for every soldier and +3 for your hero.":"Armadura de hierro: +2 de vida para cada soldado y +3 para tu héroe.",
+"Done":"Hecho",
+"Forge":"Forjar",
+"Hire sellswords":"Contratar mercenarios",
+"Three hardened fighters guard the keep of whichever region is raided tonight, then leave at dawn.":"Tres luchadores curtidos guardan el castillo de la región atacada esta noche y se marchan al amanecer.",
+"Hired":"Contratados",
+"Hire":"Contratar",
+"Warships":"Buques de guerra",
+"Build":"Construir",
+"Each warship sails out to meet a pirate boat when raiders come to the cove, and may sink it with its crew aboard. 1 gold upkeep each.":"Cada buque sale al encuentro de un barco pirata cuando atacan la cala y puede hundirlo con su tripulación. 1 de oro de mantenimiento cada uno.",
+"Sea battle":"Batalla naval",
+"A warship sank a pirate boat":"Un buque hundió un barco pirata",
+"A mining town short of timber. Sends back iron for your blacksmith.":"Un pueblo minero falto de madera. Devuelve hierro para tu herrería.",
+"Lay a road beside a farm or mine":"Traza un camino junto a una granja o mina",
+"Build a tavern":"Construye una taberna",
+"Ride to Ironpeak Pass":"Cabalga al Paso de Ferrocumbre",
+"Open an iron mine in Ironpeak Pass":"Abre una mina de hierro en Ferrocumbre",
+"Build a blacksmith and forge arms or plate":"Construye una herrería y forja armas o armaduras",
+"Build a lighthouse on the cove’s shore":"Construye un faro en la orilla de la cala",
+"Launch a warship":"Bota un buque de guerra",
+"Sink a pirate boat":"Hunde un barco pirata",
+"Chapter {{n}}":"Capítulo {{n}}",
+"A Crown in the Dust":"Una corona en el polvo",
+"Your banner flies over a dry canyon keep, and bandits know every pass. Build, feed your people and hold the walls.":"Tu estandarte ondea sobre un castillo en un cañón seco, y los bandidos conocen cada paso. Construye, alimenta a tu gente y defiende las murallas.",
+"Salt and Sails":"Sal y velas",
+"Ships crowd the water off Saltreach Cove, and where trade goes, pirates follow. Build a harbor and guard the shore.":"Los barcos llenan las aguas de Cala Salobre, y donde va el comercio van los piratas. Construye un puerto y vigila la orilla.",
+"Iron in the Snow":"Hierro en la nieve",
+"The northern pass is full of iron. Whoever holds the forge holds the realm, and the raiders know it.":"El paso del norte está lleno de hierro. Quien tiene la forja tiene el reino, y los asaltantes lo saben.",
+"Sea Wolves":"Lobos de mar",
+"The pirate captains have joined their fleets. Raids grow bolder on every shore. Launch warships and light the coast.":"Los capitanes piratas han unido sus flotas. Los asaltos son más audaces en cada orilla. Bota buques y enciende la costa.",
+"The Last Warlord":"El último caudillo",
+"Every warlord left in the desert is marching on your keep. Hold four more nights and the crown is yours.":"Todos los caudillos que quedan en el desierto marchan sobre tu castillo. Aguanta cuatro noches más y la corona será tuya.",
+"Achievement":"Logro",
+"Achievements":"Logros",
+"First light":"Primera luz",
+"Survive your first night":"Sobrevive a tu primera noche",
+"Ten nights":"Diez noches",
+"Survive 10 nights":"Sobrevive 10 noches",
+"The crown holds":"La corona resiste",
+"Win a game":"Gana una partida",
+"Iron will":"Voluntad de hierro",
+"Win on Hard":"Gana en Difícil",
+"Master builder":"Maestro constructor",
+"Own 15 buildings":"Ten 15 edificios",
+"Bustling village":"Aldea bulliciosa",
+"Grow to 20 villagers":"Llega a 20 aldeanos",
+"Beloved ruler":"Monarca querido",
+"Reach a mood of 90":"Alcanza un ánimo de 90",
+"Full treasury":"Tesoro lleno",
+"Hold 200 gold":"Reúne 200 de oro",
+"Three realms":"Tres tierras",
+"Visit the valley, the cove and the pass":"Visita el valle, la cala y el paso",
+"Merchant prince":"Príncipe mercader",
+"Send 5 trade voyages":"Envía 5 viajes comerciales",
+"Scourge of pirates":"Azote de piratas",
+"Sink 3 pirate boats":"Hunde 3 barcos piratas",
+"Ironclad":"Acorazado",
+"Forge arms and plate to the top":"Forja armas y armaduras al máximo",
+"All roads":"Todos los caminos",
+"Lay 10 roads":"Traza 10 caminos",
+"Legend":"Leyenda",
+"Raise your hero to level 5":"Sube a tu héroe al nivel 5",
+"Red night":"Noche roja",
+"Survive a blood moon":"Sobrevive a una luna de sangre",
+"Daily devotion":"Devoción diaria",
+"Survive 5 nights of a daily challenge":"Sobrevive 5 noches de un reto diario",
+"Daily challenge":"Reto diario",
+"Daily challenge · {{d}}":"Reto diario · {{d}}",
+"Rich veins":"Vetas ricas",
+"Every mine yields 2 more.":"Cada mina produce 2 más.",
+"Lean start":"Comienzo escaso",
+"Half the starting goods, but your score counts 30% more.":"La mitad de los bienes iniciales, pero tu puntuación vale un 30% más.",
+"Blood sky":"Cielo de sangre",
+"Blood moons rise twice as often.":"Las lunas de sangre salen el doble de a menudo.",
+"Swift raiders":"Asaltantes veloces",
+"Raiders move 20% faster.":"Los asaltantes se mueven un 20% más rápido.",
+"Trade winds":"Vientos alisios",
+"Trade voyages pay 30% more.":"Los viajes comerciales pagan un 30% más.",
+"help20":"<b>Paso de Ferrocumbre.</b> El día 7 tus exploradores encuentran un paso nevado al norte. Allí las minas sacan hierro en vez de piedra y los pinos sustituyen a los palmerales. Desde el día 9 los asaltantes pueden bajar desde sus alturas del norte. En invierno o con nieve, los aludes pueden sepultar edificios junto a los acantilados.",
+"help21":"<b>Hierro y herrería.</b> El hierro sale de las minas de Ferrocumbre y de los viajes a Ironhold. Construye una herrería (<kbd>G</kbd>) en cualquier parte y tócala para forjar armas (+1 de daño para tu héroe y tus soldados) o armaduras (+2 de vida para los soldados, +3 para tu héroe), tres veces cada una.",
+"help22":"<b>Tabernas, caminos y el mar.</b> Una taberna (<kbd>T</kbd>) anima a la gente y gana 2 de oro cada amanecer; tócala para contratar tres mercenarios que guardan una noche el castillo de la región atacada. Los caminos (<kbd>Y</kbd>) cuestan 1 de piedra: tu héroe cabalga un 40% más rápido por ellos, y las granjas, aserraderos y minas junto a uno producen 1 más. En la cala, un faro (<kbd>L</kbd>) debilita a los piratas que desembarcan, y los buques de guerra construidos desde el panel del puerto salen a hundir barcos piratas antes de que lleguen.",
+"help23":"<b>Capítulos, logros y reto diario.</b> La historia se cuenta en cinco capítulos a lo largo de las 20 noches. Los logros se guardan en este dispositivo. El reto diario, que se elige en el menú de partidas, da a todos el mismo valle y el mismo giro del día.",
+"help3":"<b>Puerto y comercio.</b> Construye un puerto (<kbd>N</kbd>) en la orilla de la cala. Pesca comida y amarra un barco. Toca el puerto para enviar barcos a puertos extranjeros: las Islas de Sal compran piedra, Qasr Ámbar compra comida y devuelve especias que animan a la gente, Ironhold compra madera y devuelve hierro para tu herrería, y Catay Lejano convierte oro en más oro. Los viajes largos pagan más pero arriesgan más, sobre todo en invierno. Los piratas asaltan la cala desde el mar.",
+"help16":"Teclas: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mueven al héroe, las flechas mueven la vista, <kbd>H</kbd> vuelve al héroe, <kbd>+</kbd> <kbd>−</kbd> zoom, <kbd>1</kbd>–<kbd>0</kbd>, <kbd>Z</kbd>, <kbd>C</kbd>, <kbd>B</kbd>, <kbd>N</kbd>, <kbd>L</kbd>, <kbd>G</kbd>, <kbd>T</kbd>, <kbd>Y</kbd> herramientas, <kbd>X</kbd> quitar, <kbd>M</kbd> mapa del reino, <kbd>R</kbd> cabalgar, <kbd>Espacio</kbd> tocar la campana, <kbd>U</kbd> mejorar, <kbd>P</kbd> pausa, <kbd>F</kbd> velocidad, <kbd>Esc</kbd> deseleccionar. Se recuerdan la velocidad, el zoom, el sonido, la calidad gráfica y el idioma."
 };
 
 let lang='en';
@@ -464,6 +621,7 @@ function moodInfo(){
   const add=(label,v)=>{ if(v){ parts.push([label,v]); t+=v; } };
   add(plural(Math.min(3,count('well')),'well'),Math.min(3,count('well'))*4);
   add(plural(Math.min(2,count('shrine')),'shrine'),Math.min(2,count('shrine'))*8);
+  add(plural(Math.min(2,count('tavern')),'tavern'),Math.min(2,count('tavern'))*4);
   if(S.res.food>=15) add('Full granaries',5);
   if(season().name==='Harvest') add('Harvest festival',5);
   if(S.hungry) add('Hunger at the last dawn',-20);
@@ -535,6 +693,8 @@ const QUESTS=[
   {text:'Open the realm map and ride to Saltreach Cove',goal:()=>[S.visitedCoast?1:0,1],reward:{wood:6}},
   {text:'Build a harbor on the cove\u2019s shore',goal:()=>[count('harbor'),1],reward:{gold:8}},
   {text:'Send a ship on a trade voyage',goal:()=>[S.voyagesSent||0,1],reward:{stone:4}},
+  {text:'Lay a road beside a farm or mine',goal:()=>[count('road'),1],reward:{stone:3}},
+  {text:'Build a tavern',goal:()=>[count('tavern'),1],reward:{gold:6}},
   {text:'Buy a kingdom upgrade',goal:()=>[S.upg.length,1],reward:{stone:4}},
   {text:'Raise a barracks',goal:()=>[count('barr'),1],reward:{wood:6}},
   {text:'Use Charge or Rally in battle',goal:()=>[S.abilUsed||0,1],reward:{gold:5}},
@@ -551,7 +711,12 @@ const QUESTS=[
   {text:'Build an archery range',goal:()=>[count('range'),1],reward:{wood:8}},
   {text:'Build a shrine',goal:()=>[count('shrine'),1],reward:{gold:10,food:8}},
   {text:'Reach a mood of 75',goal:()=>[S.mood,75],reward:{gold:20}},
-  {text:'Bring iron home from Ironhold',goal:()=>[S.iron||0,1],reward:{gold:15}}
+  {text:'Ride to Ironpeak Pass',goal:()=>[S.visitedMtn?1:0,1],reward:{food:8}},
+  {text:'Open an iron mine in Ironpeak Pass',goal:()=>[S.res.iron>0||S.iron||S.plate?1:0,1],reward:{gold:10}},
+  {text:'Build a blacksmith and forge arms or plate',goal:()=>[(S.iron||0)+(S.plate||0),1],reward:{gold:15}},
+  {text:'Build a lighthouse on the cove\u2019s shore',goal:()=>[count('lighthouse'),1],reward:{wood:8}},
+  {text:'Launch a warship',goal:()=>[S.warships||0,1],reward:{gold:12}},
+  {text:'Sink a pirate boat',goal:()=>[S.sunk||0,1],reward:{gold:15,iron:3}}
 ];
 const CONF_COL=['#F0BE4E','#D99A60','#E8604F','#8FCB7E','#F2EADD'];
 function party(kind){
@@ -575,7 +740,7 @@ function checkQuests(){
 }
 function score(){
   let b=0; eachAll(x=>{ if(x.type!=='keep') b++; });
-  return Math.round(((S.day-1)*100+S.kills*5+S.pop*25+b*10+S.upg.length*20)*DIFF[S.diff].mult);
+  return Math.round(((S.day-1)*100+S.kills*5+S.pop*25+b*10+S.upg.length*20)*DIFF[S.diff].mult*(dmod('lean')?1.3:1));
 }
 let bestScore=0; try{ bestScore=+localStorage.getItem('smallcrown-bestscore')||0 }catch(e){}
 function recordScore(){ const sc=score(); if(sc>bestScore){ bestScore=sc; try{ localStorage.setItem('smallcrown-bestscore',sc) }catch(e){} } return sc; }
@@ -608,12 +773,16 @@ const G=(x,y)=>S.grid[idx(x,y)];
 function each(fn){ S.grid.forEach((t,i)=>{ if(t.b) fn(t.b,i%N,(i/N)|0,t); }); }
 // ---------- regions: the region on screen lives in S.grid and friends; the others wait in S.R ----------
 const REGIONS={home:{name:'The Valley',fort:'Keep',desc:'Your canyon home. If its keep falls, the kingdom falls.'},
-  coast:{name:'Saltreach Cove',fort:'Fort',desc:'A sheltered cove to the south where ships can land. If its fort falls, raiders plunder your stores.'}};
+  coast:{name:'Saltreach Cove',fort:'Fort',desc:'A sheltered cove to the south where ships can land. If its fort falls, raiders plunder your stores.'},
+  mountain:{name:'Ironpeak Pass',fort:'Watch fort',desc:'A high, snowy pass to the north. Mines here dig iron. Avalanches can bury buildings near the cliffs.'}};
 const RK=['grid','spawns','seed','units','keep','keepMax','kind','shore'];
 function stash(){ const r=S.R[S.cur]||(S.R[S.cur]={}); RK.forEach(k=>r[k]=S[k]); }
 function unstash(id){ const r=S.R[id]; RK.forEach(k=>S[k]=r[k]); if(!S.units) S.units=[]; if(!S.spawns) S.spawns=[]; S.cur=id; }
 function allGrids(){ const out=[S.grid]; for(const id in S.R) if(id!==S.cur&&S.R[id].grid) out.push(S.R[id].grid); return out; }
-function eachAll(fn){ for(const g of allGrids()){ const here=g===S.grid; g.forEach((t,i)=>{ if(t.b) fn(t.b,i%N,(i/N)|0,t,here); }); } }
+function eachAll(fn){ const list=[[S.cur,S.grid]]; for(const id in S.R) if(id!==S.cur&&S.R[id].grid) list.push([id,S.R[id].grid]);
+  for(const [id,g] of list){ const here=g===S.grid; g.forEach((t,i)=>{ if(t.b) fn(t.b,i%N,(i/N)|0,t,here,id,g); }); } }
+const roadBy=(g,x,y)=>NB.some(([a,c])=>{ const nx=x+a,ny=y+c; if(nx<0||ny<0||nx>=N||ny>=N) return false; const b=g[ny*N+nx].b; return !!b&&b.type==='road'; });
+const onRoad=o=>{ const x=Math.round(o.x),y=Math.round(o.y); return inb(x,y)&&!!G(x,y).b&&G(x,y).b.type==='road'; };
 function withRegion(id,fn){ if(id===S.cur) return fn(); const prev=S.cur; stash(); unstash(id); try{ return fn(); } finally{ stash(); unstash(prev); } }
 const heroHere=()=>!S.heroAt||S.heroAt===S.cur;
 const regionName=id=>REGIONS[id]?REGIONS[id].name:id;
@@ -640,10 +809,28 @@ function genCoast(){
   addGroves();
   stash(); unstash(prev);
 }
+function genMountain(){
+  const prev=S.cur; stash();
+  Object.assign(S,{cur:'mountain',kind:'mountain',seed:Math.random()*1000,grid:[],units:[],spawns:[],keep:8,keepMax:8,shore:null});
+  const nz=mkNoise();
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+    const a=Math.atan2(y-C,x-C), r=Math.hypot((x-C)*1.22,(y-C)*.82);
+    const edge=5.3+(nz?nz.noise2D(Math.cos(a)*1.5+3,Math.sin(a)*1.5)*1.0:0);
+    S.grid.push({land:r<=edge&&x>=1&&x<=N-2,ore:false,b:null});
+  }
+  const seen=new Set([idx(C,C)]), q=[[C,C]];
+  while(q.length){ const [x,y]=q.pop(); for(const [a,b] of NB){ const nx=x+a,ny=y+b; if(inb(nx,ny)&&G(nx,ny).land&&!seen.has(idx(nx,ny))){seen.add(idx(nx,ny));q.push([nx,ny])} } }
+  S.grid.forEach((t,i)=>{ if(t.land&&!seen.has(i)) t.land=false; });
+  const cand=[]; for(let y=0;y<N;y++)for(let x=0;x<N;x++){ const r=Math.hypot(x-C,y-C); if(G(x,y).land&&r>=2.2&&r<=5.5) cand.push([x,y]); }
+  for(let i=0;i<4&&cand.length;i++){ const [x,y]=cand.splice((Math.random()*cand.length)|0,1)[0]; G(x,y).ore=true; }
+  G(C,C).b={type:'keep',cd:0};
+  addGroves();
+  stash(); unstash(prev);
+}
 function enterRegion(id,heroToo){
   if(!S.R[id]) return;
   if(id!==S.cur){ stash(); unstash(id); }
-  if(heroToo){ S.heroAt=id; const h=S.hero; h.queue=[]; h.dash=null; h.dead=false; h.x=C; h.y=C+1.2; h.tx=h.x; h.ty=h.y; h.tstop=0; h.pathKey=null; if(id==='coast') S.visitedCoast=true; }
+  if(heroToo){ S.heroAt=id; if(id==='mountain') S.visitedMtn=true; const h=S.hero; h.queue=[]; h.dash=null; h.dead=false; h.x=C; h.y=C+1.2; h.tx=h.x; h.ty=h.y; h.tstop=0; h.pathKey=null; if(id==='coast') S.visitedCoast=true; }
   sel=null; hover=null; walkers.length=0;
   S.grid.forEach((t,i)=>{ if(t.b&&(t.b.type==='barr'||t.b.type==='range')) spawnUnits(i); });
   field(); buildWorld(); camFree=null; S.ver++; ui();
@@ -660,11 +847,11 @@ function travelTo(id){
 const PORTS=[
   {id:'salt',name:'The Salt Isles',days:1,good:'stone',amt:8,pay:2.3,desc:'Close by. Buys stone for its sea walls.'},
   {id:'amber',name:'Qasr Amber',days:2,good:'food',amt:10,pay:2.4,bonus:'spice',desc:'A spice port. Pays well for food and sends back spices that lift your villagers’ mood.'},
-  {id:'iron',name:'Ironhold',days:3,good:'wood',amt:10,pay:2.6,bonus:'iron',desc:'A mining town short of timber. Sends back iron for your soldiers’ weapons.'},
+  {id:'iron',name:'Ironhold',days:3,good:'wood',amt:10,pay:2.6,bonus:'iron',desc:'A mining town short of timber. Sends back iron for your blacksmith.'},
   {id:'cathay',name:'Far Cathay',days:4,good:'gold',amt:20,pay:2.3,desc:'Far and risky. Silks bought with gold sell for much more at home.'}];
 const shipsTotal=()=>count('harbor')*(1+(S.mods.ships||0));
 const shipsFree=()=>Math.max(0,shipsTotal()-S.voyages.length);
-const portEst=p=>Math.round(p.amt*p.pay*(S.portPrice[p.id]||1));
+const portEst=p=>Math.round(p.amt*p.pay*(S.portPrice[p.id]||1)*(dmod('trade')?1.3:1));
 const portRisk=p=>Math.min(.45,.05+p.days*.025+(season().name==='Winter'?.08:0)+(S.weather==='rain'?.03:0));
 function sendVoyage(id){
   const p=PORTS.find(x=>x.id===id); if(!p||S.over) return;
@@ -680,11 +867,50 @@ function resolveVoyages(notes){
     if(Math.random()<v.risk){ notes.push(`<b>Lost at sea:</b> the ship bound for ${p.name} never came back`); continue; }
     home++; const g=Math.round(portEst(p)*(.85+Math.random()*.3)); S.res.gold+=g; let extra='';
     if(p.bonus==='spice'){ S.mood=Math.min(100,S.mood+8); extra=', and spices lift the mood by 8'; }
-    if(p.bonus==='iron'){ if((S.iron||0)<3){ S.iron=(S.iron||0)+1; extra=`, and iron arms your soldiers (+${S.iron} damage)`; } else { S.res.gold+=6; extra=', and spare iron sells for 6 more gold'; } }
+    if(p.bonus==='iron'){ S.res.iron+=5; extra=', and 5 iron for your blacksmith'; }
     S.portPrice[p.id]=Math.max(.6,(S.portPrice[p.id]||1)*.85);
     notes.push(`<b>Ship home from ${p.name}:</b> +${g} gold${extra}`); }
   for(const p of PORTS) S.portPrice[p.id]=Math.min(1.25,(S.portPrice[p.id]||1)+.05);
   return home;
+}
+const WARSHIP={wood:14,gold:10,iron:2};
+function forge(kind){
+  const lv=kind==='arms'?(S.iron||0):(S.plate||0); if(lv>=3||S.over) return;
+  const c={iron:3+lv*2,gold:6}; if(!canPay(c)){ say(`Forging needs ${costStr(c)}.`); sfx('no'); return; }
+  spend(c);
+  if(kind==='arms'){ S.iron=lv+1; say(`<b>Arms forged.</b> Your hero and soldiers deal ${S.iron} more damage.`); }
+  else{ S.plate=lv+1; S.units.forEach(u=>{ u.max=unitMax(); u.hp=Math.min(u.max,u.hp+2); }); S.hero.max=heroMax(); S.hero.hp=Math.min(S.hero.max,S.hero.hp+3); say(`<b>Plate forged.</b> Soldiers have ${S.plate*2} more health and your hero ${S.plate*3}.`); }
+  sfx('up'); party('small'); S.ver++; save(); ui();
+}
+function hireMercs(){
+  if(S.mercs||S.phase!=='day'||S.over) return;
+  if(S.res.gold<12){ say('Sellswords want 12 gold.'); sfx('no'); return; }
+  S.res.gold-=12; S.mercs=3; sfx('order'); say(`<b>Three sellswords hired.</b> They will guard the keep in ${regionName(S.raid)} tonight.`); save(); ui();
+}
+function spawnMercs(){
+  if(!S.mercs) return; const home=idx(C,C+1);
+  for(let k=0;k<S.mercs;k++){ const a=k*2.1+.6; S.units.push({merc:true,home,slot:k+5,x:C+Math.cos(a)*.5,y:C+1+Math.sin(a)*.5,hp:unitMax()+3,max:unitMax()+3,atk:0,dir:-Math.PI/2,target:null,age:0,hit:0,swing:0,moving:false,ranged:false}); }
+}
+function buildWarship(){
+  if(S.over||(S.warships||0)>=count('harbor')) return;
+  if(!canPay(WARSHIP)){ say(`A warship needs ${costStr(WARSHIP)}.`); sfx('no'); return; }
+  spend(WARSHIP); S.warships=(S.warships||0)+1; sfx('splash'); party('small');
+  say(`<b>A warship is launched.</b> It will sail out to meet pirate boats when raiders come to ${regionName('coast')}.`); if(S.kind==='coast') rebuildFleet(); save(); ui();
+}
+function seaBattle(){
+  const ws=S.warships||0; if(!ws||S.kind!=='coast') return;
+  const lh=S.grid.some(t=>t.b&&t.b.type==='lighthouse'), chance=.6+(lh?.2:0);
+  const pb=fleet.list.filter(f=>f.kind==='pirate'), war=fleet.list.filter(f=>f.kind==='war');
+  for(let i=0;i<ws;i++){ const win=Math.random()<chance, tgt=pb[i];
+    if(war[i]&&tgt&&fleet.mgr){ war[i].hunt={tgt,t:2.4,win}; war[i].v.maxSpeed=2.2; }
+    else if(win) sinkRaiders(null); }
+}
+function sinkRaiders(boat){
+  let n=0; for(let k=0;k<2;k++){ const j=S.queue.findIndex(t=>t!=='warlord'); if(j>=0){ S.queue.splice(j,1); n++; } }
+  if(boat) boat.sink=true;
+  S.sunk=(S.sunk||0)+1; sfx('thud'); shake=Math.max(shake,.15);
+  if(n) toast(T('Sea battle'),T('A warship sank a pirate boat'),'⚓');
+  ui();
 }
 function plunder(){
   const g=Math.floor(S.res.gold*.3), f=Math.floor(S.res.food*.3);
@@ -697,10 +923,10 @@ function joinList(a){ return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' an
 
 // =============== GAME RULES ===============
 function blank(){
-  return {res:{gold:10,food:10,wood:14,stone:2},pop:3,idle:0,price:{...BASEP},day:1,phase:'day',keep:10,keepMax:10,grid:[],enemies:[],shots:[],puffs:[],floats:[],spawns:[],queue:[],
+  return {res:{gold:10,food:10,wood:14,stone:2,iron:0},pop:3,idle:0,price:{...BASEP},day:1,phase:'day',keep:10,keepMax:10,grid:[],enemies:[],shots:[],puffs:[],floats:[],spawns:[],queue:[],
     spawnT:0,kills:0,nightKills:0,dist:[],tool:'farm',over:false,t:0,modal:false,ver:0,
     mods:{dmg:0,range:0,harvest:0,wall:0,trap:0,tax:0,hero:0,drill:0,wood:0,stone:0,housing:0,taxes:0,cataRate:1,muster:0,horn:0,ships:0},hero:null,units:[],
-    upg:[],quest:0,diff:'normal',won:false,abilUsed:0,cur:'home',heroAt:'home',raid:'home',R:{},coastUnlocked:false,kind:'canyon',shore:null,voyages:[],iron:0,portPrice:{},voyagesSent:0,visitedCoast:false,mood:60,weather:'clear',blood:false,hx:0,hl:1,perks:[],perkPending:0,lostTonight:0,hungry:false,cold:false};
+    upg:[],quest:0,diff:'normal',won:false,abilUsed:0,cur:'home',heroAt:'home',raid:'home',R:{},coastUnlocked:false,mtnUnlocked:false,visitedMtn:false,warships:0,plate:0,mercs:0,sunk:0,kind:'canyon',shore:null,voyages:[],iron:0,portPrice:{},voyagesSent:0,visitedCoast:false,mood:60,weather:'clear',blood:false,hx:0,hl:1,perks:[],perkPending:0,lostTonight:0,hungry:false,cold:false};
 }
 function newGame(){
   showOver(T('Found a new kingdom'),T('Choose how hard the raids will be. Hold the keep through 20 nights to win.'),
@@ -725,6 +951,7 @@ function startGame(diff){
   S.seed=Math.random()*1000; S.hero=mkHero();
   Object.assign(S,{kind:'canyon',shore:null,cur:'home',heroAt:'home',raid:'home'}); stash();
   sel=null; pickSpawns(); field(); planWave(); hideOver(); buildWorld(); save(); ui(); forecast(true);
+  if(saveOn) setTimeout(()=>showChapter(CHAPTERS[0]),400);
 }
 function edgeTiles(){
   const out=[];
@@ -736,7 +963,8 @@ function edgeTiles(){
 }
 function pickSpawns(){
   const k=Math.min(4,1+Math.floor((S.day-1)/3));
-  let edge=edgeTiles(); if(S.kind==='coast'){ const sh=edge.filter(([x,y])=>NB.some(([a,c])=>isSea(x+a,y+c))); if(sh.length) edge=sh; }
+  let edge=edgeTiles(); if(S.kind==='mountain'){ const no=edge.filter(([x,y])=>y<C-1); if(no.length) edge=no; }
+  if(S.kind==='coast'){ const sh=edge.filter(([x,y])=>NB.some(([a,c])=>isSea(x+a,y+c))); if(sh.length) edge=sh; }
   const base=Math.random()*6.28, picks=[];
   for(let i=0;i<k;i++){
     const ang=base+i*(6.28/k)+(Math.random()-.5)*.6;
@@ -773,7 +1001,8 @@ function waveText(){
   const parts=[]; if(c.raider)parts.push(plural(c.raider,'raider')); if(c.runner)parts.push(plural(c.runner,'runner')); if(c.archer)parts.push(plural(c.archer,'archer')); if(c.brute)parts.push(plural(c.brute,'brute')); if(c.ram)parts.push(plural(c.ram,'battering ram')); if(c.shaman)parts.push(plural(c.shaman,'shaman')); if(c.warlord)parts.push('a warlord');
   const sp=S.raid===S.cur?S.spawns:((S.R[S.raid]||{}).spawns||[]), dirs=[...new Set(sp.map(([x,y])=>dirName(x,y)))];
   if(S.raid==='coast') return `${joinList(parts)} landing on the ${joinList(dirs)} shore of ${regionName('coast')}`;
-  return `${joinList(parts)} coming through the ${joinList(dirs)} pass${dirs.length>1?'es':''}${S.coastUnlocked?' into The Valley':''}`;
+  if(S.raid==='mountain') return `${joinList(parts)} coming down from the ${joinList(dirs)} heights of ${regionName('mountain')}`;
+  return `${joinList(parts)} coming through the ${joinList(dirs)} pass${dirs.length>1?'es':''}${S.coastUnlocked||S.mtnUnlocked?' into The Valley':''}`;
 }
 function forecast(first){
   say(`<b>Day ${S.day}.</b> Scouts report ${waveText()}.${first?' Tap tiles to send your hero out to build. Farms feed your villagers, houses bring more of them, and every villager pays taxes. Then ring the bell.':''}`);
@@ -814,11 +1043,13 @@ function assignWorkers(){
 // One source of truth for what dawn will do: the ledger previews it and dawn applies it.
 function econ(){
   assignWorkers();
-  const L={gold:[],food:[],wood:[],stone:[]};
-  let farms=0,lum=0,mines=0,mk=0,cata=0,barr=0,ranges=0,soldiers=0,houses=0,idleP=0,hb=0;
-  eachAll(b=>{
+  const L=Object.fromEntries(RES.map(r=>[r,[]]));
+  let farms=0,lum=0,mines=0,mk=0,cata=0,barr=0,ranges=0,soldiers=0,houses=0,idleP=0,hb=0,imines=0,rF=0,rL=0,rS=0,rI=0,tav=0;
+  eachAll((b,x,y,t,here,rid,g)=>{
     if(DEF[b.type].work&&!b.worked&&!b.off) idleP++;
-    if(b.worked){ if(b.type==='harbor')hb++; if(b.type==='farm')farms++; if(b.type==='lumber')lum++; if(b.type==='mine')mines++; if(b.type==='market')mk++; }
+    if(b.type==='tavern') tav++;
+    if(b.worked){ const rd=roadBy(g,x,y); if(b.type==='harbor')hb++; if(b.type==='farm'){farms++; if(rd)rF++;} if(b.type==='lumber'){lum++; if(rd)rL++;}
+      if(b.type==='mine'){ if(rid==='mountain'){imines++; if(rd)rI++;} else {mines++; if(rd)rS++;} } if(b.type==='market')mk++; }
     if(b.type==='cata')cata++; if(b.type==='barr'){barr++;soldiers+=b.lvl+1+S.mods.muster;} if(b.type==='range'){ranges++;soldiers+=b.lvl+1+S.mods.muster;} if(b.type==='house')houses++;
   });
   const sea=season(), fo=farmOut(), wo=4+S.mods.wood, fnote=[sea.farm?`${sea.name} ${sea.farm>0?'+':'−'}${Math.abs(sea.farm)}`:'',S.weather==='rain'?'rain +1':''].filter(Boolean).join(', ');
@@ -829,6 +1060,11 @@ function econ(){
   if(lum) L.wood.push([`${plural(lum,'lumber camp')} × ${wo}`,lum*wo]);
   const so=3+S.mods.stone;
   if(mines) L.stone.push([`${plural(mines,'mine')} × ${so}`,mines*so]);
+  if(imines) L.iron.push([`${plural(imines,'iron mine')} × ${2+S.mods.stone}`,imines*(2+S.mods.stone)]);
+  if(rF) L.food.push([`Roads to ${plural(rF,'farm')}`,rF]); if(rL) L.wood.push([`Roads to ${plural(rL,'lumber camp')}`,rL]);
+  if(rS) L.stone.push([`Roads to ${plural(rS,'mine')}`,rS]); if(rI) L.iron.push([`Roads to ${plural(rI,'iron mine')}`,rI]);
+  if(tav) L.gold.push([`Tavern takings`,tav*2]);
+  if(S.warships) L.gold.push([`Warship crews`,-S.warships]);
   if(S.pop) L.gold.push([`Taxes from ${plural(S.pop,'villager')}`,S.pop]);
   if(S.mods.taxes&&S.pop>=3) L.gold.push([`Tax collectors`,Math.floor(S.pop/3)*S.mods.taxes]);
   if(mk) L.gold.push([`Market trade${sea.name==='Harvest'?' (harvest +2)':''}`,mk*(3+(sea.name==='Harvest'?2:0))]);
@@ -888,7 +1124,7 @@ function stepWalkers(dt){
     if(w.stuck||d<=stop+.04){ if(!w.stuck&&kind!=='home') w.dir=Math.atan2(gy-w.y,gx-w.x); w.carry=(kind==='home'||w.stuck)?null:kind; w.goal=null; w.wait=1.2+Math.random()*2.4; }
   }
 }
-const heroMax=()=>12+S.mods.hero*6+((S&&S.hl)||1)*2-2, heroDmg=()=>2+S.mods.hero*2+Math.floor((((S&&S.hl)||1)-1)/2), unitMax=()=>4+S.mods.drill*2, unitDmg=()=>1+S.mods.drill+((S&&S.iron)||0);
+const heroMax=()=>12+S.mods.hero*6+((S&&S.hl)||1)*2-2+((S&&S.plate)||0)*3, heroDmg=()=>2+S.mods.hero*2+Math.floor((((S&&S.hl)||1)-1)/2), unitMax=()=>4+S.mods.drill*2+((S&&S.plate)||0)*2, unitDmg=()=>1+S.mods.drill+((S&&S.iron)||0);
 function mkHero(){ return {x:C,y:C+1,tx:C,ty:C+1,hp:12+((S&&S.mods.hero)||0)*6,max:12+((S&&S.mods.hero)||0)*6,dead:false,respawn:0,atk:0,dir:-Math.PI/2,queue:[],moving:false,age:0,hit:0,swing:0}; }
 function spawnUnits(i){
   const b=S.grid[i].b; if(!b||(b.type!=='barr'&&b.type!=='range')||b.unpaid) return;
@@ -908,7 +1144,7 @@ function moveTo(o,tx,ty,spd,stop,dt){
   return d;
 }
 // ---------- pathfinding: Dijkstra on the tile grid, then string-pulled into straight runs ----------
-const passHero=(x,y)=>{ if(!inb(x,y)) return false; const t=G(x,y); if(!t.land) return false; const b=t.b; return !b||b.type==='farm'||b.type==='trap'; };
+const passHero=(x,y)=>{ if(!inb(x,y)) return false; const t=G(x,y); if(!t.land) return false; const b=t.b; return !b||b.type==='farm'||b.type==='trap'||b.type==='road'; };
 function findPath(sx,sy,gx,gy,pass=passHero){
   const n=N*N, dist=new Float32Array(n).fill(1e9), prev=new Int32Array(n).fill(-1), done=new Uint8Array(n), s0=idx(sx,sy);
   if(!inb(sx,sy)||!inb(gx,gy)) return null;
@@ -1012,7 +1248,7 @@ function stepHero(dt){
     if(h.respawn<=0){ h.dead=false; h.hp=h.max=heroMax(); h.x=C; h.y=C+.8; h.tx=C; h.ty=C+1.1; h.pathKey=null; floatText(C,C,'Hero returns',CSS.ink); } return; }
   let foe=null,fd=9;
   for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-h.x,e.y-h.y); if(d<fd){fd=d;foe=e} }
-  const SPD=3*(hasPerk('swift')?1.3:1)*(wxNight('snow')?.85:1);
+  const SPD=3*(hasPerk('swift')?1.3:1)*(wxNight('snow')?.85:1)*(onRoad(h)?1.4:1);
   const mx=(KD.d?1:0)-(KD.a?1:0)+JOY.x, my=(KD.s?1:0)-(KD.w?1:0)+JOY.y, ml=Math.hypot(mx,my);
   if(ml>.12){
     const k=Math.min(1,ml); tryStep(h,mx/ml*SPD*k*dt,my/ml*SPD*k*dt); h.dir=Math.atan2(my,mx); h.moving=true;
@@ -1091,14 +1327,16 @@ function startNight(){
   if(S.raid!==S.cur) enterRegion(S.raid,false);
   S.phase='night'; S.spawnT=S.kind==='coast'?3:.5; S.nightKills=0; S.keepAtDusk=S.keep; S.lostTonight=0;
   if(S.hero.queue.length){ S.hero.queue=[]; }
-  sfx('bell'); if(S.kind==='coast') launchPirates();
+  spawnMercs();
+  sfx('bell'); if(S.kind==='coast'){ launchPirates(); seaBattle(); }
   say(`<b>Night ${S.day}.</b> ${waveText().replace(/^./,c=>c.toUpperCase())}.${heroHere()?'':` Your hero is in ${regionName(S.heroAt)}, so ${regionName(S.cur)} stands on its own tonight.`}`);
   ui();
 }
 function spawnNext(){
   const type=S.queue.shift();
   const [x,y]=S.spawns[(Math.random()*S.spawns.length)|0];
-  const st=enemyStats(type);
+  const st={...enemyStats(type)}; if(dmod('swift')) st.spd*=1.2;
+  if(S.kind==='coast'&&S.grid.some(t=>t.b&&t.b.type==='lighthouse')) st.hp=Math.max(1,Math.round(st.hp*.75));
   const horiz=Math.abs(x-C)>=Math.abs(y-C);
   const ox=x+(horiz?Math.sign(x-C)*.9:0), oy=y+(horiz?0:Math.sign(y-C)*.9);   // walk in from the rocks
   S.enemies.push({pirate:S.kind==='coast',type,x:ox,y:oy,cx:x,cy:y,tx:x,ty:y,moving:true,atk:.6,dir:Math.atan2(C-y,C-x),age:0,slow:0,hit:0,swing:0,lane:(Math.random()-.5)*.38,max:st.hp,...st});
@@ -1106,12 +1344,12 @@ function spawnNext(){
 function dawn(){
   if(S.heroAt&&S.cur!==S.heroAt) enterRegion(S.heroAt,false);
   const E=econ();
-  eachAll((b,x,y,t,here)=>{
+  eachAll((b,x,y,t,here,rid)=>{
     if(b.type==='keep') return;
     if(b.worked&&here){
       if(b.type==='farm') floatText(x,y,`+${farmOut()} food`,RCOL.food);
       if(b.type==='lumber') floatText(x,y,`+${4+S.mods.wood} wood`,RCOL.wood);
-      if(b.type==='mine') floatText(x,y,`+${3+S.mods.stone} stone`,RCOL.stone);
+      if(b.type==='mine') floatText(x,y,rid==='mountain'?`+${2+S.mods.stone} iron`:`+${3+S.mods.stone} stone`,rid==='mountain'?RCOL.iron:RCOL.stone);
       if(b.type==='market') floatText(x,y,`+${3+(season().name==='Harvest'?2:0)} gold`,RCOL.gold);
     }
     if(b.type==='trap') b.charges=trapMax();
@@ -1136,7 +1374,9 @@ function dawn(){
   for(const r of ['food','wood','stone']){ S.price[r]+=(BASEP[r]-S.price[r])*.3; S.price[r]*=.92+Math.random()*.16; }
   const ev=rollEvent(); if(ev) notes.push(ev);
   clampPrices();
-  S.units=S.units.filter(u=>{ const b=S.grid[u.home].b; return b&&!b.unpaid; });
+  S.units=S.units.filter(u=>{ const b=S.grid[u.home].b; return !u.merc&&b&&!b.unpaid; });
+  for(const id in S.R) if(S.R[id].units) S.R[id].units=S.R[id].units.filter(u=>!u.merc);
+  S.mercs=0;
   S.units.forEach(u=>{u.hp=u.max=unitMax(); u.target=null});
   S.grid.forEach((t,i)=>{ if(t.b&&(t.b.type==='barr'||t.b.type==='range')) spawnUnits(i); });
   if(S.hero.dead){S.hero.dead=false;S.hero.x=C;S.hero.y=C+1;S.hero.tx=C;S.hero.ty=C+1}
@@ -1147,22 +1387,30 @@ function dawn(){
   S.day++; S.phase='day'; S.shots=[]; ageRubble();
   if(S.day-1>best){best=S.day-1;try{localStorage.setItem(BEST,best)}catch(e){}}
   const seaBefore=SEASONS[Math.floor((S.day-2)/5)%4];
-  S.weather=rollWeather(); S.blood=S.day>=6&&S.day%5!==0&&Math.random()<.18;
+  if(S.blood) S.survivedBlood=true;
+  S.weather=rollWeather(); S.blood=S.day>=6&&S.day%5!==0&&Math.random()<(dmod('blood')?.36:.18);
   if(season()!==seaBefore) notes.push(`<b>${season().name} begins</b>`);
   if(S.weather!=='clear') notes.push(`<b>${WX[S.weather].name}:</b> ${WX[S.weather].desc}`);
   if(S.blood) notes.push('<b>Blood moon tonight:</b> half again as many raiders, and every kill pays double');
-  if(!S.coastUnlocked&&S.day>=3){ S.coastUnlocked=true; genCoast(); notes.push(`<b>Scouts found ${regionName('coast')}</b> to the south. Open the realm map to ride there and build a harbor`); }
+  if(!S.coastUnlocked&&S.day>=3){ S.coastUnlocked=true; S.daily?seeded(S.daily.key+3,genCoast):genCoast(); notes.push(`<b>Scouts found ${regionName('coast')}</b> to the south. Open the realm map to ride there and build a harbor`); toast(T('New region'),T('Saltreach Cove'),'⚓'); }
+  if(!S.mtnUnlocked&&S.day>=7){ S.mtnUnlocked=true; S.daily?seeded(S.daily.key+7,genMountain):genMountain(); notes.push(`<b>Scouts crossed the northern mountains</b> and found ${regionName('mountain')}, with iron in the rock. Ride there from the realm map`); toast(T('New region'),T('Ironpeak Pass'),'⛰'); }
+  if(S.mtnUnlocked&&(season().name==='Winter'||S.weather==='snow')&&Math.random()<.35) withRegion('mountain',()=>{
+    const c=[]; each((b,x,y)=>{ if(b.type!=='keep'&&b.type!=='road'&&b.type!=='trap'&&NB.some(([a,d])=>!inb(x+a,y+d)||!G(x+a,y+d).land)) c.push([b,x,y]); });
+    if(c.length){ const [b]=c[(Math.random()*c.length)|0]; b.hp=Math.max(1,b.hp-Math.ceil(b.max*.6)); notes.push(`<b>Avalanche!</b> Snow buried part of the ${DEF[b.type].name.toLowerCase()} in ${regionName('mountain')}. Repair it before the next raid`); } });
   const shipsHome=resolveVoyages(notes);
-  S.raid=S.coastUnlocked&&S.day>=5&&S.day%5!==0&&Math.random()<.4?'coast':'home';
+  const ropts=[]; if(S.coastUnlocked&&S.day>=5) ropts.push('coast'); if(S.mtnUnlocked&&S.day>=9) ropts.push('mountain');
+  S.raid=S.day%5===0||!ropts.length||Math.random()<(ropts.length>1?.45:.6)?'home':ropts[(Math.random()*ropts.length)|0];
   for(const id in S.R) if(id!==S.raid){ if(id===S.cur) S.spawns=[]; else S.R[id].spawns=[]; }
   withRegion(S.raid,()=>pickSpawns()); field(); planWave(); sfx('dawn');
-  if(S.coastUnlocked) notes.push(`<b>Tonight’s raid will strike ${regionName(S.raid)}</b>${S.heroAt!==S.raid?`, and your hero is in ${regionName(S.heroAt)}`:''}`);
+  if(S.coastUnlocked||S.mtnUnlocked) notes.push(`<b>Tonight’s raid will strike ${regionName(S.raid)}</b>${S.heroAt!==S.raid?`, and your hero is in ${regionName(S.heroAt)}`:''}`);
   if(S.kind==='coast') rebuildFleet(shipsHome);
   const justWon=!S.won&&S.day-1>=WIN_NIGHTS; if(justWon) S.won=true;
   const gains=RES.filter(r=>E.net[r]).map(r=>`${E.net[r]>0?'+':''}${E.net[r]} ${r}`).join(', ');
   say(`<b>Dawn, day ${S.day}.</b> Felled ${plural(felled,'raider')}${lost>0?`, keep took ${lost} damage`:''}. ${gains?`Ledger: ${gains}. `:''}${notes.length?notes.join('. ')+'. ':''}Tonight: ${waveText()}.`);
   save(); ui(); RES.forEach(r=>{ if(E.net[r]) bump('r-'+r,E.net[r]>0?'bump':'hurt'); });
   if(E.popD) bump('r-people',E.popD>0?'bump':'hurt');
+  const ch=CHAPTERS.find(c=>c.day===S.day); if(ch) setTimeout(()=>showChapter(ch),600);
+  recordDaily(); checkAch();
   if(justWon) offerVictory(wasBoss); else if(wasBoss) offerBoons();
 }
 function offerVictory(thenBoon){
@@ -1175,7 +1423,7 @@ function lose(){
   S.over=true; S.phase='over'; sel=null;
   const held=S.day-1;
   if(held>best){best=held;try{localStorage.setItem(BEST,best)}catch(e){}}
-  dropSlot(slot);
+  dropSlot(slot); recordDaily();
   const sc=recordScore();
   showOver('The keep has fallen',`It fell on night ${S.day}. You held ${plural(held,'night')} and felled ${plural(S.kills,'raider')}. Score ${sc.toLocaleString()}${sc>=bestScore&&sc>0?', your best yet':''}.`,
     [{label:'Found a new kingdom',sub:'A fresh valley',primary:true,fn:newGame}]);
@@ -1190,7 +1438,7 @@ function offerBoons(){
 }
 function showOver(title,text,opts){
   S.modal=true;
-  const o=$('over'); o.innerHTML=`<h2></h2><p></p><div class="opts"></div>`;
+  const o=$('over'); o.innerHTML=`<div class="card"><div class="orn"><svg viewBox="0 0 22 14" aria-hidden="true"><path d="M3 11V5l3 3 5-6 5 6 3-3v6z" fill="currentColor"/></svg></div><h2></h2><p></p><div class="opts"></div></div>`;
   o.querySelector('h2').textContent=title; o.querySelector('p').textContent=text;
   const box=o.querySelector('.opts');
   opts.forEach(op=>{
@@ -1244,8 +1492,10 @@ function buildError(tool,x,y,planning){
   if(isSpawn(x,y)) return 'raiders enter there tonight. Build further in.';
   if(d.need==='ore'&&!t.ore) return 'mines need ore. Look for the blue-grey stones.';
   if(d.need==='grove'&&!t.grove) return 'lumber camps go in a palm grove.';
-  if(d.need==='shore'&&S.kind!=='coast') return 'there is no sea here. Build harbors at Saltreach Cove.';
-  if(d.need==='shore'&&!NB.some(([a,c])=>isSea(x+a,y+c))) return 'harbors go on the shore, right next to the water.';
+  if(d.need==='shore'&&S.kind!=='coast') return `there is no sea here. Build ${tool==='lighthouse'?'lighthouses':'harbors'} at Saltreach Cove.`;
+  if(d.need==='shore'&&tool==='lighthouse'&&count('lighthouse')>=1) return 'one lighthouse lights the whole cove.';
+  if(tool==='smith'&&count('smith')>=1) return 'one blacksmith is enough for the whole realm.';
+  if(d.need==='shore'&&!NB.some(([a,c])=>isSea(x+a,y+c))) return `${tool==='lighthouse'?'lighthouses':'harbors'} go on the shore, right next to the water.`;
   if(t.grove&&d.need!=='grove') return 'that palm grove is for a lumber camp.';
   if(t.ore&&d.need!=='ore') return 'that ore is for a mine.';
   if(d.unlock&&S.day<d.unlock) return `the ${d.name.toLowerCase()} unlocks on day ${d.unlock}.`;
@@ -1270,6 +1520,10 @@ function doBuild(tool,x,y){
   else if(tool==='market') say('Market built. Tap it to trade goods for gold.');
   else if(tool==='well') say('Well built. Villagers are happier, and fire keeps away from the buildings around it.');
   else if(tool==='shrine') say('Shrine built. Your villagers\u2019 mood rises.');
+  else if(tool==='lighthouse') say('Lighthouse built. Pirates land weakened, and your warships find their boats more easily.');
+  else if(tool==='smith') say('Blacksmith built. Tap it to forge arms and plate from iron.');
+  else if(tool==='tavern') say('Tavern built. It cheers your villagers and earns gold. Tap it to hire sellswords for the night.');
+  else if(tool==='road') say('Road laid. Your hero rides faster on roads, and producers next to one yield 1 more.');
   else if(tool==='harbor'){ say('Harbor built. It fishes for food and berths a ship. Tap it to send trade voyages.'); rebuildFleet(); }
   else if(tool==='range') say('Archery range built. Its archers shoot raiders from range. Upkeep: 1 gold a dawn.');
 }
@@ -1359,7 +1613,7 @@ function archerTarget(e){
   for(const u of S.units){ if(u.hp<=0) continue; const d=Math.hypot(u.x-e.x,u.y-e.y); if(d<bd){bd=d;best={kind:'ally',o:u,x:u.x,y:u.y};} }
   if(best) return best;
   for(let y=Math.max(0,Math.floor(e.y-R));y<=Math.min(N-1,Math.ceil(e.y+R));y++)for(let x=Math.max(0,Math.floor(e.x-R));x<=Math.min(N-1,Math.ceil(e.x+R));x++){
-    const b=G(x,y).b; if(!b||b.type==='trap'||b.type==='farm') continue; const d=Math.hypot(x-e.x,y-e.y); if(d<bd){bd=d;best={kind:'bld',x,y};} }
+    const b=G(x,y).b; if(!b||b.type==='trap'||b.type==='farm'||b.type==='road') continue; const d=Math.hypot(x-e.x,y-e.y); if(d<bd){bd=d;best={kind:'bld',x,y};} }
   return best;
 }
 function moveEnemy(e,dt){
@@ -1394,7 +1648,7 @@ function moveEnemy(e,dt){
   e.dir=Math.atan2(n[1]-e.cy,n[0]-e.cx);
   const b=G(n[0],n[1]).b;
   if(b&&b.type==='keep'){ e.gone=true; keepHit(e.dmg,e.cx,e.cy); return; }
-  if(b&&b.type!=='trap'){
+  if(b&&b.type!=='trap'&&b.type!=='road'){
     e.atk-=dt; e.swing=Math.max(0,1-e.atk);
     if(e.atk<=0){ e.atk=e.type==='ram'?1.4:1; if(e.type==='ram'){ shake=Math.max(shake,.12); embers(n[0],n[1],5); } damageBuilding(n[0],n[1],e.bdmg||e.dmg); }
     return;
@@ -1495,7 +1749,9 @@ function loadAssets(){
 }
 function AM(n){ const s=ASSET.m[n]; return s?s.clone(true):null; }
 function put(g,n,x,y,z,ry=0,sc=1){ const o=AM(n); if(!o) return null; o.position.set(x,y,z); o.rotation.y=ry; if(sc!==1) o.scale.setScalar(sc); g.add(o); return o; }
-function qput(g,n,x,z,h,ry=0,shadow=true){ const k='q_'+n, o=AM(k); if(!o) return null; o.scale.setScalar(h/(ASSET.h[k]||1)); o.position.set(x,0,z); o.rotation.y=ry; if(!shadow) o.traverse(c=>{ if(c.isMesh) c.castShadow=false; }); g.add(o); return o; }
+const swayers=[];
+function qput(g,n,x,z,h,ry=0,shadow=true){ const k='q_'+n, o=AM(k); if(!o) return null;
+  if(/^(PalmTree|Grass|Bush|CommonTree)/.test(n)) swayers.push({o,ph:Math.random()*6.28,amp:/^Palm/.test(n)?.035:/^Common/.test(n)?.02:.12}); o.scale.setScalar(h/(ASSET.h[k]||1)); o.position.set(x,0,z); o.rotation.y=ry; if(!shadow) o.traverse(c=>{ if(c.isMesh) c.castShadow=false; }); g.add(o); return o; }
 const QCACTUS=['Cactus_1','Cactus_2','Cactus_3','Cactus_4','Cactus_5'], QFLOWER=['CactusFlower_1','CactusFlowers_2','CactusFlowers_3','CactusFlowers_4','CactusFlowers_5'], QROCK=['Rock_1','Rock_2','Rock_3','Rock_5','Rock_6'], QDEAD=['CommonTree_Dead_1','CommonTree_Dead_2','CommonTree_Dead_4'];
 function towerStack(g,x,z,mids){
   put(g,'castle_tower_round_base_01',x,0,z);
@@ -1518,7 +1774,7 @@ function assetModel(b,x,y){
   const g=new THREE.Group(); let o;
   switch(b.type){
   case 'keep':
-    if(S.kind==='coast'){ put(g,'castle_curtain_gate_01',0,0,0); towerStack(g,-.4,-.5,1); towerStack(g,4.4,-.5,1); put(g,'castle_banner_01',2,5.6,.55); o=fitTo(g,1.15); o.userData.flame=add(o,BX(.08,.1,.08),0,0,.28,.38,0,0,0,flameMat); return o; }
+    if(S.kind!=='canyon'){ put(g,'castle_curtain_gate_01',0,0,0); towerStack(g,-.4,-.5,1); towerStack(g,4.4,-.5,1); put(g,'castle_banner_01',2,5.6,.55); o=fitTo(g,1.15); o.userData.flame=add(o,BX(.08,.1,.08),0,0,.28,.38,0,0,0,flameMat); return o; }
     put(g,'castle_curtain_gate_01',0,0,0); put(g,'castle_curtain_01',-2,0,0); put(g,'castle_curtain_01',4,0,0); towerStack(g,-2.2,-.5,2); towerStack(g,6.2,-.5,2); put(g,'castle_banner_01',2,6.4,.55);
     o=fitTo(g,1.45); o.userData.flame=add(o,BX(.08,.1,.08),0,0,.3,.42,0,0,0,flameMat); return o;
   case 'tower':
@@ -1564,13 +1820,17 @@ function assetModel(b,x,y){
   }
   return null;
 }
+let _mtnMat=null;
+const mtnCliffMat=()=>{ if(!_mtnMat){ _mtnMat=ASSET.canyon.clone(); _mtnMat.color=new THREE.Color(0xAFC0D4); } return _mtnMat; };
 function decorateWorld(){
+  swayers.length=0;
   if(!ASSET.ready) return;
   for(const k in oreMeshes){ const g=oreMeshes[k]; while(g.children.length) g.remove(g.children[0]);
     put(g,'nature_rocks_01',-.1,0,.05,+k,.42); put(g,'nature_boulder_01',.22,0,-.16,1+(+k),.24); put(g,'nature_rocks_01',.18,0,.24,2,.22);
     [[-.12,-.02],[.06,.14],[.2,-.1]].forEach(([a,c])=>add(g,BX(.05,.05,.05),COL.gold,a,.22,c,.5,.5,0)); }
   for(const k in groveMeshes){ const g=groveMeshes[k]; while(g.children.length) g.remove(g.children[0]);
-    if(ASSET.m.q_PalmTree_1){ qput(g,'PalmTree_'+(1+k%4),-.16,-.14,1.15,+k); qput(g,'PalmTree_'+(1+(+k+2)%4),.22,.14,.82,(+k)*2); qput(g,'Bush_1',-.22,.27,.17,1); qput(g,'Grass_2',.26,-.24,.11,0,false); qput(g,'Grass',-.02,.3,.1,2,false); }
+    if(S.kind==='mountain'){ put(g,'nature_pine_01',-.16,0,-.14,+k,.13); put(g,'nature_pine_01',.2,0,.14,(+k)*2,.1); put(g,'nature_pine_01',-.2,0,.28,1,.07); qput(g,'Grass_2',.26,-.24,.1,0,false); }
+    else if(ASSET.m.q_PalmTree_1){ qput(g,'PalmTree_'+(1+k%4),-.16,-.14,1.15,+k); qput(g,'PalmTree_'+(1+(+k+2)%4),.22,.14,.82,(+k)*2); qput(g,'Bush_1',-.22,.27,.17,1); qput(g,'Grass_2',.26,-.24,.11,0,false); qput(g,'Grass',-.02,.3,.1,2,false); }
     else{ put(g,'nature_pine_01',-.18,0,-.16,+k,.11); put(g,'nature_oak_01',.2,0,.12,(+k)*2,.12); put(g,'nature_oak_sapling_01',-.22,0,.28,1,.32); } }
   // canyon cliffs line every edge where rock meets the valley floor
   const isL=(x,y)=>inb(x,y)&&G(x,y).land, P={nature_cliff_01:[],nature_cliff_02:[],nature_cliff_03:[]};
@@ -1581,7 +1841,7 @@ function decorateWorld(){
   const m4=new THREE.Matrix4(), off=new THREE.Matrix4().makeTranslation(-2,0,0), q=new THREE.Quaternion(), e=new THREE.Euler(), pos=new V3(), sc=new V3();
   for(const v in P){ const list=P[v]; if(!list.length||!ASSET.m[v]) continue;
     let mesh=null; ASSET.m[v].traverse(o=>{ if(o.isMesh&&!mesh) mesh=o; });
-    const im=new THREE.InstancedMesh(mesh.geometry,ASSET.canyon,list.length);
+    const im=new THREE.InstancedMesh(mesh.geometry,S.kind==='mountain'?mtnCliffMat():ASSET.canyon,list.length);
     list.forEach(([px,pz,th,h],i)=>{ q.setFromEuler(e.set(0,th,0)); m4.compose(pos.set(px,0,pz),q,sc.set(.27,h*(.9+hash(i,px,3)*.2),.8)); m4.multiply(off); im.setMatrixAt(i,m4); });
     im.castShadow=im.receiveShadow=true; world.add(im); }
   if(!ASSET.m.q_Cactus_1) return;
@@ -1591,7 +1851,8 @@ function decorateWorld(){
   for(const v in P) for(const [px,pz,th,h] of P[v]){ const rx=Math.round(px-Math.sin(th)*.5)+C, ry=Math.round(pz-Math.cos(th)*.5)+C, key=rx+','+ry; rim.set(key,Math.max(rim.get(key)||0,h)); }
   for(const [key,h] of rim){ const [rx,ry]=key.split(',').map(Number), r=hash(rx,ry,seed+4); if(r>.22) continue;
     const g=new THREE.Group(); g.position.set(W2(rx)+(hash(ry,rx,1)-.5)*.3,h*2.75,W2(ry)+(hash(rx,ry,2)-.5)*.3);
-    if(r<.09) qput(g,QDEAD[Math.floor(r*100)%3],0,0,.75+r*3,r*40); else qput(g,QCACTUS[Math.floor(r*50)%5],0,0,.35+r,r*30);
+    if(S.kind==='mountain'){ if(r<.12) put(g,'nature_pine_01',0,0,0,r*40,.09+r*.3); else qput(g,QROCK[Math.floor(r*50)%5],0,0,.18+r,r*30); }
+    else if(r<.09) qput(g,QDEAD[Math.floor(r*100)%3],0,0,.75+r*3,r*40); else qput(g,QCACTUS[Math.floor(r*50)%5],0,0,.35+r,r*30);
     world.add(g); }
   // the valley floor: agaves give way to cacti, flowering cacti, rocks and dry grass
   for(let i=plantMeshes.length-1;i>=0;i--){ const m=plantMeshes[i][1]; if(m.isGroup){ world.remove(m); plantMeshes.splice(i,1); } }
@@ -1603,6 +1864,7 @@ function decorateWorld(){
     const n=1+Math.floor(hash(y,x,seed)*3);
     for(let k=0;k<n;k++){
       const h1=hash(x+k*7,y,seed+k), px=(hash(x,y+k,seed)-.5)*.72, pz=(hash(x+k*3,y,seed*2)-.5)*.72, ry=h1*6.28;
+      if(S.kind==='mountain'){ if(edge&&h1<.35) put(g,'nature_pine_01',px,0,pz,ry,.05+h1*.08); else if(h1<.6) qput(g,QROCK[Math.floor(h1*17)%5],px,pz,.07+h1*.08,ry); else if(h1<.85) qput(g,'Grass_Short',px,pz,.08,ry,false); else put(g,'nature_stump_01',px,0,pz,ry,.25); continue; }
       if(edge&&h1>.94) qput(g,QDEAD[Math.floor(h1*300)%3],px,pz,.6,ry);
       else if(edge&&h1<.42&&NB.some(([a,c])=>isSea(x+a,y+c))) qput(g,h1<.2?'PalmTree_'+(1+Math.floor(h1*20)%4):QROCK[Math.floor(h1*17)%5],px,pz,h1<.2?.7:.1,ry);
       else if(edge&&h1<.42) qput(g,QCACTUS[Math.floor(h1*11)%5],px,pz,.28+h1*.4,ry);
@@ -1625,7 +1887,7 @@ function buildWorld(){
   world=new THREE.Group(); scene.add(world);
   const seed=S.seed||1;
   const gg=new THREE.PlaneGeometry(60,60,150,150); gg.rotateX(-Math.PI/2);
-  const gp=gg.attributes.position, gc=[], base=new THREE.Color(COL.sand), coast=S.kind==='coast', wetC=new THREE.Color(0xA8784C), bedC=new THREE.Color(0x2F6A72), tc=new THREE.Color();
+  const gp=gg.attributes.position, gc=[], base=new THREE.Color(S.kind==='mountain'?0xDCE2EA:COL.sand), coast=S.kind==='coast', wetC=new THREE.Color(0xA8784C), bedC=new THREE.Color(0x2F6A72), tc=new THREE.Color();
   for(let i=0;i<gp.count;i++){ const x=gp.getX(i),z=gp.getZ(i);
     const v=1+.035*Math.sin(x*2.3+z*1.1+Math.sin(z*.7)*2)+.02*(hash(Math.round(x*3),Math.round(z*3),seed)-.5);
     if(coast){ const d=(z+C)-(shoreAt(x+C)+.5);
@@ -1647,7 +1909,7 @@ function buildWorld(){
     gridLines=new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:0xFFF4E2,transparent:true,opacity:0,depthWrite:false})); gridLines.userData.own=true; gridLines.visible=false; world.add(gridLines); }
   const land=[]; S.grid.forEach((t,i)=>{ if(t.land) land.push([i%N,(i/N)|0]); });
   const nearLand=(x,y)=>{ let m=99; for(const [a,b] of land){ const d=Math.hypot(a-x,b-y); if(d<m)m=d; } return m; };
-  const pos=[],nor=[],col=[], top=new THREE.Color(COL.rockTop), side=new THREE.Color(COL.rockSide);
+  const mtn=S.kind==='mountain', pos=[],nor=[],col=[], top=new THREE.Color(mtn?0xF1F4F8:COL.rockTop), side=new THREE.Color(mtn?0x76808E:COL.rockSide);
   function rock(x,z,r,h,s){
     const sides=5+Math.floor(hash(s,1,2)*3);
     let g=new THREE.CylinderGeometry(r*.72,r,h,sides,1); g.translate(0,h/2,0);
@@ -1712,6 +1974,7 @@ function buildWorld(){
   if(ghost){ scene.remove(ghost); ghost=null; ghostKey=''; }
   spawnKey=''; routesVer=-1;
   decorateWorld();
+  buildFoam();
   rebuildFleet();
 }
 
@@ -1842,6 +2105,41 @@ function modelFor(b,x,y){
     if(ASSET.ready){ put(dock,'props_crate_01',.2,.09,-.12,.3,.33); put(dock,'props_barrel_01',.32,.09,.12,0,.3); put(dock,'props_sack_01',-.02,.09,.14,0,.3); }
     else add(dock,BX(.14,.14,.14),COL.woodLight,.2,.16,-.12);
     break;}
+  case 'road':{
+    add(g,BX(.96,.03,.96),0xB89A74,0,.015,0);
+    const st=[[-.28,-.27,.3,.26],[.06,-.3,.32,.22],[.34,-.22,.2,.34],[-.3,.06,.26,.3],[.0,.0,.3,.3],[.32,.14,.24,.28],[-.22,.33,.36,.2],[.16,.36,.3,.18]];
+    st.forEach(([a,c,w,d],i)=>add(g,BX(w,.03,d),i%2?0xCFC4B2:0xBFB39E,a,.03,c,0,(i*.37)%.3-.15,0));
+    break;}
+  case 'lighthouse':{
+    add(g,CY(.28,.32,.12,8),COL.stoneDark,0,.06,0);
+    add(g,CY(.15,.21,.95,10),0xF2EEE6,0,.6,0); add(g,CY(.165,.18,.14,10),0xB0393B,0,.42,0); add(g,CY(.15,.16,.14,10),0xB0393B,0,.78,0);
+    add(g,CY(.19,.19,.04,10),COL.wood,0,1.08,0);
+    const lamp=add(g,CY(.11,.11,.16,8),0xFFE6A0,0,1.18,0,0,0,0,FLAME_A); lamp.castShadow=false;
+    add(g,CN(.15,.16,8),0xB0393B,0,1.34,0);
+    const beam=new THREE.Group(); beam.position.y=1.18; g.add(beam);
+    const bm=new THREE.MeshBasicMaterial({color:0xFFE8B0,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide});
+    for(const sgn of [1,-1]){ const c=new THREE.Mesh(CN(.5,3.2,12,true),bm); c.rotation.z=sgn*Math.PI/2; c.position.x=sgn*1.6; beam.add(c); }
+    beam.traverse(o=>{ if(o.isMesh) o.castShadow=false; }); g.userData.beam=beam;
+    break;}
+  case 'smith':{
+    add(g,BX(.6,.32,.48),COL.stone,-.05,.16,0); add(g,BX(.62,.04,.5),COL.wood,-.05,.34,0);
+    const prism=geo('prism',()=>{ const p=new THREE.CylinderGeometry(.34,.34,.86,3,1); p.rotateZ(Math.PI/2); p.rotateX(-Math.PI/2); p.scale(1,.62,1); return p; });
+    add(g,prism,0x5A4A44,-.05,.48,0).scale.set(.78,.7,.62);
+    add(g,BX(.12,.42,.12),COL.stoneDark,.16,.55,-.14);
+    add(g,BX(.22,.04,.3),COL.wood,.32,.27,.1); add(g,BX(.04,.27,.04),COL.wood,.42,.13,.24); add(g,BX(.04,.27,.04),COL.wood,.42,.13,-.04);
+    add(g,BX(.08,.12,.08),COL.wood,.36,.06,-.24); add(g,BX(.14,.05,.06),0x3A3A40,.36,.15,-.24); add(g,BX(.05,.03,.05),0x3A3A40,.43,.13,-.24);
+    const fg=add(g,BX(.12,.08,.02),0xFF8A2A,.25,.14,.0,0,0,0,FLAME_B); fg.castShadow=false; g.userData.forge=fg;
+    break;}
+  case 'tavern':{
+    add(g,BX(.62,.3,.5),0xE8D8B8,0,.15,0); add(g,BX(.68,.22,.56),COL.woodLight,0,.41,0);
+    const prism=geo('prism',()=>{ const p=new THREE.CylinderGeometry(.34,.34,.86,3,1); p.rotateZ(Math.PI/2); p.rotateX(-Math.PI/2); p.scale(1,.62,1); return p; });
+    add(g,prism,COL.roof,0,.63,0).scale.set(.85,.75,.7);
+    for(const z of [-.12,.12]) add(g,BX(.012,.08,.1),0x3A2A20,.311,.2,z);
+    const wm=new THREE.MeshLambertMaterial({color:0x3A2A20}); const win=add(g,BX(.012,.08,.36),0x3A2A20,.341,.42,0,0,0,0,wm); g.userData.win=win;
+    add(g,BX(.012,.18,.1),COL.wood,.311,.09,0);
+    add(g,BX(.18,.03,.03),COL.wood,.4,.36,.26); const sign=new THREE.Group(); sign.position.set(.46,.34,.26); g.add(sign); add(sign,BX(.02,.1,.12),COL.gold,0,-.06,0); g.userData.flag=sign;
+    add(g,CY(.06,.06,.12,8),COL.wood,.42,.06,-.18); add(g,CY(.06,.06,.12,8),COL.wood,.42,.06,-.04);
+    break;}
   case 'barr':{
     add(g,BX(.8,.3,.52),COL.plank,0,.15,0);
     add(g,BX(.82,.04,.54),COL.wood,0,.31,0);
@@ -1864,14 +2162,25 @@ function sigOf(b,x,y){
   if(b.type==='trap') return 't'+(b.charges>0);
   return b.type+(b.lvl||0);
 }
+const blobTex=canvasTex(x=>{ const g=x.createRadialGradient(32,32,4,32,32,32); g.addColorStop(0,'rgba(20,10,6,.55)'); g.addColorStop(.6,'rgba(20,10,6,.25)'); g.addColorStop(1,'rgba(20,10,6,0)'); x.fillStyle=g; x.fillRect(0,0,64,64); });
+const blobGeo=new THREE.PlaneGeometry(1,1), blobMat=new THREE.MeshBasicMaterial({map:blobTex,transparent:true,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-2});
+const CON=1.15;
+function scaffoldModel(){
+  const g=new THREE.Group(), mat=COL.woodLight;
+  for(const [a,c] of [[-1,-1],[1,-1],[1,1],[-1,1]]) add(g,BX(.03,.8,.03),COL.wood,a*.38,.4,c*.38);
+  for(const h of [.28,.58]){ add(g,BX(.8,.025,.025),mat,0,h,.38); add(g,BX(.8,.025,.025),mat,0,h,-.38); add(g,BX(.025,.025,.8),mat,.38,h,0); add(g,BX(.025,.025,.8),mat,-.38,h,0); }
+  add(g,BX(.8,.02,.12),COL.plank,0,.6,.32); add(g,BX(.02,.42,.02),COL.wood,.3,.21,.42,0,0,.5);
+  g.traverse(c=>{ if(c.isMesh) c.castShadow=true; }); return g;
+}
 function syncBuildings(){
   for(let i=0;i<N*N;i++){
     const t=S.grid[i], x=i%N, y=(i/N)|0, cur=bMeshes[i];
-    if(!t.b){ if(cur){ scene.remove(cur.g); delete bMeshes[i]; } continue; }
+    if(!t.b){ if(cur){ scene.remove(cur.g); if(cur.sc) scene.remove(cur.sc); delete bMeshes[i]; } continue; }
     const sig=sigOf(t.b,x,y);
     if(cur&&cur.b===t.b&&cur.sig===sig) continue;
-    if(cur) scene.remove(cur.g);
+    if(cur){ scene.remove(cur.g); if(cur.sc) scene.remove(cur.sc); }
     const g=modelFor(t.b,x,y); scene.add(g); bMeshes[i]={g,b:t.b,sig};
+    if(t.b.type!=='trap'&&t.b.type!=='road'){ const sh=new THREE.Mesh(blobGeo,blobMat); sh.rotation.x=-Math.PI/2; sh.position.set(0,.012,0); sh.scale.setScalar(t.b.type==='keep'?1.5:t.b.type==='wall'?.95:1.15); sh.renderOrder=1; g.add(sh); }
   }
   for(const k in oreMeshes) oreMeshes[k].visible=!S.grid[k].b;
   for(const k in groveMeshes) groveMeshes[k].visible=!S.grid[k].b;
@@ -1880,9 +2189,20 @@ function syncBuildings(){
 function animateBuildings(t){
   for(const k in bMeshes){
     const {g,b}=bMeshes[k];
-    const age=S.t-(b.born??-9); const pop=age>=0&&age<.35&&!reduce?1-Math.pow(1-age/.35,3):1;
+    const age=S.t-(b.born??-9), e=bMeshes[k];
+    const rising=!reduce&&(b.lvl||1)===1&&b.type!=='keep'&&b.type!=='road'&&b.type!=='trap'&&age>=0&&age<CON;
+    if(g.userData.beam){ g.userData.beam.visible=nightA>.15; g.userData.beam.rotation.y=t*1.1; g.userData.beam.children.forEach(c=>{ if(c.material) c.material.opacity=nightA*.22; }); }
+    const pop=!rising&&age>=0&&age<.35&&!reduce?1-Math.pow(1-age/.35,3):1;
     let sy=pop; if(b.hitT&&S.t-b.hitT<.15&&S.t>=b.hitT&&!reduce) sy*=.94;
-    g.scale.set(.6+.4*pop,Math.max(.05,sy),.6+.4*pop);
+    if(rising){ const q=age/CON, ez=q<.5?2*q*q:1-Math.pow(-2*q+2,2)/2; g.position.y=-(1-ez)*.95; g.scale.set(1,1,1);
+      if(!e.sc){ e.sc=scaffoldModel(); e.sc.position.set(g.position.x,0,g.position.z); scene.add(e.sc); }
+      e.sc.position.y=q>.8?-(q-.8)*4:0;
+      if(Math.random()<.25) haze(+k%N+(Math.random()-.5)*.7,((+k/N)|0)+(Math.random()-.5)*.7,.6);
+    } else {
+      if(g.position.y!==0) g.position.y=0;
+      if(e.sc){ scene.remove(e.sc); e.sc=null; for(let i=0;i<8;i++) haze(+k%N+(Math.random()-.5)*.9,((+k/N)|0)+(Math.random()-.5)*.9,1); }
+      g.scale.set(.6+.4*pop,Math.max(.05,sy),.6+.4*pop);
+    }
     if(g.userData.flag) g.userData.flag.rotation.y=reduce?0:Math.sin(t*3+k*1.3)*.35;
     if(g.userData.worker){ const on=!!b.worked&&!b.off; g.userData.worker.visible=on; if(on&&!reduce) g.userData.worker.rotation.z=Math.sin(t*5+(+k))*.18; }
     if(g.userData.win) g.userData.win.material.color.setHex(nightA>.35?0xFFC45A:0x3A2A20);
@@ -2112,12 +2432,12 @@ for(let i=0;i<18;i++){ const m=new THREE.Mesh(geo('glowP',()=>new THREE.PlaneGeo
 let scorchI=0;
 function scorch(x,y){ const s=SCORCH[scorchI++%SCORCH.length]; s.life=25; s.m.position.set(W2(x),.014,W2(y)); s.m.rotation.z=Math.random()*6; const k=.7+Math.random()*.4; s.m.scale.set(k,k,1); s.m.visible=true; }
 function emit(pool,x,y,h,life,sz,col){ const p=pool.find(q=>q.life<=0); if(!p) return; p.life=p.max=life; p.x=W2(x); p.z=W2(y); p.h=h; p.sz=sz; p.vx=(Math.random()-.5)*.12+.08; p.sp.visible=true; if(col!==undefined) p.sp.material.color.setHex(col); }
-const TOPH={harbor:.45,well:.4,shrine:.6,range:.4,keep:1.25,tower:1.1,cata:.45,barr:.55,house:.65,wall:.45,mine:.4,market:.5,lumber:.45};
+const TOPH={lighthouse:1.1,smith:.6,tavern:.7,harbor:.45,well:.4,shrine:.6,range:.4,keep:1.25,tower:1.1,cata:.45,barr:.55,house:.65,wall:.45,mine:.4,market:.5,lumber:.45};
 function buildingFrac(b){ return b.type==='keep'?S.keep/S.keepMax:b.hp/Math.max(1,b.max); }
 function nearWell(x,y){ for(let j=Math.max(0,y-2);j<=Math.min(N-1,y+2);j++)for(let i=Math.max(0,x-2);i<=Math.min(N-1,x+2);i++){ const b=G(i,j).b; if(b&&b.type==='well'&&Math.hypot(i-x,j-y)<=1.6) return true; } return false; }
 function stepBurn(raw,t){
   each((b,x,y)=>{
-    if(b.type==='trap'||b.type==='farm') return;
+    if(b.type==='trap'||b.type==='farm'||b.type==='road') return;
     const f=buildingFrac(b); if(f>=.6) return;
     const top=(TOPH[b.type]||.5)+(b.type==='tower'?.15*b.lvl:0);
     b.sm_=(b.sm_||0)-raw; if(b.sm_<=0){ b.sm_=.12+f*.35; emit(SMK,x+(Math.random()-.5)*.35,y+(Math.random()-.5)*.35,top*.8,2.2+Math.random(),.35+(1-f)*.3,f<.3?0x2E2A28:0x5A544E); }
@@ -2147,11 +2467,13 @@ function removeRubble(i){ const r=rubble.get(i); if(r){ scene.remove(r.g); rubbl
 function ageRubble(){ for(const [k,r] of [...rubble]) if(S.day-r.day>=2) removeRubble(k); }
 const fleet={mgr:null,list:[],gulls:[]};
 function ykReady(){ if(!window.YUKA) return false; if(!fleet.mgr) fleet.mgr=new YUKA.EntityManager(); return true; }
-function boatModel(pirate){
-  const g=new THREE.Group(), b=new THREE.Group(); g.add(b); const hc=pirate?0x2A2226:COL.wood;
+function boatModel(kind){
+  const pirate=kind==='pirate', war=kind==='war';
+  const g=new THREE.Group(), b=new THREE.Group(); g.add(b); const hc=pirate?0x2A2226:war?0x4A2E1E:COL.wood;
+  if(war){ for(const z of [-.17,.17]) for(const x of [-.2,.15]) add(b,BX(.1,.04,.04),0x2A2A30,x,.09,z); }
   add(b,BX(.9,.16,.32),hc,0,.04,0); add(b,CN(.16,.3,4),hc,.55,.04,0,0,Math.PI/4,-Math.PI/2).scale.set(1,1,.82);
   add(b,BX(.82,.03,.28),COL.woodLight,0,.13,0); add(b,BX(.03,.78,.03),COL.wood,0,.5,0);
-  add(b,BX(.02,.42,.5),pirate?0x2A2026:0xEDE3CE,.02,.55,0);
+  add(b,BX(.02,.42,.5),pirate?0x2A2026:war?0x34548E:0xEDE3CE,.02,.55,0);
   add(b,BX(.021,.08,.5),pirate?0xEDE3CE:COL.roof,.02,pirate?.6:.66,0,0,0,0).scale.set(1,1,pirate?.24:1);
   add(b,BX(.03,.03,.14),pirate?0x9A2030:COL.gold,0,.91,.07);
   g.userData.body=b; scene.add(g); return g;
@@ -2166,7 +2488,7 @@ function addBoat(kind,from,to,opt={}){
   const v=new YUKA.Vehicle(); v.position.set(from.x,0,from.z); v.maxSpeed=opt.speed||1.2; v.maxForce=2.5; v.mass=1.5;
   const ar=new YUKA.ArriveBehavior(new YUKA.Vector3(to.x,0,to.z),2,.05); v.steering.add(ar);
   if(opt.face) v.rotation.fromEuler(0,opt.face,0);
-  const mesh=boatModel(kind==='pirate'); mesh.position.set(from.x,-.05,from.z); mesh.rotation.y=opt.yaw||0; mesh.userData.yaw=opt.yaw||0;
+  const mesh=boatModel(kind); mesh.position.set(from.x,-.05,from.z); mesh.rotation.y=opt.yaw||0; mesh.userData.yaw=opt.yaw||0;
   fleet.mgr.add(v); const f={v,mesh,kind,ar,leaving:false,seed:Math.random()*6}; fleet.list.push(f); return f;
 }
 function clearFleet(){ if(!fleet.mgr) return; for(const f of fleet.list){ scene.remove(f.mesh); fleet.mgr.remove(f.v); } fleet.list=[]; for(const gl of fleet.gulls){ scene.remove(gl.m); fleet.mgr.remove(gl.v); } fleet.gulls=[]; }
@@ -2177,6 +2499,7 @@ function rebuildFleet(arriving=0){
   for(let i=0;i<free;i++){ const m=ms[i%ms.length], o=Math.floor(i/ms.length)*.62, to={x:m.x+o*m.px,z:m.z+o*m.pz};
     const from=i>=free-arriving?{x:to.x+(Math.random()-.5)*3,z:W2(Math.round(shoreAt(C))+6)}:to;
     addBoat('trade',from,to,{speed:.9,yaw:m.yaw}); }
+  for(let i=0;i<(ms.length?(S.warships||0):0);i++){ const m=ms[i%ms.length], o=.75+Math.floor(i/ms.length)*.7, to={x:m.x-m.px*o+m.pz*.0,z:m.z-m.pz*o}; const f=addBoat('war',to,to,{speed:1,yaw:m.yaw}); if(f) f.home={x:to.x,z:to.z}; }
   if(S.phase==='day'){ const cz=W2(shoreAt(C))+.5;
     for(let i=0;i<8;i++){ const v=new YUKA.Vehicle(); v.position.set((Math.random()-.5)*5,0,cz+(Math.random()-.5)*3); v.velocity.set(Math.random()-.5,0,Math.random()-.5); v.maxSpeed=1.5; v.updateNeighborhood=true; v.neighborhoodRadius=2.2;
       const al=new YUKA.AlignmentBehavior(), co=new YUKA.CohesionBehavior(), se=new YUKA.SeparationBehavior(), wa=new YUKA.WanderBehavior(), sk=new YUKA.SeekBehavior(new YUKA.Vector3(0,0,cz));
@@ -2196,14 +2519,67 @@ function syncFleet(raw){
   if(!fleet.mgr) return;
   fleet.mgr.update(Math.min(.05,raw*speed));
   for(let i=fleet.list.length-1;i>=0;i--){ const f=fleet.list[i], v=f.v, m=f.mesh;
-    m.position.x=v.position.x; m.position.z=v.position.z; m.position.y=-.05+Math.sin(clock*1.6+f.seed)*.02;
-    const sp=Math.hypot(v.velocity.x,v.velocity.z); if(sp>.06) turnTo(m,Math.atan2(-v.velocity.z,v.velocity.x),3);
+    if(f.hunt){ const h=f.hunt; if(!h.tgt.sink) f.ar.target.set(h.tgt.v.position.x,0,h.tgt.v.position.z+.6); h.t-=raw*speed;
+      if(!reduce&&Math.random()<raw*6) puff((v.position.x+C),(v.position.z+C),0xEDE3CE,1);
+      if(h.t<=0){ f.hunt=null; if(h.win&&!h.tgt.sink) sinkRaiders(h.tgt); if(f.home) f.ar.target.set(f.home.x,0,f.home.z); } }
+    if(f.sink){ f.sinkY=(f.sinkY||0)+raw*.3; m.rotation.z=Math.min(.9,f.sinkY*1.4); if(f.sinkY>1.3){ scene.remove(m); fleet.mgr.remove(v); fleet.list.splice(i,1); continue; } }
+    m.position.x=v.position.x; m.position.z=v.position.z; m.position.y=-.05+Math.sin(clock*1.6+f.seed)*.02-(f.sinkY||0);
+    const sp=Math.hypot(v.velocity.x,v.velocity.z); if(sp>.06&&!f.sink) turnTo(m,Math.atan2(-v.velocity.z,v.velocity.x),3);
     m.userData.body.rotation.x=Math.sin(clock*1.3+f.seed)*.05;
     if(f.leaving&&v.position.z>W2(Math.round(shoreAt(C))+6.5)){ scene.remove(m); fleet.mgr.remove(v); fleet.list.splice(i,1); } }
   for(const gl of fleet.gulls){ const v=gl.v, m=gl.m; m.visible=nightA<.5;
     m.position.set(v.position.x,1.9+Math.sin(clock*.8+gl.ph)*.25,v.position.z);
     const sp=Math.hypot(v.velocity.x,v.velocity.z); if(sp>.05) m.rotation.y=Math.atan2(-v.velocity.z,v.velocity.x);
     const fl=reduce?0:Math.sin(clock*9+gl.ph)*.5; m.userData.w[0].rotation.x=fl; m.userData.w[1].rotation.x=-fl; }
+}
+// ---------- ambient world effects ----------
+const DUST=[], dustMat=new THREE.SpriteMaterial({map:softTex,color:0xD9B48A,transparent:true,depthWrite:false,opacity:.5});
+for(let i=0;i<70;i++){ const sp=new THREE.Sprite(dustMat.clone()); sp.visible=false; scene.add(sp); DUST.push({sp,life:0}); }
+let dustI=0;
+function haze(x,y,k=1){ if(reduce) return; const d=DUST[dustI=(dustI+1)%DUST.length]; d.x=W2(x); d.z=W2(y); d.h=.05; d.life=d.max=.7+Math.random()*.5; d.k=k; d.vx=(Math.random()-.5)*.25; d.vz=(Math.random()-.5)*.25; d.sp.visible=true; }
+function stepDust(raw){
+  const col=S.kind==='mountain'?0xE8EEF5:0xD9B48A;
+  for(const d of DUST){ if(d.life<=0) continue; d.life-=raw; const q=1-d.life/d.max;
+    if(d.life<=0){ d.sp.visible=false; continue; }
+    d.x+=d.vx*raw; d.z+=d.vz*raw; d.h+=raw*.18;
+    d.sp.position.set(d.x,d.h,d.z); d.sp.scale.setScalar((.16+q*.38)*d.k); d.sp.material.opacity=(1-q)*.42*(1-nightA*.55); d.sp.material.color.setHex(col); }
+}
+let dustT=0;
+function emitDust(raw){
+  if(reduce) return; dustT-=raw; if(dustT>0) return; dustT=.12;
+  const h=S.hero; if(h&&h.moving&&!h.dead&&heroHere()) haze(h.x-Math.cos(h.dir)*.15,h.y-Math.sin(h.dir)*.15,.9);
+  for(const e of S.enemies) if(e.moving&&Math.random()<.12) haze(e.x,e.y,e.type==='brute'||e.type==='ram'?1.1:.7);
+}
+const cloudTex=(()=>{ const c=document.createElement('canvas'); c.width=c.height=256; const x=c.getContext('2d'), im=x.createImageData(256,256);
+  const nz=mkNoise(); for(let j=0;j<256;j++)for(let i=0;i<256;i++){ const a=i/256*Math.PI*2, b=j/256*Math.PI*2;
+    let v=nz?(nz.noise2D(Math.cos(a)*1.3+Math.cos(b)*.3,Math.sin(a)*1.3+Math.sin(b)*1.6)*.6+nz.noise2D(Math.cos(a)*3+Math.sin(b)*2.2,Math.sin(a)*3+Math.cos(b)*2.2)*.4):Math.sin(a*2)*Math.cos(b*3);
+    v=Math.max(0,Math.min(1,(v+.05)*2.2)); const o=(j*256+i)*4; im.data[o]=im.data[o+1]=im.data[o+2]=255*v; im.data[o+3]=255; }
+  x.putImageData(im,0,0); const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(2.2,2.2); return t; })();
+const clouds=new THREE.Mesh(new THREE.PlaneGeometry(60,60),new THREE.MeshBasicMaterial({color:0x2A160C,alphaMap:cloudTex,transparent:true,opacity:.2,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4}));
+clouds.rotation.x=-Math.PI/2; clouds.position.y=.03; clouds.renderOrder=2; scene.add(clouds);
+function syncAmbient(raw,t){
+  const day=1-nightA;
+  clouds.visible=day>.05; clouds.material.opacity=.2*day*(S.weather==='rain'||S.weather==='snow'?.55:1);
+  if(!reduce){ cloudTex.offset.x+=raw*.0045; cloudTex.offset.y+=raw*.0022; }
+  const wind=(S.weather==='sandstorm'?2.4:S.weather==='rain'?1.6:1);
+  if(!reduce) for(const w of swayers){ const a=Math.sin(t*1.6+w.ph)*w.amp*wind+Math.sin(t*3.7+w.ph*2)*w.amp*.3; w.o.rotation.z=a; w.o.rotation.x=a*.5; }
+  if(foamMesh){ foamMesh.material.uniforms.t.value=t; foamMesh.material.uniforms.night.value=nightA; }
+  if(!paused){ emitDust(raw); stepDust(raw); }
+}
+let foamMesh=null;
+const FOAM_MAT=()=>new THREE.ShaderMaterial({transparent:true,depthWrite:false,uniforms:{t:{value:0},night:{value:0}},
+  vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }',
+  fragmentShader:'varying vec2 vUv; uniform float t,night; void main(){ float band=sin(vUv.y*18.-t*2.2+sin(vUv.x*40.)*.8)*.5+.5; band=pow(band,6.); float edge=smoothstep(0.,.25,vUv.y)*smoothstep(1.,.45,vUv.y); float a=(band*.45+smoothstep(.6,.15,vUv.y)*.3)*edge; gl_FragColor=vec4(mix(vec3(1.,.98,.92),vec3(.62,.7,.95),night),a*.5); }'});
+function buildFoam(){
+  foamMesh=null; if(S.kind!=='coast') return;
+  const pts=[], segs=90, W=.42;
+  for(let i=0;i<=segs;i++){ const fx=-1.5+i*(N+2)/segs, z=W2(shoreAt(fx)+.5);
+    const z1=W2(shoreAt(fx+.05)+.5), z0=W2(shoreAt(fx-.05)+.5), dzdx=(z1-z0)/.1, nl=Math.hypot(1,dzdx), nx=-dzdx/nl, nz=1/nl;
+    pts.push([W2(fx)-nx*W*.25,z-nz*W*.25,W2(fx)+nx*W*.75,z+nz*W*.75]); }
+  const pos=[], uv=[], ind=[];
+  pts.forEach((p,i)=>{ pos.push(p[0],-.045,p[1],p[2],-.055,p[3]); uv.push(i/segs,0,i/segs,1); if(i<segs){ const a=i*2; ind.push(a,a+1,a+2,a+1,a+3,a+2); } });
+  const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(pos,3)); g.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2)); g.setIndex(ind);
+  foamMesh=new THREE.Mesh(g,FOAM_MAT()); foamMesh.renderOrder=3; foamMesh.userData.own=true; world.add(foamMesh);
 }
 const puffPool=[]; for(let i=0;i<260;i++){ const m=new THREE.Mesh(BX(.07,.07,.07),M(COL.sand)); m.visible=false; scene.add(m); puffPool.push(m); }
 function syncPuffs(){
@@ -2296,12 +2672,12 @@ function syncSelection(){
   if(!ranged) showRange(0,0,null);
 }
 
-let BW=0,BH=0,dpr=1,dprCap=2,quality='high',qualityChosen=false,composer=null,bloom=null;
+let BW=0,BH=0,dpr=1,dprCap=2,quality='high',qualityChosen=false,composer=null,bloom=null,finish=null;
 function resize(){
   const r=$('board').getBoundingClientRect(); if(!r.width) return;
   BW=r.width; BH=r.height; dpr=Math.min(dprCap,window.devicePixelRatio||1);
   renderer.setPixelRatio(dpr); renderer.setSize(BW,BH,false);
-  if(composer){ composer.setPixelRatio(dpr); composer.setSize(BW,BH); }
+  if(composer){ composer.setPixelRatio(dpr); composer.setSize(BW,BH); if(finish) finish.uniforms.res.value.set(BW*dpr,BH*dpr); }
   hud.width=Math.round(BW*dpr); hud.height=Math.round(BH*dpr);
   aspect=BW/BH; farHH=Math.max(5.5,6.5/aspect)*1.38; zoomHH=Math.min(zoomHH,farHH); if(!curHH) curHH=viewNear?zoomHH:farHH;
 }
@@ -2319,16 +2695,18 @@ function scr(x,y,z){ pv.set(x,y,z).project(camera); return [(pv.x+1)/2*BW,(1-pv.
 
 const DAY={sun:new THREE.Color(0xFFF1DA),sky:new THREE.Color(0xFFF2DE),gnd:new THREE.Color(0xB2644A)};
 const NIGHT={sun:new THREE.Color(0xA9C0FF),sky:new THREE.Color(0x7C96E0),gnd:new THREE.Color(0x2C3870)};
-const BGD=new THREE.Color(0x7A3A2B), BGN=new THREE.Color(0x1C2A5E), DUSK=new THREE.Color(0xFF8A4A), DUSKBG=new THREE.Color(0x9A4630);
+const BGM=new THREE.Color(0x56616E), BGD=new THREE.Color(0x7A3A2B), BGN=new THREE.Color(0x1C2A5E), DUSK=new THREE.Color(0xFF8A4A), DUSKBG=new THREE.Color(0x9A4630);
+let goldK=0;
 function syncLight(t){
   const k=nightA;
-  scene.background.copy(BGD).lerp(BGN,k);
-  const dk=reduce?0:Math.sin(k*Math.PI)*.75;   // warm dusk on the way in and out of night
+  scene.background.copy(S.kind==='mountain'?BGM:BGD).lerp(BGN,k);
+  const dk=reduce?0:Math.pow(Math.sin(k*Math.PI),.8)*.95;   // golden hour on the way in and out of night
+  goldK=dk;
   scene.background.lerp(DUSKBG,dk*.5);
   sun.intensity=.86-.44*k; sun.color.copy(DAY.sun).lerp(NIGHT.sun,k).lerp(DUSK,dk);
   hemi.intensity=.62-.1*k; hemi.color.copy(DAY.sky).lerp(NIGHT.sky,k); hemi.groundColor.copy(DAY.gnd).lerp(NIGHT.gnd,k);
   if(waterMesh&&waterMesh.material.uniforms){ const U=waterMesh.material.uniforms; U.sunColor.value.setHex(0xFFF1DA).lerp(new THREE.Color(0x5A6AA0),k); U.waterColor.value.setHex(0x1E6A78).lerp(new THREE.Color(0x0C2240),k); }
-  sun.position.set(camTarget.x+10-k*16,16-k*4,camTarget.z+5); sun.target.position.set(camTarget.x,0,camTarget.z);
+  sun.position.set(camTarget.x+10-k*16+dk*6,16-k*4-dk*10.5,camTarget.z+5-dk*3); sun.target.position.set(camTarget.x,0,camTarget.z);
   const sr=curHH*Math.max(aspect,1)*1.2+3, sc=sun.shadow.camera;
   if(Math.abs(sc.right-sr)>.1){ sc.left=-sr; sc.right=sr; sc.top=sr; sc.bottom=-sr; sc.updateProjectionMatrix(); }
   const srcs=[]; each((b,x,y)=>{ if(b.type==='keep'||b.type==='tower'||b.type==='cata') srcs.push([b.type,x,y]); });
@@ -2371,7 +2749,7 @@ function drawMini(){
   mx.setTransform(1,0,0,1,0,0); mx.clearRect(0,0,s,s);
   const pad=s*.07, cs=(s-2*pad)/N, P=v=>pad+(v+.5)*cs;
   if(S.kind==='coast'){ mx.fillStyle=mixHex('#3E7E92','#22386E',nightA); for(let y=0;y<N;y++)for(let x=0;x<N;x++) if(G(x,y).water) mx.fillRect(pad+x*cs,pad+y*cs,cs+.6,cs+.6); }
-  mx.fillStyle=mixHex('#C98A55','#4D68B8',nightA);
+  mx.fillStyle=mixHex(S.kind==='mountain'?'#C9D2DC':'#C98A55','#4D68B8',nightA);
   for(let y=0;y<N;y++)for(let x=0;x<N;x++) if(G(x,y).land) mx.fillRect(pad+x*cs,pad+y*cs,cs+.6,cs+.6);
   S.grid.forEach((t,i)=>{ const x=i%N,y=(i/N)|0;
     if(t.b){ mx.fillStyle=t.b.type==='keep'?'#F0BE4E':t.b.type==='wall'?mixHex('#7A5A44','#2A3460',nightA):mixHex('#F2EADD','#B9C6F0',nightA); const k=t.b.type==='keep'?.05:.2; mx.fillRect(pad+(x+k)*cs,pad+(y+k)*cs,cs*(1-2*k),cs*(1-2*k)); }
@@ -2388,7 +2766,7 @@ function drawMini(){
 }
 const WXP=[]; for(let i=0;i<170;i++) WXP.push({x:Math.random(),y:Math.random(),v:.55+Math.random()*.9,s:Math.random(),p:Math.random()*6.28});
 function drawWeather(){
-  const w=S.weather, sea=season();
+  const w=S.kind==='mountain'?'snow':S.weather, sea=season();
   if(sea.name==='Winter'){ hctx.fillStyle='rgba(215,230,255,.07)'; hctx.fillRect(0,0,BW,BH); }
   if(w==='clear') return;
   const mv=reduce?0:FR;
@@ -2468,6 +2846,18 @@ function initBloom(){
     composer=new THREE.EffectComposer(renderer,rt); composer.setPixelRatio(dpr); composer.setSize(BW,BH);
     composer.addPass(new THREE.RenderPass(scene,camera));
     bloom=new THREE.UnrealBloomPass(new THREE.Vector2(BW,BH),0,.45,.84); composer.addPass(bloom);
+    finish=new THREE.ShaderPass({uniforms:{tDiffuse:{value:null},res:{value:new THREE.Vector2(BW*dpr,BH*dpr)},tilt:{value:.8},vig:{value:.32},warm:{value:.3},sat:{value:1.08}},
+      vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }',
+      fragmentShader:`uniform sampler2D tDiffuse; uniform vec2 res; uniform float tilt,vig,warm,sat; varying vec2 vUv;
+        vec4 tap(vec2 o){ return texture2D(tDiffuse,vUv+o); }
+        void main(){ vec4 c=tap(vec2(0.)); float b=smoothstep(.16,.5,abs(vUv.y-.5))*tilt;
+          if(b>.002){ vec2 p=b*2.2/res, q=p*2.2; vec4 a=c+tap(vec2(p.x,0.))+tap(vec2(-p.x,0.))+tap(vec2(0.,p.y))+tap(vec2(0.,-p.y))+tap(p)+tap(-p)+tap(vec2(p.x,-p.y))+tap(vec2(-p.x,p.y));
+            a+=tap(vec2(q.x,0.))+tap(vec2(-q.x,0.))+tap(vec2(0.,q.y))+tap(vec2(0.,-q.y)); c=a/13.; }
+          vec3 col=c.rgb; float l=dot(col,vec3(.299,.587,.114)); col=mix(vec3(l),col,sat); col=(col-.5)*1.05+.5;
+          col*=mix(vec3(1.),vec3(1.09,.97,.84),warm);
+          float d=distance(vUv,vec2(.5,.47)); col*=1.-vig*smoothstep(.32,.86,d);
+          gl_FragColor=vec4(col,c.a); }`});
+    composer.addPass(finish);
   }catch(e){ composer=null; quality='low'; }
 }
 function applyQuality(){
@@ -2486,7 +2876,7 @@ function syncAbil(){
 function render(raw,t){
   FR=raw;
   const target=(S.phase==='night'||S.phase==='over')?1:0;
-  nightA+=(target-nightA)*Math.min(1,raw*(reduce?20:1.4));
+  nightA+=(target-nightA)*Math.min(1,raw*(reduce?20:.62));
   syncBuildings(); animateBuildings(t); syncEnemies(); syncHero(t,raw); syncShots(); syncPuffs(); syncRoutes(t); syncSpawns(t); syncSelection(); syncGhost(); syncLight(t);
   if(gridLines){ const want=(S.phase==='day'&&!S.over&&!S.modal&&DEF[S.tool])?(nightA>.3?0:.2):0, mt=gridLines.material; mt.opacity+=(want-mt.opacity)*Math.min(1,raw*8); gridLines.visible=mt.opacity>.01; }
   updateCamera(raw);
@@ -2495,8 +2885,12 @@ function render(raw,t){
   camera.lookAt(camera.position.clone().sub(CAM_DIR));
   glowMat.opacity=nightA*.6;
   if(!paused) stepBurn(raw,t);
-  if(quality==='high'&&nightA>.03){ initBloom(); }
-  if(composer&&quality==='high'&&nightA>.03){ bloom.strength=nightA*.75; composer.render(); }
+  syncAmbient(raw,t);
+  if(quality==='high') initBloom();
+  const post=!!(composer&&quality==='high'); $('board').classList.toggle('post',post);
+  if(post){ bloom.enabled=nightA>.03; bloom.strength=nightA*.75;
+    if(finish){ const U=finish.uniforms; U.tilt.value=reduce?0:(viewNear?Math.min(1,.55+.12*(zoomHH-2.2)):.35); U.warm.value=.32*(1-nightA)+goldK*1.15; U.sat.value=1.1-nightA*.18+goldK*.08; U.vig.value=.3+nightA*.12; }
+    composer.render(); }
   else renderer.render(scene,camera);
   if(!paused) stepFx(raw);
   const go=(Math.pow(nightA,1.6)*.72).toFixed(2); if(gradeEl.style.opacity!==go) gradeEl.style.opacity=go;
@@ -2590,8 +2984,12 @@ async function slotMenu(boot){
   const info=[]; for(let n=1;n<=3;n++) info.push(await readSlot(n));
   const opts=info.map((d,i)=>{ const n=i+1;
     if(!d) return {label:T('Slot {{n}} · empty',{n}),sub:T('Found a new kingdom here'),fn:()=>{ slot=n; savePrefs(); newGame(); }};
+    if(d.daily) return {label:T('Slot {{n}} · empty',{n}),sub:T('Found a new kingdom here'),fn:()=>{ slot=n; savePrefs(); newGame(); }};
     return {label:T('Slot {{n}} · day {{d}} on {{x}}',{n,d:d.day,x:T((DIFF[d.diff]||DIFF.normal).label)}),primary:n===slot,
       sub:T('{{g}} gold, {{f}} food, {{p}} villagers',{g:d.res?d.res.gold:0,f:d.res?d.res.food:0,p:d.pop||0})+(d.coastUnlocked?' · '+T('Saltreach Cove'):''),fn:()=>slotPick(n,d,boot)}; });
+  { const di=dailyInfo(), saved=await readSlot(4), cont=saved&&saved.daily&&saved.daily.key===di.key, best=dailyBest(di.key);
+    opts.push({label:T('Daily challenge · {{d}}',{d:di.date}),sub:`${T(di.mod.name)}: ${T(di.mod.desc)}`+(cont?' · '+T('day {{n}}',{n:saved.day}):'')+(best?' · '+T('best {{n}}',{n:best.toLocaleString()}):''),
+      fn:()=>{ if(cont){ slot=4; if(load(saved)){ saveOn=true; hideOver(); ui(); forecast(); return; } } startDaily(); }}); }
   if(!boot) opts.push({label:T('Keep playing'),sub:T('Back to slot {{n}}',{n:slot}),fn:()=>{ hideOver(); ui(); }});
   showOver(T('Choose a kingdom'),T('Three save slots, kept on this device. Each one is a separate kingdom.'),opts);
 }
@@ -2605,7 +3003,7 @@ function encRegion(r){ return {grid:r.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...
 function save(){
   if(!S||S.over||!saveOn) return;
   stash();
-  try{ writeSlot(slot,JSON.stringify({R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
+  try{ writeSlot(slot,JSON.stringify({R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,mtnUnlocked:S.mtnUnlocked,visitedMtn:S.visitedMtn,daily:S.daily||null,survivedBlood:!!S.survivedBlood,warships:S.warships,plate:S.plate,mercs:S.mercs,sunk:S.sunk,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
     grid:S.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...t.b,aim:undefined,born:undefined,hitT:undefined,worked:undefined}:null,t.grove?1:0]),spawns:S.spawns,queue:S.queue})); }catch(e){}
 }
 function load(d){
@@ -2616,6 +3014,8 @@ function load(d){
       mods:{...S.mods,...d.mods},kills:d.kills||0,spawns:d.spawns,queue:d.queue,seed:d.seed||Math.random()*1000});
     if(d.R){ S.R={}; for(const id in d.R){ const r=d.R[id]; S.R[id]={grid:r.grid.map(([l,o,b,gr,w])=>({land:!!l,ore:!!o,grove:!!gr,water:!!w,b})),spawns:r.spawns||[],seed:r.seed,keep:r.keep,keepMax:r.keepMax,kind:r.kind||'canyon',shore:r.shore||null,units:[]}; } unstash(d.cur&&S.R[d.cur]?d.cur:'home'); }
     else{ S.grid=d.grid.map(([l,o,b,gr])=>({land:!!l,ore:!!o,grove:!!gr,b})); Object.assign(S,{kind:'canyon',shore:null,units:[],cur:'home'}); stash(); }
+    Object.assign(S,{daily:d.daily||null,survivedBlood:!!d.survivedBlood,mtnUnlocked:!!d.mtnUnlocked,visitedMtn:!!d.visitedMtn,warships:d.warships||0,plate:d.plate||0,mercs:d.mercs||0,sunk:d.sunk||0});
+    if(S.res.iron==null) S.res.iron=0;
     Object.assign(S,{heroAt:d.heroAt||S.cur,raid:d.raid||'home',coastUnlocked:!!d.coastUnlocked,voyages:d.voyages||[],iron:d.iron||0,portPrice:d.portPrice||{},voyagesSent:d.voyagesSent||0,visitedCoast:!!d.visitedCoast});
     Object.assign(S,{mood:d.mood??60,weather:d.weather||'clear',blood:!!d.blood,hx:d.hx||0,hl:d.hl||1,perks:d.perks||[],perkPending:d.perkPending||0,hungry:!!d.hungry,cold:!!d.cold});
     S.diff=DIFF[d.diff]?d.diff:'normal'; S.quest=d.quest||0; S.upg=d.upg||[]; S.won=!!d.won; S.abilUsed=d.abilUsed||0;
@@ -2628,6 +3028,80 @@ function load(d){
 
 // =============== UI ===============
 function say(h){ $('msg').innerHTML=h; }
+const CHAPTERS=[
+  {day:1,n:'I',name:'A Crown in the Dust',text:'Your banner flies over a dry canyon keep, and bandits know every pass. Build, feed your people and hold the walls.'},
+  {day:5,n:'II',name:'Salt and Sails',text:'Ships crowd the water off Saltreach Cove, and where trade goes, pirates follow. Build a harbor and guard the shore.'},
+  {day:9,n:'III',name:'Iron in the Snow',text:'The northern pass is full of iron. Whoever holds the forge holds the realm, and the raiders know it.'},
+  {day:13,n:'IV',name:'Sea Wolves',text:'The pirate captains have joined their fleets. Raids grow bolder on every shore. Launch warships and light the coast.'},
+  {day:17,n:'V',name:'The Last Warlord',text:'Every warlord left in the desert is marching on your keep. Hold four more nights and the crown is yours.'}];
+const chapterOf=d=>CHAPTERS.reduce((a,c)=>d>=c.day?c:a,CHAPTERS[0]);
+function showChapter(c){
+  if(!c) return; const box=$('board'); box.querySelectorAll('.chapter').forEach(e=>e.remove());
+  const el=document.createElement('div'); el.className='chapter'; el.setAttribute('aria-live','polite');
+  el.innerHTML='<span class="ck"></span><span class="cn"></span><span class="rule"></span><span class="cd"></span>';
+  el.querySelector('.ck').textContent=T('Chapter {{n}}',{n:c.n}); el.querySelector('.cn').textContent=T(c.name); el.querySelector('.cd').textContent=T(c.text);
+  box.appendChild(el); setTimeout(()=>el.remove(),reduce?3000:4900);
+}
+const ACH=[
+  {id:'night1',icon:'☾',name:'First light',desc:'Survive your first night',test:()=>S.day>=2},
+  {id:'night10',icon:'✦',name:'Ten nights',desc:'Survive 10 nights',test:()=>S.day>=11},
+  {id:'crowned',icon:'♛',name:'The crown holds',desc:'Win a game',test:()=>S.won},
+  {id:'hardwin',icon:'⚔',name:'Iron will',desc:'Win on Hard',test:()=>S.won&&S.diff==='hard'},
+  {id:'builder',icon:'⌂',name:'Master builder',desc:'Own 15 buildings',test:()=>{ let b=0; eachAll(x=>{ if(x.type!=='keep'&&x.type!=='road') b++; }); return b>=15; }},
+  {id:'village',icon:'☺',name:'Bustling village',desc:'Grow to 20 villagers',test:()=>S.pop>=20},
+  {id:'happy',icon:'♥',name:'Beloved ruler',desc:'Reach a mood of 90',test:()=>S.mood>=90},
+  {id:'rich',icon:'◎',name:'Full treasury',desc:'Hold 200 gold',test:()=>S.res.gold>=200},
+  {id:'realms',icon:'⛰',name:'Three realms',desc:'Visit the valley, the cove and the pass',test:()=>S.visitedCoast&&S.visitedMtn},
+  {id:'sailor',icon:'⚓',name:'Merchant prince',desc:'Send 5 trade voyages',test:()=>(S.voyagesSent||0)>=5},
+  {id:'sinker',icon:'✸',name:'Scourge of pirates',desc:'Sink 3 pirate boats',test:()=>(S.sunk||0)>=3},
+  {id:'ironclad',icon:'⛨',name:'Ironclad',desc:'Forge arms and plate to the top',test:()=>(S.iron||0)>=3&&(S.plate||0)>=3},
+  {id:'roads',icon:'≡',name:'All roads',desc:'Lay 10 roads',test:()=>count('road')>=10},
+  {id:'hero5',icon:'★',name:'Legend',desc:'Raise your hero to level 5',test:()=>S.hl>=5},
+  {id:'blood',icon:'●',name:'Red night',desc:'Survive a blood moon',test:()=>!!S.survivedBlood},
+  {id:'daily',icon:'☀',name:'Daily devotion',desc:'Survive 5 nights of a daily challenge',test:()=>!!S.daily&&S.day>=6}];
+let achGot={}; try{ achGot=JSON.parse(localStorage.getItem('smallcrown-ach')||'{}')||{}; }catch(e){}
+let achKey='';
+function checkAch(){
+  if(!S||S.over&&!S.won) return; let any=false;
+  for(const a of ACH){ if(achGot[a.id]) continue; let ok=false; try{ ok=a.test(); }catch(e){} if(ok){ achGot[a.id]=Date.now(); any=true; toast(T('Achievement'),T(a.name),a.icon); sfx('up'); } }
+  if(any){ try{ localStorage.setItem('smallcrown-ach',JSON.stringify(achGot)); }catch(e){} }
+  renderAch();
+}
+function renderAch(){
+  const n=ACH.filter(a=>achGot[a.id]).length, key=n+lang; if(key===achKey) return; achKey=key;
+  $('achsum').textContent=`${n}/${ACH.length}`;
+  $('ach').innerHTML=ACH.map(a=>`<div class="ab2${achGot[a.id]?' got':''}"><span class="ai">${a.icon}</span><span><span class="an">${T(a.name)}</span><br><span class="ad2">${T(a.desc)}</span></span></div>`).join('');
+}
+// daily challenge: same map and twist for everyone on the same date
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function seeded(seed,fn){ const r=Math.random; Math.random=mulberry32(seed); try{ return fn(); } finally{ Math.random=r; } }
+const DAILY_MODS=[
+  {id:'rich',name:'Rich veins',desc:'Every mine yields 2 more.'},
+  {id:'lean',name:'Lean start',desc:'Half the starting goods, but your score counts 30% more.'},
+  {id:'blood',name:'Blood sky',desc:'Blood moons rise twice as often.'},
+  {id:'swift',name:'Swift raiders',desc:'Raiders move 20% faster.'},
+  {id:'trade',name:'Trade winds',desc:'Trade voyages pay 30% more.'}];
+function dailyInfo(){ const d=new Date(), key=d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate(); return {key,mod:DAILY_MODS[(key*7)%DAILY_MODS.length],date:d.toLocaleDateString(lang==='es'?'es':'en-US',{month:'short',day:'numeric'})}; }
+const dmod=id=>!!(S&&S.daily&&S.daily.mod===id);
+function dailyBest(key){ try{ const d=JSON.parse(localStorage.getItem('smallcrown-daily')||'{}'); return d.key===key?d.best:0; }catch(e){ return 0; } }
+function recordDaily(){ if(!S||!S.daily) return; const sc=score(), b=dailyBest(S.daily.key); if(sc>b) try{ localStorage.setItem('smallcrown-daily',JSON.stringify({key:S.daily.key,best:sc})); }catch(e){} }
+function startDaily(){
+  const di=dailyInfo(); slot=4; saveOn=true;
+  seeded(di.key,()=>startGame('normal'));
+  S.daily={key:di.key,mod:di.mod.id};
+  if(dmod('rich')) S.mods.stone+=2;
+  if(dmod('lean')) RES.forEach(r=>S.res[r]=Math.floor(S.res[r]/2));
+  save(); ui(); showChapter(CHAPTERS[0]);
+  toast(T('Daily challenge'),T(di.mod.name),'☀');
+  say(`<b>Daily challenge, ${di.date}:</b> ${T(di.mod.desc)} Everyone playing today has the same valley.`);
+}
+function toast(title,body,icon='★'){
+  const box=$('toasts'); if(!box) return;
+  const el=document.createElement('div'); el.className='toast'; el.innerHTML='<span class="ti"></span><span><span class="tt"></span><br><span class="tb"></span></span>';
+  el.querySelector('.ti').textContent=icon; el.querySelector('.tt').textContent=title; el.querySelector('.tb').textContent=body;
+  box.appendChild(el); while(box.children.length>3) box.firstChild.remove();
+  setTimeout(()=>{ el.classList.add('out'); setTimeout(()=>el.remove(),420); },3600);
+}
 function bump(id,cls){ const el=$(id); el.classList.remove('bump','hurt'); void el.offsetWidth; el.classList.add(cls); setTimeout(()=>el.classList.remove(cls),700); }
 function ui(){
   assignWorkers(); checkQuests();
@@ -2642,6 +3116,7 @@ function ui(){
   const sea=season(); $('season').textContent=T(sea.name)+(S.weather!=='clear'?` · ${T(WX[S.weather].name)}`:'')+(S.blood?' · '+T('Blood moon'):''); $('seaDot').setAttribute('fill',sea.col); $('cSeason').classList.toggle('blood',!!S.blood);
   $('hlv').textContent=T('Hero Lv {{n}}',{n:S.hl}); $('xpf').style.width=Math.round(100*S.hx/xpNeed(S.hl))+'%';
   if(S.phase==='day'&&!S.modal&&!S.over&&S.perkPending>0) offerPerk();
+  if(S.phase==='day') checkAch(); else renderAch();
   $('best').textContent=[T(DIFF[S.diff].label),T('score {{n}}',{n:score().toLocaleString()}),bestScore?T('best {{n}}',{n:bestScore.toLocaleString()}):''].filter(Boolean).join(' · ');
   renderInsp();
 }
@@ -2677,14 +3152,22 @@ function renderTools(){
     else b.querySelector('.c').textContent=t==='clear'?T('refund'):T('move');
   });
 }
+function tweenNum(el,v){
+  const cur=+el.dataset.v; if(cur===v) return; el.dataset.v=v;
+  if(reduce||isNaN(cur)||Math.abs(v-cur)>400){ el.textContent=v; return; }
+  const t0=performance.now(), d=420; cancelAnimationFrame(el._raf||0);
+  const tick=n=>{ const k=Math.min(1,(n-t0)/d), e=1-Math.pow(1-k,3); el.textContent=Math.round(cur+(v-cur)*e); if(k<1) el._raf=requestAnimationFrame(tick); };
+  el._raf=requestAnimationFrame(tick);
+}
 function renderRes(){
   const E=econ(), box=$('res');
   if(!box.dataset.built){
-    box.innerHTML=[...RES,'people','mood'].map(r=>`<div class="rc" id="r-${r}"><div class="lab"><i style="background:${RCOL[r]}"></i>${r==='people'?T('Villagers'):T(cap1(r))}</div><div class="v">0</div><div class="d"></div></div>`).join('');
+    box.innerHTML=[...RES,'people','mood'].map(r=>`<div class="rc" id="r-${r}" style="--rcol:${RCOL[r]}"><div class="lab"><i style="background:${RCOL[r]}"></i>${r==='people'?T('Villagers'):T(cap1(r))}</div><div class="v">0</div><div class="d"></div></div>`).join('');
     box.dataset.built=1;
   }
   RES.forEach(r=>{ const c=$('r-'+r), n=E.net[r], d=c.querySelector('.d');
-    c.querySelector('.v').textContent=S.res[r];
+    tweenNum(c.querySelector('.v'),S.res[r]);
+    if(r==='iron') c.hidden=!(S.mtnUnlocked||S.res.iron>0);
     d.innerHTML=n?`${n>0?'+':''}${n}<span class="ad"> ${T('at dawn')}</span>`:T('steady'); d.className='d'+(n>0?' up':n<0?' dn':''); c.title=`${cap1(r)}: ${S.res[r]}, ${n>=0?'+':''}${n} at dawn`; });
   const c=$('r-people'), d=c.querySelector('.d');
   c.querySelector('.v').textContent=`${S.pop}/${E.cap}`;
@@ -2726,7 +3209,11 @@ function renderInsp(){
   let det='';
   const work=b.off?'paused':b.worked?'worked by a villager':'idle, no free villager';
   switch(b.type){
-    case 'keep': det=S.kind==='coast'?`Health ${S.keep}/${S.keepMax} · if it falls, raiders plunder a third of your gold and food · shoots raiders close by`:`Health ${S.keep}/${S.keepMax} · houses 4 villagers · shoots raiders close by`; break;
+    case 'keep': det=S.cur!=='home'?`Health ${S.keep}/${S.keepMax} · if it falls, raiders plunder a third of your gold and food · shoots raiders close by`:`Health ${S.keep}/${S.keepMax} · houses 4 villagers · shoots raiders close by`; break;
+    case 'road': det=`${hp} · your hero rides 40% faster on roads · farms, lumber camps and mines next to a road yield 1 more`; break;
+    case 'lighthouse': det=`${hp} · pirates land with a quarter less health · warships are more likely to find pirate boats`; break;
+    case 'smith': det=`${hp} · arms ${S.iron||0}/3 (+${S.iron||0} damage for your hero and soldiers) · plate ${S.plate||0}/3 (+${(S.plate||0)*2} soldier health, +${(S.plate||0)*3} hero health)`; break;
+    case 'tavern': det=`${hp} · +4 mood (up to 2 taverns) · +2 gold at dawn${S.mercs?` · ${S.mercs} sellswords hired for tonight`:''}`; break;
     case 'harbor': det=`${hp} · ${work} · +3 food from fishing · ${shipsFree()} of ${shipsTotal()} ship${shipsTotal()===1?'':'s'} in port`; break;
     case 'trap': det=`${b.charges}/${trapMax()} charges · ${1+S.mods.trap} damage and slows`; break;
     case 'barr': det=`${hp} · ${S.units.filter(u=>u.home===i).length}/${b.lvl+1+S.mods.muster} soldiers · ${unitDmg()} damage each · 1 gold upkeep, soldiers eat 1 food each`+(b.unpaid?' · unpaid, idle tonight':''); break;
@@ -2736,7 +3223,7 @@ function renderInsp(){
     case 'shrine': det=`${hp} · +8 mood (up to 2 shrines)`; break;
     case 'range': det=`${hp} · ${S.units.filter(u=>u.home===i).length}/${b.lvl+1+S.mods.muster} archers · shoot raiders up to 2.7 tiles away · 1 gold upkeep, archers eat 1 food each`+(b.unpaid?' · unpaid, idle tonight':''); break;
     case 'lumber': det=`${hp} · ${work} · +${4+S.mods.wood} wood at dawn`; break;
-    case 'mine': det=`${hp} · ${work} · +${3+S.mods.stone} stone at dawn`; break;
+    case 'mine': det=S.kind==='mountain'?`${hp} · ${work} · +${2+S.mods.stone} iron at dawn`:`${hp} · ${work} · +${3+S.mods.stone} stone at dawn`; break;
     case 'market': det=`${hp} · ${work} · +3 gold at dawn`; break;
     case 'wall': det=b.lvl>1?`${hp} · crenellated stone`:`${hp} · upgrade to stone for 10 more health`; break;
     default: det=hp;
@@ -2750,9 +3237,17 @@ function renderInsp(){
   if(d.work) acts+=`<button id="iOff" type="button">${b.off?'Resume':'Pause'}</button>`;
   if(b.type!=='keep') acts+=`<button id="iClr" type="button" ${S.phase!=='day'?'disabled':''}>Clear <span class="c">${costShort(refundOf(b))}</span></button>`;
   let extra='';
+  if(b.type==='smith'){
+    const ca={iron:3+(S.iron||0)*2,gold:6}, cp={iron:3+(S.plate||0)*2,gold:6};
+    extra=`<div class="ports"><div class="port"><span class="pn">${T('Forge arms')} · ${S.iron||0}/3</span><span class="pd">${T('Sharper blades: +1 damage for your hero and every soldier.')}</span><button type="button" data-forge="arms" ${(S.iron||0)>=3||!canPay(ca)?'disabled':''}>${(S.iron||0)>=3?T('Done'):`${T('Forge')} <span class="c">${costShort(ca)}</span>`}</button></div>
+      <div class="port"><span class="pn">${T('Forge plate')} · ${S.plate||0}/3</span><span class="pd">${T('Iron plate: +2 health for every soldier and +3 for your hero.')}</span><button type="button" data-forge="plate" ${(S.plate||0)>=3||!canPay(cp)?'disabled':''}>${(S.plate||0)>=3?T('Done'):`${T('Forge')} <span class="c">${costShort(cp)}</span>`}</button></div></div>`;
+  }
+  if(b.type==='tavern'){
+    extra=`<div class="ports"><div class="port"><span class="pn">${T('Hire sellswords')}</span><span class="pd">${T('Three hardened fighters guard the keep of whichever region is raided tonight, then leave at dawn.')}</span><button type="button" data-hire="1" ${S.mercs||S.phase!=='day'||S.res.gold<12?'disabled':''}>${S.mercs?T('Hired'):`${T('Hire')} <span class="c">12g</span>`}</button></div></div>`;
+  }
   if(b.type==='harbor'){
     const sea=S.voyages.map(v=>{ const p=PORTS.find(x=>x.id===v.port); return T('{{p}} (home day {{d}})',{p:p?T(p.name):'?',d:v.back}); });
-    extra=`<div class="ports">${PORTS.map(p=>`<div class="port"><span class="pn">${T(p.name)} · ${TP(p.days,'day')}</span><span class="pd">${T(p.desc)} ${T('Ship {{a}} {{g}}, get about {{e}} gold · {{r}}% risk',{a:p.amt,g:T(p.good),e:portEst(p),r:Math.round(portRisk(p)*100)})}</span><button type="button" data-port="${p.id}" ${!shipsFree()||S.res[p.good]<p.amt?'disabled':''}>${T('Send')} <span class="c">${p.amt}${p.good[0]}</span></button></div>`).join('')}</div>${sea.length?`<div class="prod">${T('At sea:')} ${sea.join(', ')}</div>`:''}`;
+    extra=`<div class="ports">${PORTS.map(p=>`<div class="port"><span class="pn">${T(p.name)} · ${TP(p.days,'day')}</span><span class="pd">${T(p.desc)} ${T('Ship {{a}} {{g}}, get about {{e}} gold · {{r}}% risk',{a:p.amt,g:T(p.good),e:portEst(p),r:Math.round(portRisk(p)*100)})}</span><button type="button" data-port="${p.id}" ${!shipsFree()||S.res[p.good]<p.amt?'disabled':''}>${T('Send')} <span class="c">${p.amt}${p.good[0]}</span></button></div>`).join('')}</div>${sea.length?`<div class="prod">${T('At sea:')} ${sea.join(', ')}</div>`:''}<div class="ports"><div class="port"><span class="pn">${T('Warships')} · ${S.warships||0}/${count('harbor')}</span><span class="pd">${T('Each warship sails out to meet a pirate boat when raiders come to the cove, and may sink it with its crew aboard. 1 gold upkeep each.')}</span><button type="button" data-war="1" ${(S.warships||0)>=count('harbor')||!canPay(WARSHIP)?'disabled':''}>${T('Build')} <span class="c">${costShort(WARSHIP)}</span></button></div></div>`;
   }
   if(b.type==='market'){
     extra=b.worked?`<div class="trade">${['food','wood','stone'].map(r=>`<span class="tn c${r[0]}">${cap1(r)}</span><span class="ts">you have ${S.res[r]}</span><button type="button" data-buy="${r}" ${S.res.gold<buyCost(r)?'disabled':''}>Buy ${LOT} <span class="c">${buyCost(r)}g</span></button><button type="button" data-sell="${r}" ${S.res[r]<LOT?'disabled':''}>Sell ${LOT} <span class="c">+${sellGain(r)}g</span></button>`).join('')}</div>`
@@ -2766,6 +3261,9 @@ function renderInsp(){
   $('iClr')?.addEventListener('click',()=>{ if(sel) clearAt(...sel); });
   $('iOff')?.addEventListener('click',()=>{ b.off=!b.off; save(); ui(); say(b.off?`${d.name} paused. Its worker is free for other jobs.`:`${d.name} back to work.`); });
   box.querySelectorAll('[data-port]').forEach(el=>el.addEventListener('click',()=>sendVoyage(el.dataset.port)));
+  box.querySelectorAll('[data-forge]').forEach(el=>el.addEventListener('click',()=>forge(el.dataset.forge)));
+  box.querySelectorAll('[data-hire]').forEach(el=>el.addEventListener('click',hireMercs));
+  box.querySelectorAll('[data-war]').forEach(el=>el.addEventListener('click',buildWarship));
   box.querySelectorAll('[data-buy]').forEach(el=>el.addEventListener('click',()=>trade(el.dataset.buy,true)));
   box.querySelectorAll('[data-sell]').forEach(el=>el.addEventListener('click',()=>trade(el.dataset.sell,false)));
 }
@@ -2785,32 +3283,36 @@ function regionStatus(id){
   return {keep:r.keep,keepMax:r.keepMax,buildings:b};
 }
 function renderRealm(){
-  const night=S.phase!=='day', ids=['home','coast'];
+  const night=S.phase!=='day', ids=['home','coast','mountain'];
   const node=(id,x,y)=>{ const raid=S.raid===id, hero=S.heroAt===id, open=!!S.R[id];
     return `<g class="node" data-go="${id}" tabindex="0" role="button" aria-label="${T(regionName(id))}">
       <circle cx="${x}" cy="${y}" r="17" fill="${open?'#3A2E26':'#2A221D'}" stroke="${raid?'#E8604F':open?'#D99A60':'#5A4A3E'}" stroke-width="${raid?3:2}" ${open?'':'stroke-dasharray="4 4"'}/>
-      ${id==='home'?`<path d="M${x-8} ${y+6}v-9l3-3 3 3v-3l2-2 2 2v3l3-3 3 3v9z" fill="#F0BE4E"/>`:`<path d="M${x} ${y-9}v15M${x-6} ${y-3}h12M${x-9} ${y+2}c2 7 16 7 18 0" fill="none" stroke="${open?'#BFE0EA':'#6A5A4E'}" stroke-width="2" stroke-linecap="round"/>`}
+      ${id==='home'?`<path d="M${x-8} ${y+6}v-9l3-3 3 3v-3l2-2 2 2v3l3-3 3 3v9z" fill="#F0BE4E"/>`:id==='mountain'?`<path d="M${x-10} ${y+6}l6-11 4 6 3-4 7 9z" fill="${open?'#E8EEF5':'#6A5A4E'}"/><path d="M${x-6} ${y-1}l2-4 2 3z" fill="${open?'#9FB8D0':'#5A4A3E'}"/>`:`<path d="M${x} ${y-9}v15M${x-6} ${y-3}h12M${x-9} ${y+2}c2 7 16 7 18 0" fill="none" stroke="${open?'#BFE0EA':'#6A5A4E'}" stroke-width="2" stroke-linecap="round"/>`}
       ${hero?`<circle cx="${x+15}" cy="${y-14}" r="7" fill="#F2EADD"/><path d="M${x+11} ${y-15}l2 2 2-4 2 4 2-2v4h-8z" fill="#28201C"/>`:''}
       ${raid&&open?`<path d="M${x-14} ${y-20}c2-5 6-4 5-9 4 3 5 7 3 10" fill="#E8604F"/>`:''}
       <text x="${x}" y="${y+33}" text-anchor="middle" font-size="12" font-family="Inter,system-ui,sans-serif" font-weight="600" fill="${open?'#F2EADD':'#8A7A6A'}">${open?T(regionName(id)):T('Unknown lands')}</text></g>`; };
   const sea=S.voyages.map((v,i)=>{ const p=PORTS.find(x=>x.id===v.port); return `<g transform="translate(${70+i*70},214)"><path d="M-10 0h20l-4 6h-12z" fill="#D99A60"/><path d="M0 0v-12l7 8h-7" fill="#EDE3CE"/><text y="18" text-anchor="middle" font-size="9" fill="#BFE0EA" font-family="Inter,system-ui,sans-serif">${p?T(p.name):''}</text></g>`; }).join('');
+  const mOpen=!!S.mtnUnlocked;
   const svg=`<svg viewBox="0 0 400 240" role="img" aria-label="Map of the realm">
     <defs><pattern id="wv" width="24" height="10" patternUnits="userSpaceOnUse"><path d="M0 6c4-4 8-4 12 0s8 4 12 0" fill="none" stroke="#3E7E92" stroke-width="1.2"/></pattern></defs>
     <rect width="400" height="240" fill="#2A221D"/>
     <path d="M0 165c50-12 90 8 140-2s90-22 140-8 80 16 120 4V240H0z" fill="#1E4A58"/><path d="M0 165c50-12 90 8 140-2s90-22 140-8 80 16 120 4V240H0z" fill="url(#wv)" opacity=".7"/>
     <path d="M0 0h400v170c-40 12-80-2-120-12s-90 6-140 6-90-10-140 2z" fill="#6A4430"/>
-    <path d="M150 20c40-10 90-6 110 14s14 54-8 66-74 12-98-6-30-62-4-74z" fill="#C98A55"/>
-    <path d="M150 20c40-10 90-6 110 14s14 54-8 66-74 12-98-6-30-62-4-74z" fill="none" stroke="#A9553E" stroke-width="6" stroke-linejoin="round"/>
+    <g transform="translate(-40,24)"><path d="M150 20c40-10 90-6 110 14s14 54-8 66-74 12-98-6-30-62-4-74z" fill="#C98A55"/>
+    <path d="M150 20c40-10 90-6 110 14s14 54-8 66-74 12-98-6-30-62-4-74z" fill="none" stroke="#A9553E" stroke-width="6" stroke-linejoin="round"/></g>
+    <path d="M268 14c22-10 70-8 84 8s8 42-14 50-56 6-70-8-18-40 0-50z" fill="#C9D2DC" opacity="${mOpen?1:.3}"/>
+    <path d="M268 14c22-10 70-8 84 8s8 42-14 50-56 6-70-8-18-40 0-50z" fill="none" stroke="#7C8A9C" stroke-width="5" stroke-linejoin="round" opacity="${mOpen?1:.3}"/>
+    <path d="M196 72c20-10 44-20 82-28" fill="none" stroke="#EDE3CE" stroke-width="2" stroke-dasharray="3 5" opacity="${mOpen?.8:.3}"/>
     <path d="M226 120c20-4 44 4 52 18s-6 26-30 26-40-6-42-20 4-22 20-24z" fill="#C98A55" opacity="${S.coastUnlocked?1:.35}"/>
-    <path d="M200 98c6 14 16 18 32 26" fill="none" stroke="#EDE3CE" stroke-width="2" stroke-dasharray="3 5" opacity="${S.coastUnlocked?.8:.3}"/>
-    ${[[40,60],[330,50],[90,120],[350,120],[60,30]].map(([x,y])=>`<path d="M${x} ${y}l10-16 10 16z" fill="#8A5238"/><path d="M${x+6} ${y-9}l4-7 4 7z" fill="#EDE6D4"/>`).join('')}
+    <path d="M176 104c18 12 36 18 56 22" fill="none" stroke="#EDE3CE" stroke-width="2" stroke-dasharray="3 5" opacity="${S.coastUnlocked?.8:.3}"/>
+    ${[[30,70],[90,135],[360,125],[50,30],[110,20],[236,22]].map(([x,y])=>`<path d="M${x} ${y}l10-16 10 16z" fill="#8A5238"/><path d="M${x+6} ${y-9}l4-7 4 7z" fill="#EDE6D4"/>`).join('')}
     <text x="200" y="232" text-anchor="middle" font-size="10" fill="#9CC6D2" font-family="Inter,system-ui,sans-serif" letter-spacing="2">${T('THE OPEN SEA')}</text>
-    ${node('home',200,58)}${node('coast',250,140)}${sea}</svg>`;
+    ${node('home',170,82)}${node('coast',250,140)}${node('mountain',310,40)}${sea}</svg>`;
   const card=id=>{ const st=regionStatus(id), open=!!S.R[id];
-    if(!open) return `<div class="rcard"><b>${T('Unknown lands')}</b><div class="rd">${T('Your scouts are searching the coast to the south. They should find a way by day 3.')}</div></div>`;
+    if(!open) return `<div class="rcard"><b>${T('Unknown lands')}</b><div class="rd">${T(id==='mountain'?'Your scouts are crossing the northern mountains. They should find a way by day 7.':'Your scouts are searching the coast to the south. They should find a way by day 3.')}</div></div>`;
     const here=S.cur===id&&S.heroAt===id, raid=S.raid===id;
     return `<div class="rcard"><b>${T(regionName(id))}</b><div class="rd">${T(REGIONS[id].desc)}</div>
-      <div class="tags">${S.heroAt===id?`<span class="tag hero">${T('Your hero is here')}</span>`:''}${raid?`<span class="tag raid">${T(night?'Under attack':'Tonight’s raid')}</span>`:''}<span class="tag">${T(REGIONS[id].fort)} ${st.keep}/${st.keepMax}</span><span class="tag">${TP(st.buildings,'building')}</span>${id==='coast'?`<span class="tag">${T('{{a}} of {{b}} ships in port',{a:shipsFree(),b:shipsTotal()})}</span>`:''}</div>
+      <div class="tags">${S.heroAt===id?`<span class="tag hero">${T('Your hero is here')}</span>`:''}${raid?`<span class="tag raid">${T(night?'Under attack':'Tonight’s raid')}</span>`:''}<span class="tag">${T(REGIONS[id].fort)} ${st.keep}/${st.keepMax}</span><span class="tag">${TP(st.buildings,'building')}</span>${id==='coast'?`<span class="tag">${T('{{a}} of {{b}} ships in port',{a:shipsFree(),b:shipsTotal()})}</span>`:''}${id==='mountain'?`<span class="tag">${T('{{n}} iron',{n:S.res.iron})}</span>`:''}</div>
       <button type="button" data-go="${id}" ${here||night?'disabled':''}>${T(here?'You are here':night?'Travel by day':'Ride here')}</button></div>`; };
   $('realm').innerHTML=`<div class="rh"><h2>${T('The realm')}</h2><span style="display:flex;gap:6px"><button class="x" type="button" id="realmSlots">${T('Save slots')}</button><button class="x" type="button" id="realmClose">${T('Close')}</button></span></div>${svg}<div class="rcards">${ids.map(card).join('')}</div>${S.voyages.length?`<div class="rd" style="font-size:13px;color:var(--muted)">${T('At sea:')} ${S.voyages.map(v=>{ const p=PORTS.find(x=>x.id===v.port); return T('{{p}}, home on day {{d}}',{p:p?T(p.name):'',d:v.back}); }).join(' · ')}</div>`:''}`;
   $('realmClose').addEventListener('click',closeRealm);
@@ -2831,13 +3333,13 @@ function applyLang(){
   document.querySelectorAll('[data-th]').forEach(el=>{ if(el.dataset.en==null) el.dataset.en=el.innerHTML; el.innerHTML=lang==='es'?T(el.dataset.th,{defaultValue:el.dataset.en}):el.dataset.en; });
   const lb=$('lang'); lb.textContent=lang.toUpperCase(); lb.setAttribute('aria-label',lang==='es'?'Idioma: español. Cambiar a inglés':'Language: English. Switch to Spanish');
   $('install').textContent=T('Install');
-  delete $('tools').dataset.built; delete $('res').dataset.built; upgKey='';
+  delete $('tools').dataset.built; delete $('res').dataset.built; upgKey=''; achKey='';
   if(S){ ui(); if(!$('realm').hidden) renderRealm(); }
   $('qual').textContent=T(quality==='high'?'High':'Low');
 }
 function savePrefs(){ try{ localStorage.setItem(PREF,JSON.stringify({lang,slot,speed,zoom:+zoomHH.toFixed(2),sound,music:musicOn,quality,qualityChosen})); }catch(e){} }
 function loadPrefs(){ lang=/^es/i.test(navigator.language||'')?'es':'en'; try{ const p=JSON.parse(localStorage.getItem(PREF)||'{}');
-  if(p.lang==='es'||p.lang==='en') lang=p.lang; if(p.slot>=1&&p.slot<=3) slot=p.slot;
+  if(p.lang==='es'||p.lang==='en') lang=p.lang; if(p.slot>=1&&p.slot<=4) slot=p.slot;
   if([1,2,3].includes(p.speed)){ speed=p.speed; $('speed').textContent=speed+'×'; }
   if(p.zoom>=ZMIN&&p.zoom<20) zoomHH=p.zoom;
   if(p.quality==='low'||p.quality==='high'){ quality=p.quality; qualityChosen=!!p.qualityChosen; }
@@ -2919,7 +3421,7 @@ if(document.fullscreenEnabled&&fsEl.requestFullscreen){ $('fs').hidden=false;
 addEventListener('load',()=>{ if(S&&S.kind==='coast') rebuildFleet(); });
 addEventListener('load',initJoy); setTimeout(initJoy,1500);
 const ptrs=new Map(); let paint=null, pinch=null;
-const LINE_TOOLS=new Set(['wall','trap']);
+const LINE_TOOLS=new Set(['wall','trap','road']);
 function setZoom(z){ if(!viewNear) toggleView(); zoomHH=Math.max(ZMIN,Math.min(farHH,z)); savePrefs(); }
 function paintTo(t){
   let [x,y]=paint.last; const [tx,ty]=t;
