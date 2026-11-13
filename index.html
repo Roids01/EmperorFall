@@ -73,6 +73,26 @@ h1 .crest{width:26px;height:26px;vertical-align:-3px;margin-right:6px}
 .ab2 .ad2{font-size:11.5px;color:var(--muted);line-height:1.3}
 .ab2:not(.got) .an{color:var(--muted)}
 .achsum{font-family:var(--f-num);font-size:12px;color:var(--gold);margin-left:6px}
+.req{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:8px;padding:8px 12px;font-size:13.5px;flex-wrap:wrap;border:1px solid rgba(143,203,126,.22)}
+.req .rl{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--good);font-weight:600}
+.req .rt{flex:1;min-width:0}
+.req .rt q{color:var(--ink)}
+.req .rm{font-size:12px;color:var(--muted);white-space:nowrap}
+.req .rm b{color:var(--good);font-weight:500}
+.req button,.report button{font:inherit;font-size:13px;font-weight:600;border:0;border-radius:6px;padding:6px 11px;background:var(--sand);color:#2A1A10;cursor:pointer}
+.req.trader{border-color:rgba(240,190,78,.3)} .req.trader .rl{color:var(--gold)}
+.report{position:absolute;left:10px;top:52px;z-index:4;width:min(260px,calc(100% - 20px));background:rgba(28,23,20,.93);border:1px solid #4A3B31;border-radius:10px;padding:10px 12px;font-size:12.5px;color:var(--muted);box-shadow:0 10px 30px rgba(0,0,0,.4);animation:cardIn .35s cubic-bezier(.2,1.25,.4,1) both}
+@media (max-width:560px){.report{top:92px}}
+.report h3{margin:0 0 6px;font-family:var(--f-display);font-size:16px;color:var(--ink);display:flex;justify-content:space-between;align-items:center;gap:8px}
+.report h3 button{background:transparent;color:var(--muted);padding:0 4px;font-size:16px}
+.report .rr{display:flex;justify-content:space-between;gap:10px;font-variant-numeric:tabular-nums}
+.report .rr b{color:var(--ink);font-weight:600;font-family:var(--f-num)}
+.report .bar{height:5px;border-radius:3px;background:var(--raise);overflow:hidden;margin:2px 0 6px;display:flex}
+.report .bar i{display:block;height:100%}
+.report .mvp{margin-top:6px;color:var(--gold);font-weight:600}
+.chron{display:flex;flex-direction:column;gap:6px;margin-top:8px;max-height:320px;overflow:auto}
+.chron p{margin:0;max-width:none;font-size:12.5px;line-height:1.45}
+.chron p span{font-family:var(--f-num);font-size:11px;color:var(--gold);margin-right:6px}
 .toasts{position:absolute;top:52px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;z-index:7;width:max-content;max-width:calc(100% - 24px)}
 .toast{display:flex;align-items:center;gap:10px;background:rgba(28,23,20,.92);border:1px solid rgba(240,190,78,.55);border-radius:10px;padding:8px 14px 8px 10px;box-shadow:0 6px 24px rgba(0,0,0,.35);animation:toastIn .45s cubic-bezier(.2,1.4,.4,1) both;max-width:100%}
 .toast.out{animation:toastOut .4s ease-in both}
@@ -270,6 +290,8 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
   </div>
 
   <div class="quest" id="quest" aria-live="polite"></div>
+  <div class="req" id="req" hidden aria-live="polite"></div>
+  <div class="req trader" id="trader" hidden></div>
 
   <div class="insp" id="insp" aria-live="polite"></div>
   <p id="msg"></p>
@@ -295,6 +317,11 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <div id="ledger"></div>
   </details>
 
+  <details class="ledger" id="chronD">
+    <summary data-t>Chronicle</summary>
+    <div class="chron" id="chron"></div>
+  </details>
+
   <details class="ledger">
     <summary><span data-t>Achievements</span><span class="achsum" id="achsum"></span></summary>
     <div class="ach" id="ach"></div>
@@ -314,6 +341,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <p data-th="help21"><b>Iron and the blacksmith.</b> Iron comes from the mines of Ironpeak Pass and from voyages to Ironhold. Build one blacksmith (<kbd>G</kbd>) anywhere and tap it to forge arms (+1 damage for your hero and soldiers) or plate (+2 health for soldiers, +3 for your hero), three times each.</p>
     <p data-th="help22"><b>Taverns, roads and the sea.</b> A tavern (<kbd>T</kbd>) lifts the mood and earns 2 gold a dawn; tap it to hire three sellswords who guard the raided region's keep for one night. Roads (<kbd>Y</kbd>) cost 1 stone: your hero rides 40% faster on them, and farms, lumber camps and mines next to one yield 1 more. At the cove, a lighthouse (<kbd>L</kbd>) weakens landing pirates, and warships built from a harbor's panel sail out to sink pirate boats before they land.</p>
     <p data-th="help23"><b>Chapters, achievements and the daily challenge.</b> The story unfolds in five chapters across the 20 nights. Achievements are kept on this device. The daily challenge, chosen from the save menu, gives everyone the same valley and the same twist for the day.</p>
+    <p data-th="help24"><b>Requests, traders and feasts.</b> Now and then a villager asks for something, like a well, roads or a full granary. Fulfill it within three days for gold and a better mood, or they give up and grumble. A wandering trader sometimes sets up by the keep for a day with rare goods. Once each season, tap the keep to hold a feast. New raiders join over time: wolf packs run down from Ironpeak Pass, sappers from night 10 blow up whatever they reach, and pirate captains lead some raids on the cove and carry a sea chest of gold.</p>
     <p data-th="help4"><b>Seasons</b> turn every 5 days. Spring rains add 1 food per farm, summer heat costs 1, harvest adds 2 and lifts markets, and winter costs 2 while every house burns 1 wood a dawn to stay warm. Weather is rolled each dawn: rain stops fires, sandstorms slow raiders but shorten your towers' sight, snow slows everyone.</p>
     <p data-th="help5"><b>Mood.</b> Villagers are happier with wells and shrines nearby, full granaries and a good harvest, and unhappier after hunger, cold houses and buildings lost to raiders. Content villagers pay extra taxes; unhappy ones pay less, stop moving in, and below 20 they start to leave. Wells also keep fire off the buildings around them.</p>
     <p data-th="help6"><b>Hero levels.</b> Raiders your hero fells, and every night survived, earn experience. Each level adds health, every second level adds damage, and each one lets you pick a perk.</p>
@@ -339,7 +367,7 @@ if(!window.THREE){ document.getElementById('board').insertAdjacentHTML('beforeen
 const N=15, C=7, KEY='smallcrown-save-v3', BEST='smallcrown-best';
 const DEF={
   farm:{name:'Farm',cost:{wood:3},hp:3,enter:6,work:true},
-  house:{name:'House',cost:{wood:4},hp:3,enter:6},
+  house:{name:'House',cost:{wood:4},hp:3,enter:6,upg:[{wood:6,stone:4,gold:4}]},
   lumber:{name:'Lumber camp',cost:{gold:3},hp:3,enter:6,work:true,need:'grove'},
   mine:{name:'Mine',cost:{wood:4,gold:2},hp:4,enter:7,work:true,need:'ore'},
   wall:{name:'Palisade',cost:{wood:2},hp:9,enter:14,upg:[{stone:3,gold:1}]},
@@ -628,7 +656,68 @@ const ES={
 "Smell that sea air.":"Huele ese aire del mar.",
 "The snow never quite melts up here.":"Aquí arriba la nieve nunca se derrite del todo.",
 "Tap the ground to send your hero. Tap a building to inspect it, or a villager to meet them.":"Toca el suelo para enviar a tu héroe. Toca un edificio para verlo, o a un aldeano para conocerlo.",
-"Use the joystick to ride, or tap the ground to send your hero. Tap a building to inspect it, or a villager to meet them.":"Usa el joystick para cabalgar o toca el suelo para enviar a tu héroe. Toca un edificio para verlo, o a un aldeano para conocerlo."
+"Use the joystick to ride, or tap the ground to send your hero. Tap a building to inspect it, or a villager to meet them.":"Usa el joystick para cabalgar o toca el suelo para enviar a tu héroe. Toca un edificio para verlo, o a un aldeano para conocerlo.",
+"help24":"<b>Peticiones, mercaderes y banquetes.</b> De vez en cuando un aldeano pide algo, como un pozo, caminos o un granero lleno. Cúmplelo en tres días y ganarás oro y ánimo; si no, se rinde y refunfuña. A veces un mercader ambulante se instala junto al castillo durante un día con artículos raros. Una vez por estación, toca el castillo para celebrar un banquete. Con el tiempo llegan nuevos asaltantes: manadas de lobos bajan de Ferrocumbre, los zapadores aparecen desde la noche 10 y hacen volar lo que alcanzan, y los capitanes piratas encabezan algunos asaltos a la cala con un cofre de oro.",
+"Chronicle":"Crónica",
+"Nothing yet":"Nada todavía",
+"Pirate captain defeated":"Capitán pirata derrotado",
+"+25 gold from his sea chest":"+25 de oro de su cofre",
+"Your hero":"Tu héroe",
+"Towers and keep":"Torres y castillo",
+"Soldiers":"Soldados",
+"Catapults":"Catapultas",
+"Traps":"Trampas",
+"Night {{n}} report":"Informe de la noche {{n}}",
+"Raiders felled":"Asaltantes abatidos",
+"Pirate boats sunk":"Barcos piratas hundidos",
+"Damage to the {{f}}":"Daño al {{f}}",
+"Buildings lost":"Edificios perdidos",
+"Bounty earned":"Recompensa ganada",
+"Best defender: {{w}}":"Mejor defensor: {{w}}",
+"Could we have a well? My back aches from hauling water.":"¿Podríamos tener un pozo? Me duele la espalda de cargar agua.",
+"The paths turn to mud. Lay three roads, please.":"Los senderos se vuelven barro. Traza tres caminos, por favor.",
+"I worry about the lean days. Fill the granary to 30 food.":"Me preocupan los días de escasez. Llena el granero hasta 30 de comida.",
+"We need somewhere to gather in the evenings. Build a tavern!":"Necesitamos un lugar para reunirnos por la tarde. ¡Construye una taberna!",
+"Build a shrine so we can pray for safe nights.":"Construye un santuario para rezar por noches tranquilas.",
+"My cousins want to move here. Build two more houses.":"Mis primos quieren mudarse aquí. Construye dos casas más.",
+"The raiders frighten the children. Build another watchtower.":"Los asaltantes asustan a los niños. Construye otra atalaya.",
+"The smith is idle. Stockpile 10 iron for the forge.":"El herrero está parado. Reúne 10 de hierro para la forja.",
+"It has been ages since we celebrated. Hold a feast!":"Hace siglos que no celebramos nada. ¡Organiza un banquete!",
+"Our house is bursting. Could you raise it into a manor?":"Nuestra casa está a reventar. ¿Podrías convertirla en una mansión?",
+"Request fulfilled":"Petición cumplida",
+"{{n}} thanks you":"{{n}} te lo agradece",
+"Request":"Petición",
+"mood":"ánimo",
+"last day":"último día",
+"{{n}} days left":"quedan {{n}} días",
+"Trader":"Mercader",
+"A wandering trader has set up by the keep in The Valley until nightfall.":"Un mercader ambulante se ha instalado junto al castillo de El Valle hasta el anochecer.",
+"See wares":"Ver artículos",
+"Prospector’s map":"Mapa del buscador",
+"Marks two new ore deposits in The Valley.":"Marca dos nuevos yacimientos en El Valle.",
+"Desert seeds":"Semillas del desierto",
+"Farms grow 2 more food for the next three dawns.":"Las granjas dan 2 más de comida durante los próximos tres amaneceres.",
+"War banner":"Estandarte de guerra",
+"Your hero deals 2 more damage, for good.":"Tu héroe hace 2 más de daño, para siempre.",
+"Pitch barrels":"Barriles de brea",
+"Towers and the keep deal 1 more damage for the next two nights.":"Las torres y el castillo hacen 1 más de daño las dos próximas noches.",
+"Pack mules":"Mulas de carga",
+"12 wood and 8 stone, delivered today.":"12 de madera y 8 de piedra, entregados hoy.",
+"Saint’s relic":"Reliquia del santo",
+"Lifts your villagers’ mood by 12.":"Sube el ánimo de tus aldeanos en 12.",
+"Iron ingots":"Lingotes de hierro",
+"8 iron for your blacksmith.":"8 de hierro para tu herrería.",
+"Spyglass":"Catalejo",
+"Warships find pirate boats more often, for good.":"Los buques encuentran barcos piratas más a menudo, para siempre.",
+"Not today":"Hoy no",
+"The wandering trader":"El mercader ambulante",
+"“Rare goods from far roads. Everything must go before nightfall.”":"«Artículos raros de caminos lejanos. Todo debe venderse antes del anochecer.»",
+"Feast":"Banquete",
+"The whole town is dancing":"Todo el pueblo baila",
+"A wandering trader arrives":"Llega un mercader ambulante",
+"Feast held this season":"Banquete ya celebrado esta estación",
+"Hold a feast":"Celebrar un banquete",
+"Repair all ({{n}})":"Reparar todo ({{n}})"
 };
 
 let lang='en';
@@ -643,7 +732,7 @@ function canPay(c){ return RES.every(r=>S.res[r]>=(c[r]||0)); }
 function spend(c){ RES.forEach(r=>S.res[r]-=(c[r]||0)); }
 function addC(a,b){ const o={...a}; RES.forEach(r=>{ if(b&&b[r]) o[r]=(o[r]||0)+b[r]; }); return o; }
 const count=t=>allGrids().reduce((a,g)=>a+g.filter(x=>x.b&&x.b.type===t).length,0);
-const housing=()=>4+(3+S.mods.housing)*count('house');
+const housing=()=>4+(3+S.mods.housing)*count('house')+2*countLvl('house',2);
 const WIN_NIGHTS=20;
 const SEASONS=[
   {name:'Spring',farm:1,col:'#8FCB7E',wx:[['rain',.5]]},
@@ -656,7 +745,7 @@ function rollWeather(){ let r=Math.random(); for(const [w,p] of season().wx){ if
 const wxNight=w=>S.weather===w&&S.phase==='night';
 const wxSlow=()=>wxNight('sandstorm')?.75:wxNight('snow')?.85:1;
 const wxRange=()=>wxNight('sandstorm')?.6:0;
-function farmOut(){ const sea=season(); return Math.max(1,4+S.mods.harvest+sea.farm+(S.weather==='rain'?1:0)); }
+function farmOut(){ const sea=season(); return Math.max(1,4+S.mods.harvest+sea.farm+(S.weather==='rain'?1:0)+(S.seedDays>0?2:0)); }
 function moodInfo(){
   const parts=[]; let t=45;
   const add=(label,v)=>{ if(v){ parts.push([label,v]); t+=v; } };
@@ -940,7 +1029,7 @@ function buildWarship(){
 }
 function seaBattle(){
   const ws=S.warships||0; if(!ws||S.kind!=='coast') return;
-  const lh=S.grid.some(t=>t.b&&t.b.type==='lighthouse'), chance=.6+(lh?.2:0);
+  const lh=S.grid.some(t=>t.b&&t.b.type==='lighthouse'), chance=.6+(lh?.2:0)+(S.spy?.15:0);
   const pb=fleet.list.filter(f=>f.kind==='pirate'), war=fleet.list.filter(f=>f.kind==='war');
   for(let i=0;i<ws;i++){ const win=Math.random()<chance, tgt=pb[i];
     if(war[i]&&tgt&&fleet.mgr){ war[i].hunt={tgt,t:2.4,win}; war[i].v.maxSpeed=2.2; }
@@ -949,7 +1038,7 @@ function seaBattle(){
 function sinkRaiders(boat){
   let n=0; for(let k=0;k<2;k++){ const j=S.queue.findIndex(t=>t!=='warlord'); if(j>=0){ S.queue.splice(j,1); n++; } }
   if(boat) boat.sink=true;
-  S.sunk=(S.sunk||0)+1; sfx('thud'); shake=Math.max(shake,.15);
+  S.sunk=(S.sunk||0)+1; S.sunkTonight=(S.sunkTonight||0)+1; sfx('thud'); shake=Math.max(shake,.15);
   if(n) toast(T('Sea battle'),T('A warship sank a pirate boat'),'⚓');
   ui();
 }
@@ -1028,6 +1117,9 @@ function planWave(){
   if(d>=8) for(let i=0;i<1+Math.floor((d-8)/4);i++) q.push('ram');
   for(let i=q.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[q[i],q[j]]=[q[j],q[i]]}
   if(d>=7) for(let i=0;i<1+Math.floor((d-7)/5);i++) q.splice(Math.floor(q.length*.6),0,'shaman');
+  if(S.raid==='mountain'&&d>=9){ let w=Math.floor(q.length*.3); for(let i=0;i<q.length&&w>0;i++) if(q[i]==='raider'){ q[i]='wolf'; w--; } for(let i=0;i<2;i++) q.unshift('wolf'); }
+  if(d>=10) for(let i=0;i<1+Math.floor((d-10)/5);i++) q.splice(Math.floor(q.length*(.3+.4*Math.random())),0,'sapper');
+  if(S.raid==='coast'&&d>=8&&(d%3===2||Math.random()<.3)) q.push('captain');
   if(d%5===0) q.push('warlord');
   S.queue=q;
 }
@@ -1039,7 +1131,7 @@ function dirName(x,y){
 }
 function waveText(){
   const c={}; S.queue.forEach(t=>c[t]=(c[t]||0)+1);
-  const parts=[]; if(c.raider)parts.push(plural(c.raider,'raider')); if(c.runner)parts.push(plural(c.runner,'runner')); if(c.archer)parts.push(plural(c.archer,'archer')); if(c.brute)parts.push(plural(c.brute,'brute')); if(c.ram)parts.push(plural(c.ram,'battering ram')); if(c.shaman)parts.push(plural(c.shaman,'shaman')); if(c.warlord)parts.push('a warlord');
+  const parts=[]; if(c.raider)parts.push(plural(c.raider,'raider')); if(c.runner)parts.push(plural(c.runner,'runner')); if(c.archer)parts.push(plural(c.archer,'archer')); if(c.brute)parts.push(plural(c.brute,'brute')); if(c.ram)parts.push(plural(c.ram,'battering ram')); if(c.shaman)parts.push(plural(c.shaman,'shaman')); if(c.wolf)parts.push(c.wolf===1?'1 wolf':`${c.wolf} wolves`); if(c.sapper)parts.push(plural(c.sapper,'sapper')); if(c.captain)parts.push('a pirate captain'); if(c.warlord)parts.push('a warlord');
   const sp=S.raid===S.cur?S.spawns:((S.R[S.raid]||{}).spawns||[]), dirs=[...new Set(sp.map(([x,y])=>dirName(x,y)))];
   if(S.raid==='coast') return `${joinList(parts)} landing on the ${joinList(dirs)} shore of ${regionName('coast')}`;
   if(S.raid==='mountain') return `${joinList(parts)} coming down from the ${joinList(dirs)} heights of ${regionName('mountain')}`;
@@ -1155,7 +1247,7 @@ const FOLK_NAMES=['Amira','Bilal','Cora','Dario','Esme','Farid','Greta','Hamid',
 const SKINS=[0xF0C8A0,0xE2B488,0xC48A5E,0x9A6844,0x6E4A32], HAIRS=[0x2A1E16,0x4A3020,0x7A5030,0xC8A060,0x1A1A1A,0x8A3A20];
 const CLOTH=[0xA9553E,0x9A6A9A,0x6A8A5A,0xB0884A,0x5A7A9A,0xC9A86A,0x8A4A5A,0x4A6A6A,0xD8C8A8,0x7A8A3A];
 const ROLE={farm:'farmer',lumber:'woodcutter',mine:'miner',market:'merchant',harbor:'fisher',smith:'smith',tavern:'tavernkeeper'};
-const ROLE_NAME={farmer:'Farmer',woodcutter:'Woodcutter',miner:'Miner',merchant:'Merchant',fisher:'Fisher',smith:'Smith',tavernkeeper:'Tavern keeper',child:'Child',elder:'Elder',water:'Water carrier',townsfolk:'Townsperson'};
+const ROLE_NAME={trader:'Trader',farmer:'Farmer',woodcutter:'Woodcutter',miner:'Miner',merchant:'Merchant',fisher:'Fisher',smith:'Smith',tavernkeeper:'Tavern keeper',child:'Child',elder:'Elder',water:'Water carrier',townsfolk:'Townsperson'};
 const ROLE_TOOL={farmer:'hoe',woodcutter:'axe',miner:'pick',fisher:'rod',smith:'hammer',merchant:'basket',tavernkeeper:'mug',elder:'cane'};
 const ACT={farmer:'hoe',woodcutter:'chop',miner:'chop',fisher:'fish',smith:'hammer',merchant:'sell',tavernkeeper:'sweep'};
 const CARGO={farmer:'crop',woodcutter:'wood',miner:'ore',fisher:'fish'};
@@ -1207,7 +1299,7 @@ function nextTask(f){
   }
   // townsfolk and elders pick something to do
   const r=Math.random();
-  if(S.mood>=75&&r<.18){ const p=randomSpot(C,C+1.6,1); if(p){ goTo(f,p[0],p[1],.05,()=>{ f.state='act'; f.act='dance'; f.t=5+Math.random()*3; emote(f,'♪',2.5); f.after=null; }); return; } }
+  if((S.mood>=75&&r<.18)||(S.feastDay===S.day&&r<.5)){ const p=randomSpot(C,C+1.6,1); if(p){ goTo(f,p[0],p[1],.05,()=>{ f.state='act'; f.act='dance'; f.t=5+Math.random()*3; emote(f,'♪',2.5); f.after=null; }); return; } }
   if(r<.42){ const mate=folk.find(o=>o!==f&&o.state==='wait'&&o.job==null&&!o.child&&o.t>0&&Math.hypot(o.x-f.x,o.y-f.y)<3.5&&!o.partner);
     if(mate){ mate.partner=f; mate.t=99; goTo(f,mate.x+Math.cos(mate.dir)*.32,mate.y+Math.sin(mate.dir)*.32,.02,()=>{ const T=4+Math.random()*3; f.state=mate.state='act'; f.act=mate.act='chat'; f.t=mate.t=T; f.dir=Math.atan2(mate.y-f.y,mate.x-f.x); mate.dir=f.dir+Math.PI; emote(f,'…',1.4); setTimeout(()=>{ if(mate.state==='act') emote(mate,['…','♥','?','!'][(Math.random()*4)|0],1.4); },1200); f.after=null; mate.after=()=>{ mate.partner=null; }; }); return; } }
   const opts=[];
@@ -1230,9 +1322,15 @@ function stepFolk(dt){
   const want=folkWant();
   folkSpawnT-=dt;
   if(folk.length<want&&folkSpawnT<=0){ folkSpawnT=.45; const jobs=[]; each((b,x,y)=>{ const r=ROLE[b.type]; if(r&&(b.worked||b.type==='smith'||b.type==='tavern')) jobs.push({i:idx(x,y),role:r}); }); spawnFolk(jobs); }
-  if(folk.length>want+1){ const f=folk.find(o=>o.job==null&&o!==selFolk); if(f) folk.splice(folk.indexOf(f),1); }
+  if(folk.length>want+1){ const f=folk.find(o=>o.job==null&&o!==selFolk&&o.role!=='trader'&&!(S.req&&o.name===S.req.name)); if(f) folk.splice(folk.indexOf(f),1); }
+  if(S.req&&S.cur==='home'&&!folk.some(f=>f.name===S.req.name)){ const f=folk.find(o=>!o.child&&o.role!=='trader'); if(f) f.name=S.req.name; }
+  const trHere=S.trader&&S.trader.day===S.day&&S.cur==='home'&&S.trader.items.length;
+  if(trHere&&!folk.some(f=>f.role==='trader')){ const d=keepDoors(), p=d[d.length>2?2:0]; folk.push({id:folkSeq++,name:'Idris',role:'trader',job:null,x:p[0]+.15,y:p[1]+.2,dir:Math.PI/2,age:0,moving:false,goal:null,t:0,state:'act',act:'sell',carry:null,emote:null,spd:.6,skin:0xC48A5E,hair:0x1A1A1A,cloth:0x6A3A7A,cloth2:0xF0BE4E,trader:true}); }
+  if(!trHere) for(let i=folk.length-1;i>=0;i--) if(folk[i].role==='trader') folk.splice(i,1);
   for(const f of folk){
     f.age+=dt; if(f.emote){ f.emote.t-=dt; if(f.emote.t<=0) f.emote=null; }
+    if(f.role==='trader'){ f.state='act'; f.act='sell'; f.t=1; if(!f.emote&&Math.random()<dt*.25) emote(f,'⚖',2); continue; }
+    if(S.req&&f.name===S.req.name&&!f.emote&&Math.random()<dt*.6) emote(f,'★',1.6);
     if(f.goal){ const sp=f.state==='play'?1.5:f.spd*(onRoad(f)?1.35:1); const d=navTo(f,f.goal[0],f.goal[1],f.goal[2],sp,dt);
       if(f.stuck){ f.goal=null; f.state='wait'; f.t=.8+Math.random(); f.carry=null; continue; }
       if(d<=f.goal[2]+.04){ const g=f.goal; f.goal=null; f.moving=false; if(g[3]) g[3](); }
@@ -1274,7 +1372,7 @@ function stepAnimals(dt){
     if(passHero(Math.round(x),Math.round(y))&&(a.kind!=='crab'||!isSea(Math.round(x),Math.round(y)))) a.goal=[x,y]; else a.t=.4;
   }
 }
-const heroMax=()=>12+S.mods.hero*6+((S&&S.hl)||1)*2-2+((S&&S.plate)||0)*3, heroDmg=()=>2+S.mods.hero*2+Math.floor((((S&&S.hl)||1)-1)/2), unitMax=()=>4+S.mods.drill*2+((S&&S.plate)||0)*2, unitDmg=()=>1+S.mods.drill+((S&&S.iron)||0);
+const heroMax=()=>12+S.mods.hero*6+((S&&S.hl)||1)*2-2+((S&&S.plate)||0)*3, heroDmg=()=>2+((S&&S.banner)||0)+S.mods.hero*2+Math.floor((((S&&S.hl)||1)-1)/2), unitMax=()=>4+S.mods.drill*2+((S&&S.plate)||0)*2, unitDmg=()=>1+S.mods.drill+((S&&S.iron)||0);
 function mkHero(){ return {x:C,y:C+1,tx:C,ty:C+1,hp:12+((S&&S.mods.hero)||0)*6,max:12+((S&&S.mods.hero)||0)*6,dead:false,respawn:0,atk:0,dir:-Math.PI/2,queue:[],moving:false,age:0,hit:0,swing:0}; }
 function spawnUnits(i){
   const b=S.grid[i].b; if(!b||(b.type!=='barr'&&b.type!=='range')||b.unpaid) return;
@@ -1434,7 +1532,7 @@ function stepUnits(dt){
     if(u.ranged){
       let t=null,bd=2.7-wxRange(); for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-u.x,e.y-u.y); if(d<bd){bd=d;t=e} }
       u.atk-=dt; u.aiming=!!t;
-      if(t){ u.moving=false; u.dir=Math.atan2(t.y-u.y,t.x-u.x); if(u.atk<=0){ u.atk=rl?.9:1.2; u.swing=.25; S.shots.push({kind:'arrow',x:u.x,y:u.y,e:t,dmg:unitDmg()+(rl?1:0),h0:.4,h:.4,d0:Math.max(.5,bd),dir:u.dir}); sfx('shot'); } }
+      if(t){ u.moving=false; u.dir=Math.atan2(t.y-u.y,t.x-u.x); if(u.atk<=0){ u.atk=rl?.9:1.2; u.swing=.25; S.shots.push({kind:'arrow',src:'soldier',x:u.x,y:u.y,e:t,dmg:unitDmg()+(rl?1:0),h0:.4,h:.4,d0:Math.max(.5,bd),dir:u.dir}); sfx('shot'); } }
       else{ const a=u.slot*2.1+.6+(u.home%5), r=rl?.75:.5; navTo(u,hx+Math.cos(a)*r,hy+Math.sin(a)*r,0,rl?2.6:1.6,dt); if(!u.moving&&!rl) u.dir=Math.atan2(C-hy,C-hx); }
       continue;
     }
@@ -1442,7 +1540,7 @@ function stepUnits(dt){
     if(!u.target){ let bd=rl?2.2:1.8; for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-hx,e.y-hy); if(d<bd){bd=d;u.target=e} } }
     if(u.target){
       const d=navTo(u,u.target.x,u.target.y,.42,sp,dt);
-      u.atk-=dt; if(d<=.56&&u.atk<=0){ u.atk=rl?.6:.8; u.swing=.25; u.dir=Math.atan2(u.target.y-u.y,u.target.x-u.x); hurt(u.target,unitDmg()+(rl?1:0)); }
+      u.atk-=dt; if(d<=.56&&u.atk<=0){ u.atk=rl?.6:.8; u.swing=.25; u.dir=Math.atan2(u.target.y-u.y,u.target.x-u.x); hurt(u.target,unitDmg()+(rl?1:0),'soldier'); }
     }else{ const a=u.slot*2.1+.6+(u.home%5), r=rl?.55:.48; navTo(u,hx+Math.cos(a)*r,hy+Math.sin(a)*r,0,rl?2.6:1.6,dt); if(!u.moving&&!rl) u.dir=Math.atan2(C-hy,C-hx); }
   }
   S.units=S.units.filter(u=>u.hp>0);
@@ -1453,8 +1551,9 @@ function stepUnits(dt){
 function weapon(b){
   const m=S.mods;
   const wr=wxRange();
-  if(b.type==='keep') return {range:1.8+m.range*.5-wr,rate:1.3,dmg:1+m.dmg,min:0,h:1.3};
-  if(b.type==='tower') return {range:2.4+(b.lvl-1)*.35+m.range-wr,rate:Math.max(.36,.75-(b.lvl-1)*.15),dmg:b.lvl+m.dmg,min:0,h:1.15+.18*b.lvl};
+  const oil=S.oilNights>0?1:0;
+  if(b.type==='keep') return {range:1.8+m.range*.5-wr,rate:1.3,dmg:1+m.dmg+oil,min:0,h:1.3};
+  if(b.type==='tower') return {range:2.4+(b.lvl-1)*.35+m.range-wr,rate:Math.max(.36,.75-(b.lvl-1)*.15),dmg:b.lvl+m.dmg+oil,min:0,h:1.15+.18*b.lvl};
   if(b.type==='cata') return {range:3.6+(b.lvl-1)*.4+m.range-wr,rate:(2.4-(b.lvl-1)*.5)*(m.cataRate||1),dmg:3+(b.lvl-1)*2,min:1,splash:.95,h:.6};
   return null;
 }
@@ -1468,6 +1567,9 @@ function enemyStats(type){
     case 'archer': return {hp:Math.max(1,Math.ceil(h*.75*DIFF[S.diff].hp)),spd:s*.9,dmg:1,pay:2,range:1.9};
     case 'ram': return {hp:Math.ceil(h*4.5*DIFF[S.diff].hp),spd:s*.42,dmg:3,bdmg:7,pay:5};
     case 'shaman': return {hp:Math.ceil(h*.9*DIFF[S.diff].hp),spd:s*.78,dmg:1,pay:3,heal:2};
+    case 'wolf': return {hp:Math.max(1,Math.ceil(h*.5*DIFF[S.diff].hp)),spd:s*1.75,dmg:1,bdmg:1,pay:1};
+    case 'sapper': return {hp:Math.ceil(h*.8*DIFF[S.diff].hp),spd:s*.85,dmg:1,pay:3,boom:9};
+    case 'captain': return {hp:Math.ceil(h*5*DIFF[S.diff].hp),spd:.72,dmg:3,pay:12};
     default: return {hp:Math.ceil(h*DIFF[S.diff].hp),spd:s,dmg:1,pay:1};
   }
 }
@@ -1475,7 +1577,7 @@ function startNight(){
   if(S.phase!=='day'||S.over||S.modal) return;
   closeRealm();
   if(S.raid!==S.cur) enterRegion(S.raid,false);
-  S.phase='night'; S.spawnT=S.kind==='coast'?3:.5; S.nightKills=0; S.keepAtDusk=S.keep; S.lostTonight=0;
+  S.phase='night'; S.spawnT=S.kind==='coast'?3:.5; S.nightKills=0; S.keepAtDusk=S.keep; S.lostTonight=0; S.nr={}; S.nightGold=0; S.nightTotal=S.queue.length;
   if(S.hero.queue.length){ S.hero.queue=[]; }
   spawnMercs();
   sfx('bell'); if(S.kind==='coast'){ launchPirates(); seaBattle(); }
@@ -1492,6 +1594,7 @@ function spawnNext(){
   S.enemies.push({pirate:S.kind==='coast',type,x:ox,y:oy,cx:x,cy:y,tx:x,ty:y,moving:true,atk:.6,dir:Math.atan2(C-y,C-x),age:0,slow:0,hit:0,swing:0,lane:(Math.random()-.5)*.38,max:st.hp,...st});
 }
 function dawn(){
+  const REP={day:S.day,region:S.cur,kills:S.nightKills||0,total:Math.max(S.nightTotal||0,S.nightKills||0),keep:Math.max(0,(S.keepAtDusk??S.keep)-S.keep),lost:S.lostTonight||0,gold:S.nightGold||0,by:{...(S.nr||{})},sunk:S.sunkTonight||0}; S.sunkTonight=0;
   if(S.heroAt&&S.cur!==S.heroAt) enterRegion(S.heroAt,false);
   const E=econ();
   eachAll((b,x,y,t,here,rid)=>{
@@ -1533,7 +1636,7 @@ function dawn(){
   S.hero.hp=S.hero.max=heroMax();
   S.keep=Math.min(S.keepMax,S.keep+1);
   for(const id in S.R) if(id!==S.cur&&S.R[id].keep!=null) S.R[id].keep=Math.min(S.R[id].keepMax,S.R[id].keep+1);
-  const lost=S.keepAtDusk-S.keep+1, felled=S.nightKills, wasBoss=S.day%5===0;
+  const lost=REP.keep, felled=REP.kills, wasBoss=S.day%5===0;
   S.day++; S.phase='day'; S.shots=[]; ageRubble();
   if(S.day-1>best){best=S.day-1;try{localStorage.setItem(BEST,best)}catch(e){}}
   const seaBefore=SEASONS[Math.floor((S.day-2)/5)%4];
@@ -1560,7 +1663,8 @@ function dawn(){
   save(); ui(); RES.forEach(r=>{ if(E.net[r]) bump('r-'+r,E.net[r]>0?'bump':'hurt'); });
   if(E.popD) bump('r-people',E.popD>0?'bump':'hurt');
   const ch=CHAPTERS.find(c=>c.day===S.day); if(ch) setTimeout(()=>showChapter(ch),600);
-  recordDaily(); checkAch();
+  recordDaily(); checkAch(); if(REP.total) setTimeout(()=>showReport(REP),300);
+  dawnExtras();
   if(justWon) offerVictory(wasBoss); else if(wasBoss) offerBoons();
 }
 function offerVictory(thenBoon){
@@ -1717,11 +1821,11 @@ function step(dt){
         const e=s.e; if(e.gone){s.done=true;continue}
         const dx=e.x-s.x,dy=e.y-s.y,d=Math.hypot(dx,dy),v=11*dt;
         s.dir=Math.atan2(dy,dx); s.h=.3+(s.h0-.3)*Math.min(1,d/s.d0);
-        if(d<=v){ s.done=true; hurt(e,s.dmg); } else { s.x+=dx/d*v; s.y+=dy/d*v; }
+        if(d<=v){ s.done=true; hurt(e,s.dmg,s.src||'tower'); } else { s.x+=dx/d*v; s.y+=dy/d*v; }
       }else{
         s.p+=dt/s.dur;
         if(s.p>=1){ s.done=true; puff(s.tx,s.ty,COL.sand,12); scorch(s.tx,s.ty); embers(s.tx,s.ty,26); sfx('thud'); shake=Math.max(shake,.08);
-          for(const e of S.enemies) if(Math.hypot(e.x-s.tx,e.y-s.ty)<=s.splash) hurt(e,s.dmg); }
+          for(const e of S.enemies) if(Math.hypot(e.x-s.tx,e.y-s.ty)<=s.splash) hurt(e,s.dmg,'cata'); }
       }
     }
     S.shots=S.shots.filter(s=>!s.done);
@@ -1740,10 +1844,18 @@ function hurt(e,d,src){
   if(e.hp<=0){
     e.gone=true; e.died=true; const pay=(e.pay+S.mods.tax+(src==='hero'&&hasPerk('bounty')?2:0))*(S.blood&&S.phase==='night'?2:1);
     if(src==='hero') gainXP(e.pay*3);
-    S.res.gold+=pay; S.kills++; S.nightKills++;
+    S.res.gold+=pay; S.kills++; S.nightKills++; S.nightGold=(S.nightGold||0)+pay; const nr=S.nr||(S.nr={}); nr[src||'other']=(nr[src||'other']||0)+1;
+    if(e.type==='captain'){ S.res.gold+=25; S.nightGold+=25; toast(T('Pirate captain defeated'),T('+25 gold from his sea chest'),'☠'); }
     puff(e.x,e.y,COL.foeLight,e.type==='warlord'?18:8); embers(e.x,e.y,e.type==='warlord'?30:7); floatText(e.x,e.y,'+'+pay,CSS.gold);
     sfx('kill'); ui();
   }
+}
+function boom(e,x,y,hit){
+  e.gone=true; if(hit) damageBuilding(x,y,e.boom||9);
+  for(const [a,c] of NB){ const nx=x+a,ny=y+c; if(inb(nx,ny)&&G(nx,ny).b&&G(nx,ny).b.type!=='keep'&&G(nx,ny).b.type!=='road') damageBuilding(nx,ny,3); }
+  for(const u of S.units) if(Math.hypot(u.x-x,u.y-y)<1.1) damageAlly(u,2);
+  puff(x,y,0x3A3634,22); embers(x,y,40); scorch(x,y); shake=Math.max(shake,.32); flash=Math.max(flash,.2); sfx('thud'); sfx('hurt');
+  if(!S.sapperWarned){ S.sapperWarned=true; say('<b>A sapper blew up!</b> Kill sappers before they reach your walls.'); }
 }
 function keepHit(d,fromX,fromY){
   S.keep-=d;
@@ -1791,14 +1903,15 @@ function moveEnemy(e,dt){
     if(d<=v){
       e.x=e.tx;e.y=e.ty;e.cx=e.tx;e.cy=e.ty;e.moving=false;
       const b=G(e.cx,e.cy).b;
-      if(b&&b.type==='trap'&&b.charges>0&&e.type!=='ram'){ b.charges--; S.ver++; e.slow=1.3; puff(e.cx,e.cy,COL.steel,5); hurt(e,1+S.mods.trap); }
+      if(b&&b.type==='trap'&&b.charges>0&&e.type!=='ram'){ b.charges--; S.ver++; e.slow=1.3; puff(e.cx,e.cy,COL.steel,5); hurt(e,1+S.mods.trap,'trap'); }
     }else{e.x+=dx/d*v;e.y+=dy/d*v; if(!reduce&&Math.random()<dt*(e.type==='ram'?6:2.2)) dust(e.x,e.y,e.type==='ram'?.8:.45);}
     return;
   }
   const n=nextStep(e.cx,e.cy); if(!n) return;
   e.dir=Math.atan2(n[1]-e.cy,n[0]-e.cx);
   const b=G(n[0],n[1]).b;
-  if(b&&b.type==='keep'){ e.gone=true; keepHit(e.dmg,e.cx,e.cy); return; }
+  if(b&&b.type==='keep'){ e.gone=true; keepHit(e.type==='sapper'?4:e.dmg,e.cx,e.cy); if(e.type==='sapper') boom(e,n[0],n[1],false); return; }
+  if(b&&b.type!=='trap'&&b.type!=='road'&&e.type==='sapper'){ boom(e,n[0],n[1],true); return; }
   if(b&&b.type!=='trap'&&b.type!=='road'){
     e.atk-=dt; e.swing=Math.max(0,1-e.atk);
     if(e.atk<=0){ e.atk=e.type==='ram'?1.4:1; if(e.type==='ram'){ shake=Math.max(shake,.12); embers(n[0],n[1],5); } damageBuilding(n[0],n[1],e.bdmg||e.dmg); }
@@ -1948,7 +2061,7 @@ function assetModel(b,x,y){
       for(let i=0;i<3;i++)for(let k=0;k<4;k++){ if(i===2&&k===0) continue; qput(g,crop,-.27+i*.27,-.3+k*.2,hh*(.88+hash(i,k,x+y)*.24),(i*4+k)*1.7,false); } }
     put(g,'farm_scarecrow_01',.3,0,-.3,.4,.28);
     return g; }
-  case 'house': put(g,'village_cottage_01',0,0,0); return fitTo(g,.86);
+  case 'house': put(g,'village_cottage_01',0,0,0); if((b.lvl||1)>1){ put(g,'village_cottage_01',1.9,0,1.6,Math.PI/2,.72); put(g,'castle_banner_01',-1.6,0,-1.4,0,.6); return fitTo(g,.98); } return fitTo(g,.86);
   case 'lumber':{
     put(g,'interiors_woodpile_01',0,0,.25); put(g,'nature_stump_01',1.25,0,.45,0,.6);
     const ax=put(g,'props_axe_01',1.25,.3,.45); if(ax) ax.rotation.z=.45;
@@ -2458,8 +2571,18 @@ function bow(arm){
   const b=new THREE.Mesh(geo('bowG',()=>new THREE.TorusGeometry(.14,.012,4,10,Math.PI)),M(COL.wood)); b.rotation.set(0,Math.PI/2,Math.PI/2); b.castShadow=true; h.add(b);
   add(h,BX(.004,.28,.004),COL.plank,0,0,0); return h;
 }
+function wolfModel(){
+  const g=new THREE.Group(), b=new THREE.Group(); g.add(b); g.userData.body=b; g.userData.wolf=true; const c=0x6A625C, d=0x4A4440;
+  add(b,BX(.22,.08,.08),c,0,.12,0); add(b,BX(.06,.09,.09),d,.08,.13,0);
+  const hd=new THREE.Group(); hd.position.set(.14,.17,0); b.add(hd); add(hd,BX(.07,.06,.06),c,0,0,0); add(hd,BX(.05,.03,.04),d,.05,-.01,0); add(hd,CN(.016,.04,4),d,-.01,.04,.02); add(hd,CN(.016,.04,4),d,-.01,.04,-.02);
+  const eye=new THREE.Mesh(BX(.01,.01,.07),new THREE.MeshBasicMaterial({color:0xFFD040})); eye.position.set(.025,.012,0); eye.userData.noFlash=true; hd.add(eye);
+  const tl=new THREE.Group(); tl.position.set(-.11,.14,0); b.add(tl); add(tl,BX(.1,.03,.03),c,-.05,-.01,0,0,0,-.3);
+  g.userData.legs=[[.08,.03],[.08,-.03],[-.08,.03],[-.08,-.03]].map(([x,z])=>{ const l=new THREE.Group(); l.position.set(x,.09,z); b.add(l); add(l,BX(.022,.09,.022),d,0,-.045,0); return l; });
+  g.userData.tail=tl; g.userData.seed=Math.random()*9; scene.add(g); return g;
+}
 function enemyModel(e){
   if(e.type==='ram') return ramModel();
+  if(e.type==='wolf') return wolfModel();
   let g;
   if(e.type==='brute') g=person({body:COL.brute,legs:0x3A2418,arms:COL.skin,wide:1.35,belt:COL.dark});
   else if(e.type==='runner') g=person({body:COL.foeLight,legs:0x4A2A20,hat:'band',hatCol:COL.foe});
@@ -2468,16 +2591,20 @@ function enemyModel(e){
   else if(e.type==='shaman'){ g=person({body:0x2E4A3A,legs:0x2E4A3A,hat:'hood',hatCol:0xD8CCB0,belt:0x7CFF9A});
     const st=new THREE.Group(); st.position.set(.02,-.17,0); g.userData.arms[1].add(st); add(st,BX(.022,.42,.022),COL.wood,0,.1,0);
     const orb=new THREE.Mesh(DO(.045),new THREE.MeshBasicMaterial({color:0x7CFF9A})); orb.position.y=.33; orb.userData.noFlash=true; st.add(orb); }
+  else if(e.type==='captain'){ g=person({body:0x8A1E22,legs:0x2A2228,belt:COL.gold,cape:0x2A2228}); const hd=g.userData.head; add(hd,CY(.13,.13,.02,3),0x1A1A1E,0,.05,0); add(hd,CY(.06,.065,.05,8),0x1A1A1E,0,.075,0); add(hd,BX(.02,.02,.02),0xEDE3CE,.06,.07,0); }
+  else if(e.type==='sapper'){ g=person({body:0x4A3A2A,legs:0x3A2A1E,hat:'band',hatCol:0x2A2220}); const k=new THREE.Group(); k.position.set(-.07,.13,0); g.userData.hips.add(k); add(k,CY(.06,.06,.12,8),0x6A4A2A,0,0,0,0,0,Math.PI/2); add(k,CY(.062,.062,.015,8),COL.dark,0,.035,0,0,0,Math.PI/2); add(k,CY(.062,.062,.015,8),COL.dark,0,-.035,0,0,0,Math.PI/2);
+    const sp=new THREE.Mesh(DO(.022),new THREE.MeshBasicMaterial({color:0xFFB040})); sp.position.set(0,.09,0); sp.userData.noFlash=true; k.add(sp); g.userData.spark=sp; }
   else if(e.pirate) g=person({body:0x2A3348,legs:0x3A2A20,hat:'band',hatCol:0xC0392B,belt:0x1A1A1A});
   else g=person({body:COL.foe,legs:0x4A2A20,hat:'hood',hatCol:0x5A1A22});
   const [armL,armR]=g.userData.arms;
   if(e.type==='shaman'){}
   else if(e.type==='archer'){ bow(armL); add(g.userData.hips,CY(.03,.03,.18,6),COL.wood,-.07,.14,.04,0,0,.3); }
-  else hold(armR,e.type==='brute'?'club':e.type==='runner'?'dagger':e.type==='warlord'?'sword':'axe');
+  else if(e.type==='sapper'){}
+  else hold(armR,e.type==='brute'?'club':e.type==='runner'||e.type==='captain'&&false?'dagger':e.type==='warlord'||e.type==='captain'?'sword':'axe');
   if(e.type==='raider'||e.type==='brute'){ g.userData.torch=torch(armL); g.userData.glow=groundGlow(g,.06,.16,1.2); }
   else if(e.type==='warlord'){ shield(armL,true); g.userData.glow=groundGlow(g,0,0,.9); }
   g.userData.seed=Math.random()*9;
-  g.scale.setScalar(e.type==='warlord'?1.45:e.type==='brute'?1.12:e.type==='runner'||e.type==='shaman'?.95:1);
+  g.scale.setScalar(e.type==='captain'?1.3:e.type==='warlord'?1.45:e.type==='brute'?1.12:e.type==='runner'||e.type==='shaman'?.95:1);
   scene.add(g); return g;
 }
 const hitMat=new THREE.MeshBasicMaterial({color:0xFFF4E0});
@@ -2500,6 +2627,8 @@ function syncEnemies(){
     const yaw=turnTo(m,-e.dir,10), dir=-yaw, l=e.lane||0;
     e.px=e.x-Math.sin(dir)*l; e.py=e.y+Math.cos(dir)*l;
     m.position.set(W2(e.px),0,W2(e.py));
+    if(m.userData.wolf){ const k=e.age*e.spd*14; m.userData.legs.forEach((l,i)=>l.rotation.z=e.moving&&!reduce?Math.sin(k+(i%2?Math.PI:0)+(i>1?Math.PI/2:0))*.8:0); m.userData.body.position.y=e.moving&&!reduce?Math.abs(Math.sin(k))*.02:0; m.userData.tail.rotation.z=Math.sin(e.age*9)*.3; flashMat(m,e.hit>0); continue; }
+    if(m.userData.spark) m.userData.spark.scale.setScalar(reduce?1:.7+Math.random()*.7);
     if(m.userData.ram){ const b=m.userData.body; b.position.y=e.moving&&!reduce?Math.abs(Math.sin(e.age*8))*.012:0; m.userData.log.position.x=e.swing>0?-.12*e.swing:0; }
     else{ if(e.type==='archer'){ m.userData.arms[0].rotation.z=(e.swing>0||!e.moving)?1.5:0; m.userData.arms[0].rotation.x=0; } animPerson(m,e.age*e.spd*(e.type==='runner'?13:10),e.moving,e.type==='archer'?0:(e.swing||0),S.t); if(e.type==='archer'&&!e.moving){ m.userData.arms[0].rotation.z=1.5; m.userData.arms[1].rotation.z=1.2+(e.swing||0)*.3; } }
     flashMat(m,e.hit>0);
@@ -2596,6 +2725,10 @@ function toolMesh(kind){
   h.position.y=-.17; h.traverse(o=>{ if(o.isMesh) o.castShadow=false; }); return h;
 }
 function folkModel(f){
+  if(f.trader){ const g=person({body:f.cloth,legs:f.cloth,arms:f.cloth,skin:f.skin,belt:f.cloth2,hat:null}); add(g.userData.head,DO(.075),0xF2EADD,0,.05,0).scale.set(1,.7,1); add(g.userData.hips,CY(.08,.12,.2,8),f.cloth,0,-.08,0);
+    const cm=new THREE.Group(); cm.position.set(-.05,0,-.42); g.add(cm); const cc=0xC9A06A; add(cm,BX(.28,.12,.12),cc,0,.26,0); add(cm,DO(.07),cc,0,.36,0); add(cm,BX(.05,.16,.05),cc,.15,.36,0,0,0,-.3); add(cm,BX(.08,.05,.05),cc,.2,.44,0); for(const [a,c] of [[.1,.04],[.1,-.04],[-.1,.04],[-.1,-.04]]) add(cm,BX(.03,.2,.03),cc,a,.1,c); add(cm,BX(.16,.1,.18),0x8A3A2A,-.02,.33,0);
+    add(g,BX(.3,.05,.2),COL.woodLight,.28,.12,.1); [0xF0BE4E,0xA9553E,0x6A8A5A].forEach((c,i)=>add(g,DO(.035),c,.2+i*.08,.17,.1));
+    g.userData.tools={bucket:new THREE.Group()}; g.userData.box=new THREE.Group(); scene.add(g); return g; }
   const g=person({body:f.cloth,legs:f.skirt?f.cloth2:0x5A4030,arms:f.cloth,skin:f.skin,belt:f.cloth2,
     hat:f.role==='farmer'?null:f.role==='merchant'||f.role==='fisher'?'cap':f.skirt&&hash(f.id,2,3)<.5?'band':null,hatCol:f.cloth2});
   const u=g.userData, head=u.head;
@@ -2684,7 +2817,7 @@ function drawFolkHud(){
     const [px,py]=scr(W2(f.x),.52*s,W2(f.y)), a=Math.min(1,e.t*3,(e.max-e.t)*6+.2), y=py-10-(1-Math.min(1,(e.max-e.t)*4))*6;
     hctx.globalAlpha=a; hctx.fillStyle='rgba(250,244,232,.95)'; hctx.beginPath(); hctx.arc(px,y,9,0,6.29); hctx.fill();
     hctx.beginPath(); hctx.moveTo(px-3,y+7); hctx.lineTo(px,y+12); hctx.lineTo(px+3,y+7); hctx.fill();
-    hctx.fillStyle=e.ch==='!'?'#C0392B':e.ch==='♥'?'#D0506A':'#3A2A20'; hctx.font='600 12px Inter,system-ui,sans-serif'; hctx.fillText(e.ch,px,y+.5);
+    hctx.fillStyle=e.ch==='!'?'#C0392B':e.ch==='♥'?'#D0506A':e.ch==='★'||e.ch==='⚖'?'#C98A2E':'#3A2A20'; hctx.font='600 12px Inter,system-ui,sans-serif'; hctx.fillText(e.ch,px,y+.5);
   }
   if(selFolk){ const [px,py]=scr(W2(selFolk.x),.6*(selFolk.child?.62:.92),W2(selFolk.y)); hctx.globalAlpha=1; hctx.font='600 12px Inter,system-ui,sans-serif'; const txt=selFolk.name, w=hctx.measureText(txt).width+12;
     hctx.fillStyle='rgba(28,23,20,.85)'; hctx.fillRect(px-w/2,py-34,w,18); hctx.fillStyle='#F2EADD'; hctx.fillText(txt,px,py-25); }
@@ -2707,7 +2840,7 @@ function folkThought(f){
   if(S.kind==='coast') o.push('Smell that sea air.'); if(S.kind==='mountain') o.push('The snow never quite melts up here.');
   return o[(Math.random()*o.length)|0];
 }
-function selectFolk(f){ selFolk=f; sel=null; f.thought=folkThought(f); emote(f,'!',1); renderInsp(); }
+function selectFolk(f){ if(f.role==='trader'){ openShop(); return; } selFolk=f; sel=null; f.thought=S.req&&f.name===S.req.name?REQS[S.req.id].text:folkThought(f); emote(f,'!',1); renderInsp(); }
 
 
 const wMeshes=[];
@@ -3293,7 +3426,7 @@ function encRegion(r){ return {grid:r.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...
 function save(){
   if(!S||S.over||!saveOn) return;
   stash();
-  try{ writeSlot(slot,JSON.stringify({R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,mtnUnlocked:S.mtnUnlocked,visitedMtn:S.visitedMtn,daily:S.daily||null,survivedBlood:!!S.survivedBlood,warships:S.warships,plate:S.plate,mercs:S.mercs,sunk:S.sunk,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
+  try{ writeSlot(slot,JSON.stringify({R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,mtnUnlocked:S.mtnUnlocked,visitedMtn:S.visitedMtn,daily:S.daily||null,survivedBlood:!!S.survivedBlood,req:S.req||null,lastReq:S.lastReq||null,trader:S.trader||null,seedDays:S.seedDays||0,oilNights:S.oilNights||0,banner:S.banner||0,spy:!!S.spy,feastSeason:S.feastSeason??null,feastDay:S.feastDay||0,sapperWarned:!!S.sapperWarned,warships:S.warships,plate:S.plate,mercs:S.mercs,sunk:S.sunk,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
     grid:S.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...t.b,aim:undefined,born:undefined,hitT:undefined,worked:undefined}:null,t.grove?1:0]),spawns:S.spawns,queue:S.queue})); }catch(e){}
 }
 function load(d){
@@ -3304,6 +3437,7 @@ function load(d){
       mods:{...S.mods,...d.mods},kills:d.kills||0,spawns:d.spawns,queue:d.queue,seed:d.seed||Math.random()*1000});
     if(d.R){ S.R={}; for(const id in d.R){ const r=d.R[id]; S.R[id]={grid:r.grid.map(([l,o,b,gr,w])=>({land:!!l,ore:!!o,grove:!!gr,water:!!w,b})),spawns:r.spawns||[],seed:r.seed,keep:r.keep,keepMax:r.keepMax,kind:r.kind||'canyon',shore:r.shore||null,units:[]}; } unstash(d.cur&&S.R[d.cur]?d.cur:'home'); }
     else{ S.grid=d.grid.map(([l,o,b,gr])=>({land:!!l,ore:!!o,grove:!!gr,b})); Object.assign(S,{kind:'canyon',shore:null,units:[],cur:'home'}); stash(); }
+    Object.assign(S,{req:d.req||null,lastReq:d.lastReq||null,trader:d.trader||null,seedDays:d.seedDays||0,oilNights:d.oilNights||0,banner:d.banner||0,spy:!!d.spy,feastSeason:d.feastSeason??null,feastDay:d.feastDay||0,sapperWarned:!!d.sapperWarned});
     Object.assign(S,{daily:d.daily||null,survivedBlood:!!d.survivedBlood,mtnUnlocked:!!d.mtnUnlocked,visitedMtn:!!d.visitedMtn,warships:d.warships||0,plate:d.plate||0,mercs:d.mercs||0,sunk:d.sunk||0});
     if(S.res.iron==null) S.res.iron=0;
     Object.assign(S,{heroAt:d.heroAt||S.cur,raid:d.raid||'home',coastUnlocked:!!d.coastUnlocked,voyages:d.voyages||[],iron:d.iron||0,portPrice:d.portPrice||{},voyagesSent:d.voyagesSent||0,visitedCoast:!!d.visitedCoast});
@@ -3317,7 +3451,10 @@ function load(d){
 }
 
 // =============== UI ===============
-function say(h){ $('msg').innerHTML=h; }
+const CHRON=[];
+function say(h){ $('msg').innerHTML=h;
+  if(S&&saveOn&&(!CHRON.length||CHRON[0].h!==h)){ CHRON.unshift({h,d:S.day,n:S.phase==='night'}); if(CHRON.length>80) CHRON.length=80; if($('chronD').open) renderChron(); } }
+function renderChron(){ $('chron').innerHTML=CHRON.map(c=>`<p><span>${c.n?T('Night {{n}}',{n:c.d}):T('Day {{n}}',{n:c.d})}</span>${c.h}</p>`).join('')||`<p>${T('Nothing yet')}</p>`; }
 const CHAPTERS=[
   {day:1,n:'I',name:'A Crown in the Dust',text:'Your banner flies over a dry canyon keep, and bandits know every pass. Build, feed your people and hold the walls.'},
   {day:5,n:'II',name:'Salt and Sails',text:'Ships crowd the water off Saltreach Cove, and where trade goes, pirates follow. Build a harbor and guard the shore.'},
@@ -3385,6 +3522,109 @@ function startDaily(){
   toast(T('Daily challenge'),T(di.mod.name),'☀');
   say(`<b>Daily challenge, ${di.date}:</b> ${T(di.mod.desc)} Everyone playing today has the same valley.`);
 }
+function showReport(r){
+  const box=$('board'); box.querySelectorAll('.report').forEach(e=>e.remove());
+  const by=r.by, parts=[['hero',T('Your hero'),'#F2EADD'],['tower',T('Towers and keep'),'#F0BE4E'],['soldier',T('Soldiers'),'#5E8DFF'],['cata',T('Catapults'),'#E0904A'],['trap',T('Traps'),'#B9C6D8']].filter(p=>by[p[0]]);
+  const tot=parts.reduce((a,p)=>a+by[p[0]],0)||1, mvp=parts.slice().sort((a,b)=>by[b[0]]-by[a[0]])[0];
+  const el=document.createElement('div'); el.className='report'; el.setAttribute('role','status');
+  el.innerHTML=`<h3><span>${T('Night {{n}} report',{n:r.day})}</span><button type="button" aria-label="${T('Close')}">×</button></h3>
+    <div class="rr"><span>${T('Raiders felled')}</span><b>${r.kills}/${r.total}</b></div>
+    ${parts.length?`<div class="bar">${parts.map(p=>`<i style="width:${(by[p[0]]/tot*100).toFixed(1)}%;background:${p[2]}" title="${p[1]}"></i>`).join('')}</div>${parts.map(p=>`<div class="rr"><span>${p[1]}</span><b>${by[p[0]]}</b></div>`).join('')}`:''}
+    ${r.sunk?`<div class="rr"><span>${T('Pirate boats sunk')}</span><b>${r.sunk}</b></div>`:''}
+    <div class="rr"><span>${T('Damage to the {{f}}',{f:T(REGIONS[r.region].fort).toLowerCase()})}</span><b>${r.keep}</b></div>
+    <div class="rr"><span>${T('Buildings lost')}</span><b>${r.lost}</b></div>
+    <div class="rr"><span>${T('Bounty earned')}</span><b>${r.gold}g</b></div>
+    ${mvp?`<div class="mvp">★ ${T('Best defender: {{w}}',{w:mvp[1].toLowerCase()})}</div>`:''}`;
+  el.querySelector('button').addEventListener('click',()=>el.remove());
+  box.appendChild(el); setTimeout(()=>el.remove(),11000);
+}
+// ---------- villager requests ----------
+const REQS={
+  well:{text:'Could we have a well? My back aches from hauling water.',ok:()=>true,base:()=>count('well'),done:r=>count('well')>r.base,reward:{gold:8},mood:5},
+  road:{text:'The paths turn to mud. Lay three roads, please.',ok:()=>S.day>=2,base:()=>count('road'),done:r=>count('road')>=r.base+3,reward:{gold:6},mood:3},
+  food:{text:'I worry about the lean days. Fill the granary to 30 food.',ok:()=>S.res.food<30,base:()=>0,done:()=>S.res.food>=30,reward:{gold:6},mood:4},
+  tavern:{text:'We need somewhere to gather in the evenings. Build a tavern!',ok:()=>S.day>=4&&!count('tavern'),base:()=>count('tavern'),done:r=>count('tavern')>r.base,reward:{gold:10},mood:5},
+  shrine:{text:'Build a shrine so we can pray for safe nights.',ok:()=>S.day>=5&&count('shrine')<2,base:()=>count('shrine'),done:r=>count('shrine')>r.base,reward:{gold:8},mood:6},
+  houses:{text:'My cousins want to move here. Build two more houses.',ok:()=>true,base:()=>count('house'),done:r=>count('house')>=r.base+2,reward:{gold:8},mood:3},
+  tower:{text:'The raiders frighten the children. Build another watchtower.',ok:()=>true,base:()=>count('tower'),done:r=>count('tower')>r.base,reward:{gold:6},mood:4},
+  iron:{text:'The smith is idle. Stockpile 10 iron for the forge.',ok:()=>S.mtnUnlocked&&S.res.iron<10,base:()=>0,done:()=>S.res.iron>=10,reward:{gold:12},mood:3},
+  feast:{text:'It has been ages since we celebrated. Hold a feast!',ok:()=>S.day>=4&&S.feastSeason!==seasonIdx(),base:()=>S.feastDay||0,done:r=>(S.feastDay||0)>r.base,reward:{gold:5},mood:4},
+  manor:{text:'Our house is bursting. Could you raise it into a manor?',ok:()=>S.day>=4&&count('house')>0,base:()=>countLvl('house',2),done:r=>countLvl('house',2)>r.base,reward:{gold:8},mood:4}};
+const seasonIdx=()=>Math.floor((S.day-1)/5);
+const countLvl=(t,l)=>{ let n=0; eachAll(b=>{ if(b.type===t&&(b.lvl||1)>=l) n++; }); return n; };
+function newRequest(){
+  const ids=Object.keys(REQS).filter(k=>k!==S.lastReq&&REQS[k].ok()); if(!ids.length) return null;
+  const id=ids[(Math.random()*ids.length)|0], r=REQS[id];
+  S.req={id,name:FOLK_NAMES[(Math.random()*FOLK_NAMES.length)|0],base:r.base(),until:S.day+3}; S.lastReq=id;
+  return `<b>${S.req.name}</b> has a request: “${T(r.text)}”`;
+}
+function checkRequest(){
+  const q=S.req; if(!q||S.phase!=='day') return; const r=REQS[q.id]; if(!r){ S.req=null; return; }
+  if(r.done(q)){ for(const k in r.reward) S.res[k]=(S.res[k]||0)+r.reward[k]; S.mood=Math.min(100,S.mood+r.mood);
+    toast(T('Request fulfilled'),T('{{n}} thanks you',{n:q.name}),'♥'); say(`<b>${q.name} is delighted.</b> +${costStr(r.reward)}, mood +${r.mood}.`);
+    const f=folk.find(o=>o.name===q.name); if(f) emote(f,'♥',3); S.req=null; sfx('up'); save(); }
+}
+function renderReq(){
+  const box=$('req'), q=S.req;
+  if(!q||S.over){ box.hidden=true; }
+  else { const r=REQS[q.id], left=q.until-S.day+1; box.hidden=false;
+    box.innerHTML=`<span class="rl">${T('Request')}</span><span class="rt"><b></b> <q></q></span><span class="rm">${T('Reward')} <b>${costStr(r.reward)}, +${r.mood} ${T('mood')}</b> · ${T(left===1?'last day':'{{n}} days left',{n:left})}</span>`;
+    box.querySelector('.rt b').textContent=q.name+':'; box.querySelector('.rt q').textContent=T(r.text); }
+  const tb=$('trader'), tr=S.trader;
+  if(!tr||tr.day!==S.day||S.phase!=='day'||S.over||!tr.items.length){ tb.hidden=true; return; }
+  tb.hidden=false; tb.innerHTML=`<span class="rl">${T('Trader')}</span><span class="rt">${T('A wandering trader has set up by the keep in The Valley until nightfall.')}</span><button type="button" id="trBtn">${T('See wares')}</button>`;
+  $('trBtn').addEventListener('click',openShop);
+}
+// ---------- wandering trader ----------
+const WARES={
+  map:{name:'Prospector’s map',desc:'Marks two new ore deposits in The Valley.',cost:20},
+  seeds:{name:'Desert seeds',desc:'Farms grow 2 more food for the next three dawns.',cost:15},
+  banner:{name:'War banner',desc:'Your hero deals 2 more damage, for good.',cost:30},
+  oil:{name:'Pitch barrels',desc:'Towers and the keep deal 1 more damage for the next two nights.',cost:18},
+  mules:{name:'Pack mules',desc:'12 wood and 8 stone, delivered today.',cost:16},
+  relic:{name:'Saint’s relic',desc:'Lifts your villagers’ mood by 12.',cost:22},
+  ingots:{name:'Iron ingots',desc:'8 iron for your blacksmith.',cost:20},
+  spyglass:{name:'Spyglass',desc:'Warships find pirate boats more often, for good.',cost:18}};
+function openShop(){
+  const tr=S.trader; if(!tr||tr.day!==S.day||S.phase!=='day') return;
+  const opts=tr.items.map(id=>{ const w=WARES[id]; return {label:`${T(w.name)} · ${w.cost} ${T('gold')}`,sub:T(w.desc),fn:()=>buyWare(id)}; });
+  opts.push({label:T('Not today'),sub:'',fn:()=>{ hideOver(); ui(); }});
+  showOver(T('The wandering trader'),T('“Rare goods from far roads. Everything must go before nightfall.”'),opts);
+}
+function buyWare(id){
+  const w=WARES[id], tr=S.trader; if(!w||!tr) return;
+  if(S.res.gold<w.cost){ say(`The ${T(w.name).toLowerCase()} costs ${w.cost} gold. You have ${S.res.gold}.`); sfx('no'); hideOver(); ui(); return; }
+  S.res.gold-=w.cost; tr.items=tr.items.filter(x=>x!==id);
+  switch(id){
+    case 'map': withRegion('home',()=>{ const c=[]; S.grid.forEach((t,i)=>{ const x=i%N,y=(i/N)|0; if(t.land&&!t.b&&!t.ore&&!t.grove&&Math.hypot(x-C,y-C)>=2) c.push(t); }); for(let k=0;k<2&&c.length;k++) c.splice((Math.random()*c.length)|0,1)[0].ore=true; }); if(S.cur==='home') buildWorld(); break;
+    case 'seeds': S.seedDays=3; break;
+    case 'banner': S.banner=(S.banner||0)+2; break;
+    case 'oil': S.oilNights=2; break;
+    case 'mules': S.res.wood+=12; S.res.stone+=8; break;
+    case 'relic': S.mood=Math.min(100,S.mood+12); break;
+    case 'ingots': S.res.iron+=8; break;
+    case 'spyglass': S.spy=true; break;
+  }
+  sfx('up'); party('small'); say(`<b>Bought: ${T(w.name)}.</b> ${T(w.desc)}`); save(); hideOver(); ui();
+  if(tr.items.length) openShop();
+}
+// ---------- feasts ----------
+function holdFeast(){
+  if(S.phase!=='day'||S.over||S.feastSeason===seasonIdx()) return;
+  const c={food:20,gold:10}; if(!canPay(c)){ say(`A feast needs ${costStr(c)}.`); sfx('no'); return; }
+  spend(c); S.feastSeason=seasonIdx(); S.feastDay=S.day; S.mood=Math.min(100,S.mood+12);
+  for(const f of folk){ if(f.job==null&&!f.goal){ f.state='act'; f.act='dance'; f.t=6+Math.random()*4; f.after=null; emote(f,'♪',3); } }
+  party('win'); sfx('dawn'); toast(T('Feast'),T('The whole town is dancing'),'♪'); say('<b>A feast!</b> Tables in the square, music until dark. Mood +12.'); save(); ui();
+}
+// ---------- dawn hooks for this round ----------
+function dawnExtras(){
+  if(S.seedDays>0) S.seedDays--; if(S.oilNights>0) S.oilNights--;
+  if(S.req&&S.day>S.req.until){ S.mood=Math.max(0,S.mood-6); say($('msg').innerHTML+` <b>${S.req.name} gave up waiting.</b> Mood −6.`); S.req=null; }
+  if(!S.req&&S.day>=2&&Math.random()<.55){ const n=newRequest(); if(n){ $('msg').innerHTML+=' '+n; toast(T('Request'),S.req.name,'?'); } }
+  if(S.day>=3&&Math.random()<.32&&!(S.trader&&S.trader.day===S.day-1)){ const ids=Object.keys(WARES).filter(k=>!(k==='spyglass'&&(S.spy||!S.coastUnlocked))&&!(k==='ingots'&&!S.mtnUnlocked)); const items=[]; while(items.length<3&&ids.length) items.push(ids.splice((Math.random()*ids.length)|0,1)[0]);
+    S.trader={day:S.day,items}; $('msg').innerHTML+=' <b>A wandering trader</b> has set up by the keep in The Valley.'; toast(T('Trader'),T('A wandering trader arrives'),'⚖'); }
+  save(); ui();
+}
 function toast(title,body,icon='★'){
   const box=$('toasts'); if(!box) return;
   const el=document.createElement('div'); el.className='toast'; el.innerHTML='<span class="ti"></span><span><span class="tt"></span><br><span class="tb"></span></span>';
@@ -3405,6 +3645,7 @@ function ui(){
   $('region').textContent=T(regionName(S.cur))+(heroHere()?'':T(' · hero away')); if(!$('realm').hidden) renderRealm();
   const sea=season(); $('season').textContent=T(sea.name)+(S.weather!=='clear'?` · ${T(WX[S.weather].name)}`:'')+(S.blood?' · '+T('Blood moon'):''); $('seaDot').setAttribute('fill',sea.col); $('cSeason').classList.toggle('blood',!!S.blood);
   $('hlv').textContent=T('Hero Lv {{n}}',{n:S.hl}); $('xpf').style.width=Math.round(100*S.hx/xpNeed(S.hl))+'%';
+  checkRequest(); renderReq();
   if(S.phase==='day'&&!S.modal&&!S.over&&S.perkPending>0) offerPerk();
   if(S.phase==='day') checkAch(); else renderAch();
   $('best').textContent=[T(DIFF[S.diff].label),T('score {{n}}',{n:score().toLocaleString()}),bestScore?T('best {{n}}',{n:bestScore.toLocaleString()}):''].filter(Boolean).join(' · ');
@@ -3498,7 +3739,9 @@ function renderInsp(){
     const q=S.hero.queue.length, d=DEF[S.tool];
     const tip=S.phase==='day'?(S.tool==='ride'?(COARSE?'Use the joystick to ride, or tap the ground to send your hero. Tap a building to inspect it, or a villager to meet them.':'Tap the ground to send your hero. Tap a building to inspect it, or a villager to meet them.'):S.tool==='clear'?'Tap a building to clear it for a refund.':`Ordering: ${d.name.toLowerCase()} for ${costStr(d.cost)}. Tap tiles for your hero to build${q?` · ${q} order${q>1?'s':''} queued`:''}.`)
       :'Tap the ground to send your hero into the fight. Tap a building to upgrade it or trade.';
-    box.innerHTML=`<span class="hint"></span>`; box.querySelector('.hint').textContent=T(tip); return;
+    const rp=repairAllCost();
+    box.innerHTML=`<span class="hint" style="flex:1;min-width:0"></span>${rp&&S.phase==='day'?`<div class="acts"><button class="up" id="iFixAll" type="button" ${!canPay(rp.c)?'disabled':''}>${T('Repair all ({{n}})',{n:rp.n})} <span class="c">${costShort(rp.c)}</span></button></div>`:''}`;
+    box.querySelector('.hint').textContent=T(tip); $('iFixAll')?.addEventListener('click',repairAll); return;
   }
   const i=idx(...sel), b=G(...sel).b, d=DEF[b.type], w=weapon(b);
   const hp=`Health ${b.hp}/${b.max}`;
@@ -3513,7 +3756,7 @@ function renderInsp(){
     case 'harbor': det=`${hp} · ${work} · +3 food from fishing · ${shipsFree()} of ${shipsTotal()} ship${shipsTotal()===1?'':'s'} in port`; break;
     case 'trap': det=`${b.charges}/${trapMax()} charges · ${1+S.mods.trap} damage and slows`; break;
     case 'barr': det=`${hp} · ${S.units.filter(u=>u.home===i).length}/${b.lvl+1+S.mods.muster} soldiers · ${unitDmg()} damage each · 1 gold upkeep, soldiers eat 1 food each`+(b.unpaid?' · unpaid, idle tonight':''); break;
-    case 'house': det=`${hp} · room for 3 villagers · ${S.pop}/${housing()} housed`; break;
+    case 'house': det=`${hp} · room for ${3+S.mods.housing+((b.lvl||1)>1?2:0)} villagers${(b.lvl||1)>1?' · a manor':''} · ${S.pop}/${housing()} housed`; break;
     case 'farm': det=`${hp} · ${work} · +${farmOut()} food at dawn`; break;
     case 'well': det=`${hp} · +4 mood (up to 3 wells) · keeps fire off the buildings around it`; break;
     case 'shrine': det=`${hp} · +8 mood (up to 2 shrines)`; break;
@@ -3531,6 +3774,7 @@ function renderInsp(){
   const rc=repairCost(b);
   if(rc&&S.phase==='day') acts+=`<button class="up" id="iFix" type="button" ${!canPay(rc)||S.over?'disabled':''}>Repair <span class="c">${costShort(rc)}</span></button>`;
   if(d.work) acts+=`<button id="iOff" type="button">${b.off?'Resume':'Pause'}</button>`;
+  if(b.type==='keep'&&S.cur==='home'&&S.phase==='day') acts+=`<button class="up" id="iFeast" type="button" ${S.feastSeason===seasonIdx()||!canPay({food:20,gold:10})?'disabled':''}>${S.feastSeason===seasonIdx()?T('Feast held this season'):`${T('Hold a feast')} <span class="c">${costShort({food:20,gold:10})}</span>`}</button>`;
   if(b.type!=='keep') acts+=`<button id="iClr" type="button" ${S.phase!=='day'?'disabled':''}>Clear <span class="c">${costShort(refundOf(b))}</span></button>`;
   let extra='';
   if(b.type==='smith'){
@@ -3555,6 +3799,7 @@ function renderInsp(){
   $('iUp')?.addEventListener('click',upgradeSel);
   $('iFix')?.addEventListener('click',()=>{ const c=repairCost(b); if(!c||!canPay(c)) return; spend(c); if(b.type==='keep') S.keep=S.keepMax; else b.hp=b.max; puff(sel[0],sel[1],COL.gold,10); dustRing(sel[0],sel[1]); sfx('up'); say(`${b.type==='keep'?'Keep':DEF[b.type].name} repaired.`); save(); ui(); });
   $('iClr')?.addEventListener('click',()=>{ if(sel) clearAt(...sel); });
+  $('iFeast')?.addEventListener('click',holdFeast);
   $('iOff')?.addEventListener('click',()=>{ b.off=!b.off; save(); ui(); say(b.off?`${d.name} paused. Its worker is free for other jobs.`:`${d.name} back to work.`); });
   box.querySelectorAll('[data-port]').forEach(el=>el.addEventListener('click',()=>sendVoyage(el.dataset.port)));
   box.querySelectorAll('[data-forge]').forEach(el=>el.addEventListener('click',()=>forge(el.dataset.forge)));
@@ -3562,6 +3807,13 @@ function renderInsp(){
   box.querySelectorAll('[data-war]').forEach(el=>el.addEventListener('click',buildWarship));
   box.querySelectorAll('[data-buy]').forEach(el=>el.addEventListener('click',()=>trade(el.dataset.buy,true)));
   box.querySelectorAll('[data-sell]').forEach(el=>el.addEventListener('click',()=>trade(el.dataset.sell,false)));
+}
+function repairAllCost(){ let n=0; const c={}; each(b=>{ const r=repairCost(b); if(!r) return; n++; for(const k in r) c[k]=(c[k]||0)+r[k]; }); return n?{n,c}:null; }
+function repairAll(){
+  const rp=repairAllCost(); if(!rp||S.phase!=='day') return;
+  if(!canPay(rp.c)){ say(`Repairing everything needs ${costStr(rp.c)}.`); sfx('no'); return; }
+  spend(rp.c); each((b,x,y)=>{ if(!repairCost(b)) return; if(b.type==='keep') S.keep=S.keepMax; else b.hp=b.max; puff(x,y,COL.gold,6); });
+  sfx('up'); say(`<b>Every building repaired.</b>`); S.ver++; save(); ui();
 }
 function repairCost(b){
   if(b.type==='trap') return null;
@@ -3777,6 +4029,7 @@ mc.addEventListener('pointerdown',ev=>{
 });
 $('view').addEventListener('click',toggleView);
 $('realmBtn').addEventListener('click',toggleRealm);
+$('chronD').addEventListener('toggle',()=>{ if($('chronD').open) renderChron(); });
 $('lang').addEventListener('click',()=>{ lang=lang==='es'?'en':'es'; applyLang(); savePrefs(); });
 // installable app (only where the page ships with a service worker, i.e. the Netlify build)
 let installEvt=null;
