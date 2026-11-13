@@ -4,7 +4,7 @@ A minimalist kingdom build-and-defend game in a low-poly desert canyon. Ride you
 
 **Play it:** https://smallcrown.netlify.app/
 
-Runs in any modern browser. No build step.
+Runs in any modern browser, in English or Spanish. No build step. On the live site you can install it as an app and play offline after the first visit.
 
 ## Play locally
 
@@ -26,8 +26,11 @@ The live site deploys from this repository on Netlify, with no build command and
 | `index.html` | The whole game: markup, styles and script |
 | `models/models.json` | Every 3D model, bundled as base64 glTF binaries keyed by name |
 | `models/canyon_palette.png` | The palette texture recolored to desert rust and cream for the cliffs |
+| `models/waternormals.png` | Tileable normal map for the sea at Saltreach Cove |
+| `manifest.webmanifest`, `icons/` | App name and icons for installing the game |
+| `sw.js` | Workbox service worker that caches the game for offline play |
 
-three.js r128 and its glTF loader and bloom passes load from the jsDelivr and cdnjs CDNs.
+three.js r128 and every library load from the jsDelivr and cdnjs CDNs, pinned to exact versions.
 
 ## How to play
 
@@ -42,6 +45,9 @@ three.js r128 and its glTF loader and bloom passes load from the jsDelivr and cd
 - **Seasons and weather:** spring, summer, harvest and winter turn every 5 days and change farm output and heating; rain, sandstorms and snow change how a night plays.
 - **Mood:** wells, shrines and full granaries keep villagers content and paying extra taxes; hunger, cold and losses make them leave.
 - **Hero levels:** felling raiders earns experience, and each level brings a perk choice.
+- **The realm:** from day 3 your scouts find Saltreach Cove on the coast. Open the realm map (M) to ride between The Valley and the cove. Each dawn announces which region the night's raid will strike; a region without your hero defends itself. Lose the cove's fort and raiders plunder your stores; lose the valley's keep and the kingdom falls.
+- **Harbor and trade:** build harbors on the cove's shore to fish and berth ships, then send voyages to four foreign ports for gold, spices and iron. Longer voyages pay more and risk more. Pirates land from the sea.
+- **Save slots and language:** three kingdoms can be saved side by side, and the EN/ES button switches the interface to Spanish.
 
 - **Phones and tablets:** steer the hero with the on-screen joystick; a full-screen button appears where the browser supports it.
 - **Music:** tap the sound button once for effects, twice for a generated day and night soundtrack.

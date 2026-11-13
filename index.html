@@ -4,6 +4,11 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="A minimalist kingdom build-and-defend game in a low-poly desert canyon.">
+<meta name="pwa" content="1">
+<meta name="theme-color" content="#1C1714">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
 <title>Small Crown</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -17,6 +22,11 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Water.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/i18next@23.16.8/dist/umd/i18next.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/yuka@0.7.8/build/yuka.js"></script>
 <!-- Open-source from GitHub: nipplejs (MIT, touch joystick), Tone.js (MIT, music), driver.js (MIT, guided tour), canvas-confetti (ISC) -->
 <script defer src="https://cdn.jsdelivr.net/npm/nipplejs@0.10.2/dist/nipplejs.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.js"></script>
@@ -142,6 +152,26 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
 .abil{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px}
 .joy{position:absolute;left:8px;bottom:8px;width:132px;height:132px;border-radius:50%;touch-action:none;background:radial-gradient(circle,rgba(28,23,20,.35) 0 60%,transparent 61%)}
 .joy .lab{position:absolute;left:0;right:0;bottom:4px;text-align:center;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(242,234,221,.7);pointer-events:none}
+.realm{position:absolute;inset:0;z-index:6;background:rgba(22,18,15,.95);display:flex;flex-direction:column;gap:10px;padding:14px;overflow:auto}
+.realm .rh{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.realm h2{font-family:var(--f-display);font-weight:800;font-size:22px;margin:0;letter-spacing:-.01em}
+.realm .x{font:inherit;font-size:13px;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:6px;padding:6px 12px;cursor:pointer}
+.realm svg{width:100%;max-height:44%;flex:none;border-radius:8px;background:#2A221D}
+.realm svg .node{cursor:pointer}
+.rcards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px}
+.rcard{background:var(--surface);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.rcard b{font-size:15px}
+.rcard .rd{font-size:12.5px;color:var(--muted);line-height:1.45}
+.rcard .tags{display:flex;flex-wrap:wrap;gap:5px}
+.rcard .tag{font-size:11px;border-radius:999px;padding:2px 8px;background:var(--raise);color:var(--ink)}
+.rcard .tag.raid{background:#5A2420;color:#FFB4A8}.rcard .tag.hero{background:#2A3A5A;color:#B9CCF0}
+.rcard button{font:inherit;font-size:13px;font-weight:600;border:0;border-radius:6px;padding:7px 12px;background:var(--sand);color:#2A1A10;cursor:pointer;align-self:flex-start}
+.rcard button:disabled{background:var(--raise);color:var(--muted);cursor:default}
+.ports{display:grid;gap:6px;width:100%;margin-top:6px}
+.port{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;background:var(--raise);border-radius:6px;padding:7px 9px}
+.port .pn{font-weight:600;font-size:13px}
+.port .pd{font-size:12px;color:var(--muted);grid-column:1}
+.port button{grid-row:1/3;grid-column:2}
 .fs{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(28,23,20,.78);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
 .fs svg{width:16px;height:16px}
 .linkbtn{font:inherit;font-weight:600;color:var(--gold);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
@@ -181,14 +211,17 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <div class="grade" id="grade"></div>
     <canvas id="hud" aria-hidden="true"></canvas>
     <canvas id="mini" aria-label="Minimap. Tap to look at that part of the valley."></canvas>
-    <div class="joy" id="joy" hidden><span class="lab">Ride</span></div>
+    <div class="joy" id="joy" hidden><span class="lab" data-t>Ride</span></div>
+    <button class="fs" id="realmBtn" type="button" style="right:54px" aria-label="Realm map (M)" title="Realm map (M)"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3l4.5-1.5 5 2L15 2v11l-4.5 1.5-5-2L1 14z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M5.5 1.5v11M10.5 3.5v11" stroke="currentColor" stroke-width="1.2"/></svg></button>
+    <div class="realm" id="realm" hidden></div>
     <button class="fs" id="fs" type="button" hidden aria-label="Full screen" title="Full screen"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
     <div class="chips" aria-live="polite">
       <div class="chip" id="cHp"><i><svg viewBox="0 0 12 12"><path d="M2 11V5l1.5-1.5L5 5V3l1-1 1 1v2l1.5-1.5L10 5v6z" fill="#F2EADD"/></svg></i><span id="hp">10</span></div>
       <div class="chip" id="cDay"><i><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="2.6" fill="#D99A60"/><path d="M6 .8v1.6M6 9.6v1.6M.8 6h1.6M9.6 6h1.6M2.3 2.3l1.1 1.1M8.6 8.6l1.1 1.1M2.3 9.7l1.1-1.1M8.6 3.4l1.1-1.1" stroke="#D99A60" stroke-width="1.1"/></svg></i><span id="day">Day 1</span></div>
+      <div class="chip" id="cRegion"><i><svg viewBox="0 0 12 12"><path d="M6 1a3.5 3.5 0 0 1 3.5 3.5C9.5 7 6 11 6 11S2.5 7 2.5 4.5A3.5 3.5 0 0 1 6 1z" fill="#D99A60"/><circle cx="6" cy="4.5" r="1.3" fill="#28201C"/></svg></i><span id="region">The Valley</span></div>
       <div class="chip" id="cSeason"><i><svg viewBox="0 0 12 12"><circle id="seaDot" cx="6" cy="6" r="3.4" fill="#8FCB7E"/></svg></i><span id="season">Spring</span></div>
       <div class="chip" id="cHero" title="Your hero's level. Felling raiders earns experience."><i><svg viewBox="0 0 12 12"><path d="M6 1l1.5 3.2 3.5.4-2.6 2.4.7 3.5L6 8.8 2.9 10.5l.7-3.5L1 4.6l3.5-.4z" fill="#F0BE4E"/></svg></i><span id="hlv">Lv 1</span><b class="xpb"><b id="xpf"></b></b></div>
-      <div class="chip" id="cLoad"><i><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="none" stroke="#B5A795" stroke-width="1.4" stroke-dasharray="6 4"/></svg></i><span>Loading models</span></div>
+      <div class="chip" id="cLoad"><i><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="none" stroke="#B5A795" stroke-width="1.4" stroke-dasharray="6 4"/></svg></i><span data-t>Loading models</span></div>
     </div>
     <div class="abil" id="abil">
       <button class="ab" id="aCharge" type="button" aria-label="Charge (Q)" title="Charge (Q): your hero dashes forward, cutting down raiders in his path"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M3 15l7-4-2-2 9-6-5 8 2 2-11 2z" fill="currentColor"/></svg><span class="kk">Q</span></button>
@@ -212,39 +245,43 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <button class="ic" id="view" type="button" aria-label="Show whole valley" aria-pressed="false" title="Whole valley (V)">
       <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M2 6V2h4M12 2h4v4M16 12v4h-4M6 16H2v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
     <button class="ic" id="qual" type="button" aria-label="Graphics quality" title="Graphics quality: High adds night glow and sharper shadows">High</button>
+    <button class="ic" id="lang" type="button" aria-label="Language: English. Switch to Spanish" title="Español / English">EN</button>
+    <button class="ic" id="install" type="button" hidden title="Install Small Crown on this device">Install</button>
     <button class="ic" id="sound" type="button" aria-label="Sound" aria-pressed="false" title="Sound">
       <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 7h3l4-3v10l-4-3H3z" fill="currentColor"/><path id="sndwave" d="M12.5 6.5a3.5 3.5 0 0 1 0 5M14.5 4.5a6.5 6.5 0 0 1 0 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".3"/></svg></button>
   </div>
 
   <details class="ledger" open>
-    <summary>Treasury at dawn</summary>
+    <summary data-t>Treasury at dawn</summary>
     <div id="ledger"></div>
   </details>
 
   <details class="ledger" open>
-    <summary>Kingdom upgrades</summary>
+    <summary data-t>Kingdom upgrades</summary>
     <div class="upg" id="upg"></div>
   </details>
 
   <details>
-    <summary>How to rule</summary>
-    <p><b>The goal</b> is to hold the keep through 20 nights. Your score counts nights held, raiders felled, villagers and buildings, and Hard raises it. After night 20 you can keep ruling in endless mode. Quests along the way teach the basics and pay out goods.</p>
-    <p><b>Seasons</b> turn every 5 days. Spring rains add 1 food per farm, summer heat costs 1, harvest adds 2 and lifts markets, and winter costs 2 while every house burns 1 wood a dawn to stay warm. Weather is rolled each dawn: rain stops fires, sandstorms slow raiders but shorten your towers' sight, snow slows everyone.</p>
-    <p><b>Mood.</b> Villagers are happier with wells and shrines nearby, full granaries and a good harvest, and unhappier after hunger, cold houses and buildings lost to raiders. Content villagers pay extra taxes; unhappy ones pay less, stop moving in, and below 20 they start to leave. Wells also keep fire off the buildings around them.</p>
-    <p><b>Hero levels.</b> Raiders your hero fells, and every night survived, earn experience. Each level adds health, every second level adds damage, and each one lets you pick a perk.</p>
-    <p><b>Hero abilities.</b> <b>Charge</b> (<kbd>Q</kbd>) sends your hero dashing ahead, cutting down every raider in his path. <b>Rally</b> (<kbd>E</kbd>) blows a horn: every soldier rushes to his side and fights harder for 8 seconds.</p>
-    <p><b>Your hero</b> rides a white horse. Pick a build tool and tap tiles to give him orders: he rides to each spot and builds it there, up to 8 orders in a row. Tap an order again to cancel it. With <b>Ride</b>, or at any time at night, tapping the ground sends him there. He fights any raider within reach, and if he falls he returns to the keep a few seconds later.</p>
-    <p><b>Your village</b> runs on gold, food, wood and stone. Villagers live in the keep (room for 4) and in houses (3 each). Every dawn each villager pays 1 gold in taxes and eats 1 food, and each soldier eats 1 food too. With food to spare and room in your houses, new villagers move in. If food runs out, some of them leave.</p>
-    <p><b>Producers need a villager to work them.</b> Farms grow 4 food, lumber camps in a palm grove cut 4 wood, mines on ore dig 3 stone, and a market (day 3) earns 3 gold and lets you buy and sell goods. Workers fill farms first, then mines, lumber camps and the market. Pause a producer from its panel to move its worker elsewhere. Catapults and barracks cost 1 gold upkeep each dawn, and if the treasury can't pay, they sit out the night.</p>
-    <p><b>Market prices</b> rise as you buy and fall as you sell, then drift back toward normal each dawn. Caravans, droughts, festivals and migrants can turn up at dawn and shake things up.</p>
-    <p><b>Defenses.</b> Red dots trace the road each war band will take through the canyon. Palisades are cheap and stubborn. Traps wound and slow whoever crosses and reset each dawn. Watchtowers shoot whoever is closest to your keep. Catapults (day 4) hit everyone near where the stone lands but can't fire up close. Barracks (day 2) field soldiers who hold the ground around them. Runners slip past soldiers. Anything built today refunds in full.</p>
-    <p><b>By night</b> raiders take the easiest road and smash anything blocking it. Runners appear from night 3, brutes from night 6, and a warlord every fifth night. Shamans appear from night 7 and heal the raiders around them, so strike them first. Some nights bring a blood moon: half again as many raiders, but every kill pays double. Archers appear from night 4 and shoot from range at your hero, soldiers and buildings. Battering rams roll in from night 8, ignore soldiers and smash buildings fast. Beat a warlord and you choose a boon. Kingdom upgrades are permanent improvements you buy with your goods at any time. Progress saves after every build and each dawn.</p>
-    <p><b>The view</b> follows your hero. Drag the board to look around, scroll or pinch to zoom, tap the minimap to jump anywhere, and use the frame button (<kbd>V</kbd>) to see the whole valley at once.</p>
-    <p><b>Moving and building.</b> Your hero rides around buildings and cliffs on his own. Right-click anywhere to send him there. With the palisade or trap tool, drag across the ground to lay a whole line of orders at once. Right-click an order to cancel it.</p>
-    <p>Keys: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> ride the hero, arrow keys pan the view, <kbd>H</kbd> back to the hero, <kbd>+</kbd> <kbd>−</kbd> zoom, <kbd>1</kbd>–<kbd>0</kbd>, <kbd>Z</kbd>, <kbd>C</kbd>, <kbd>B</kbd> build tools, <kbd>X</kbd> clear, <kbd>R</kbd> ride, <kbd>Space</kbd> ring the bell, <kbd>U</kbd> upgrade, <kbd>P</kbd> pause, <kbd>F</kbd> speed, <kbd>Esc</kbd> deselect. Speed, zoom, sound and graphics quality are remembered.</p>
-    <p><b>On a phone or tablet</b>, steer your hero with the joystick in the bottom-left corner of the valley. Tapping tiles still builds and selects.</p>
-    <p><b>Sound</b> button: tap once for sound effects, twice to add music, a third time for silence. <button class="linkbtn" id="tourBtn" type="button">Take the guided tour</button></p>
-    <p><b>Damage</b> shows: buildings smoke when hurt and burn when badly hurt. Tap one and use <b>Repair</b> during the day, or wait for dawn to patch them slowly. Destroyed buildings leave rubble that clears after two days.</p>
+    <summary data-t>How to rule</summary>
+    <p data-th="help1"><b>The goal</b> is to hold the keep through 20 nights. Your score counts nights held, raiders felled, villagers and buildings, and Hard raises it. After night 20 you can keep ruling in endless mode. Quests along the way teach the basics and pay out goods.</p>
+    <p data-th="help2"><b>The realm.</b> From day 3 your scouts find Saltreach Cove on the coast. Open the realm map (<kbd>M</kbd>, or the map button on the valley) to travel there. Your hero can only be in one region at a time. Each dawn announces which region tonight's raid will hit, so ride there in time; a region without your hero stands on its own. If the cove's fort falls, raiders plunder a third of your gold and food. If the valley's keep falls, the kingdom falls.</p>
+    <p data-th="help3"><b>Harbor and trade.</b> Build a harbor (<kbd>N</kbd>) on the cove's shore. It fishes for food and berths a ship. Tap the harbor to send ships to foreign ports: the Salt Isles buy stone, Qasr Amber buys food and sends back spices that lift the mood, Ironhold buys wood and sends back iron for your soldiers' weapons, and Far Cathay turns gold into more gold. Longer voyages pay more but risk more, especially in winter. Pirates raid the cove from the sea.</p>
+    <p data-th="help4"><b>Seasons</b> turn every 5 days. Spring rains add 1 food per farm, summer heat costs 1, harvest adds 2 and lifts markets, and winter costs 2 while every house burns 1 wood a dawn to stay warm. Weather is rolled each dawn: rain stops fires, sandstorms slow raiders but shorten your towers' sight, snow slows everyone.</p>
+    <p data-th="help5"><b>Mood.</b> Villagers are happier with wells and shrines nearby, full granaries and a good harvest, and unhappier after hunger, cold houses and buildings lost to raiders. Content villagers pay extra taxes; unhappy ones pay less, stop moving in, and below 20 they start to leave. Wells also keep fire off the buildings around them.</p>
+    <p data-th="help6"><b>Hero levels.</b> Raiders your hero fells, and every night survived, earn experience. Each level adds health, every second level adds damage, and each one lets you pick a perk.</p>
+    <p data-th="help7"><b>Hero abilities.</b> <b>Charge</b> (<kbd>Q</kbd>) sends your hero dashing ahead, cutting down every raider in his path. <b>Rally</b> (<kbd>E</kbd>) blows a horn: every soldier rushes to his side and fights harder for 8 seconds.</p>
+    <p data-th="help8"><b>Your hero</b> rides a white horse. Pick a build tool and tap tiles to give him orders: he rides to each spot and builds it there, up to 8 orders in a row. Tap an order again to cancel it. With <b>Ride</b>, or at any time at night, tapping the ground sends him there. He fights any raider within reach, and if he falls he returns to the keep a few seconds later.</p>
+    <p data-th="help9"><b>Your village</b> runs on gold, food, wood and stone. Villagers live in the keep (room for 4) and in houses (3 each). Every dawn each villager pays 1 gold in taxes and eats 1 food, and each soldier eats 1 food too. With food to spare and room in your houses, new villagers move in. If food runs out, some of them leave.</p>
+    <p data-th="help10"><b>Producers need a villager to work them.</b> Farms grow 4 food, lumber camps in a palm grove cut 4 wood, mines on ore dig 3 stone, and a market (day 3) earns 3 gold and lets you buy and sell goods. Workers fill farms first, then harbors, mines, lumber camps and the market. Pause a producer from its panel to move its worker elsewhere. Catapults and barracks cost 1 gold upkeep each dawn, and if the treasury can't pay, they sit out the night.</p>
+    <p data-th="help11"><b>Market prices</b> rise as you buy and fall as you sell, then drift back toward normal each dawn. Caravans, droughts, festivals and migrants can turn up at dawn and shake things up.</p>
+    <p data-th="help12"><b>Defenses.</b> Red dots trace the road each war band will take through the canyon. Palisades are cheap and stubborn. Traps wound and slow whoever crosses and reset each dawn. Watchtowers shoot whoever is closest to your keep. Catapults (day 4) hit everyone near where the stone lands but can't fire up close. Barracks (day 2) field soldiers who hold the ground around them. Runners slip past soldiers. Anything built today refunds in full.</p>
+    <p data-th="help13"><b>By night</b> raiders take the easiest road and smash anything blocking it. Runners appear from night 3, brutes from night 6, and a warlord every fifth night. Shamans appear from night 7 and heal the raiders around them, so strike them first. Some nights bring a blood moon: half again as many raiders, but every kill pays double. Archers appear from night 4 and shoot from range at your hero, soldiers and buildings. Battering rams roll in from night 8, ignore soldiers and smash buildings fast. Beat a warlord and you choose a boon. Kingdom upgrades are permanent improvements you buy with your goods at any time. Progress saves after every build and each dawn.</p>
+    <p data-th="help14"><b>The view</b> follows your hero. Drag the board to look around, scroll or pinch to zoom, tap the minimap to jump anywhere, and use the frame button (<kbd>V</kbd>) to see the whole valley at once.</p>
+    <p data-th="help15"><b>Moving and building.</b> Your hero rides around buildings and cliffs on his own. Right-click anywhere to send him there. With the palisade or trap tool, drag across the ground to lay a whole line of orders at once. Right-click an order to cancel it.</p>
+    <p data-th="help16">Keys: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> ride the hero, arrow keys pan the view, <kbd>H</kbd> back to the hero, <kbd>+</kbd> <kbd>−</kbd> zoom, <kbd>1</kbd>–<kbd>0</kbd>, <kbd>Z</kbd>, <kbd>C</kbd>, <kbd>B</kbd>, <kbd>N</kbd> build tools, <kbd>X</kbd> clear, <kbd>M</kbd> realm map, <kbd>R</kbd> ride, <kbd>Space</kbd> ring the bell, <kbd>U</kbd> upgrade, <kbd>P</kbd> pause, <kbd>F</kbd> speed, <kbd>Esc</kbd> deselect. Speed, zoom, sound and graphics quality are remembered.</p>
+    <p data-th="help17"><b>On a phone or tablet</b>, steer your hero with the joystick in the bottom-left corner of the valley. Tapping tiles still builds and selects.</p>
+    <p data-th="help18"><b>Sound</b> button: tap once for sound effects, twice to add music, a third time for silence. <button class="linkbtn" id="tourBtn" type="button">Take the guided tour</button></p>
+    <p data-th="help19"><b>Damage</b> shows: buildings smoke when hurt and burn when badly hurt. Tap one and use <b>Repair</b> during the day, or wait for dawn to patch them slowly. Destroyed buildings leave rubble that clears after two days.</p>
   </details>
 </main>
 
@@ -265,13 +302,15 @@ const DEF={
   market:{name:'Market',cost:{wood:6,stone:4},hp:4,enter:8,work:true,unlock:3},
   well:{name:'Well',cost:{wood:3,stone:2},hp:4,enter:6},
   shrine:{name:'Shrine',cost:{stone:6,gold:6},hp:5,enter:8,unlock:5},
+  harbor:{name:'Harbor',cost:{wood:10,stone:4},hp:8,enter:10,work:true,need:'shore',unlock:3},
   range:{name:'Archery range',cost:{wood:6,gold:5},hp:6,enter:10,unlock:3,upkeep:1,upg:[{wood:6,gold:8}]},
   keep:{name:'Keep',cost:{},hp:0,enter:1}
 };
-const TOOLS=['farm','house','lumber','mine','wall','trap','tower','cata','barr','market','well','shrine','range','clear','ride'];
-const KEYS={farm:'1',house:'2',lumber:'3',mine:'4',wall:'5',trap:'6',tower:'7',cata:'8',barr:'9',market:'0',well:'Z',shrine:'C',range:'B',clear:'X',ride:'R'};
-const TNAME={farm:'Farm',house:'House',lumber:'Lumber',mine:'Mine',wall:'Palisade',trap:'Trap',tower:'Tower',cata:'Catapult',barr:'Barracks',market:'Market',well:'Well',shrine:'Shrine',range:'Archers',clear:'Clear',ride:'Ride'};
+const TOOLS=['farm','house','lumber','mine','wall','trap','tower','cata','barr','market','well','shrine','range','harbor','clear','ride'];
+const KEYS={farm:'1',house:'2',lumber:'3',mine:'4',wall:'5',trap:'6',tower:'7',cata:'8',barr:'9',market:'0',well:'Z',shrine:'C',range:'B',harbor:'N',clear:'X',ride:'R'};
+const TNAME={farm:'Farm',house:'House',lumber:'Lumber',mine:'Mine',wall:'Palisade',trap:'Trap',tower:'Tower',cata:'Catapult',barr:'Barracks',market:'Market',well:'Well',shrine:'Shrine',range:'Archers',harbor:'Harbor',clear:'Clear',ride:'Ride'};
 const ICON={
+  harbor:'<circle cx="11" cy="5" r="2.2" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M11 7v12M7 10h8M4 13c1 4 4 6 7 6s6-2 7-6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>',
   well:'<ellipse cx="11" cy="16" rx="7" ry="3" fill="currentColor"/><rect x="4" y="11" width="14" height="5" fill="currentColor"/><path d="M5 11V6M17 11V6M3 6l8-3 8 3z" stroke="currentColor" stroke-width="1.6" fill="currentColor"/>',
   shrine:'<path d="M11 2l2 5h-4z" fill="currentColor"/><rect x="9" y="7" width="4" height="9" fill="currentColor"/><rect x="5" y="16" width="12" height="3" fill="currentColor"/>',
   range:'<circle cx="13" cy="10" r="6" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="13" cy="10" r="2.5" fill="currentColor"/><path d="M2 18l9-7" stroke="currentColor" stroke-width="1.6"/>',
@@ -291,12 +330,121 @@ const ICON={
 const RES=['gold','food','wood','stone'], BASEP={food:2,wood:2,stone:3}, LOT=5;
 const RCOL={gold:'#F0BE4E',food:'#C9E07A',wood:'#E0A86A',stone:'#C9CFD8',people:'#86B6FF',mood:'#E89AC0'};
 const cap1=w=>w.charAt(0).toUpperCase()+w.slice(1);
-function costStr(c){ return RES.filter(r=>c[r]).map(r=>`${c[r]} ${r}`).join(', '); }
+// ---------- language (i18next): English keys, Spanish translations ----------
+const ES={
+// chrome
+"Treasury at dawn":"Tesoro al amanecer","Kingdom upgrades":"Mejoras del reino","How to rule":"Cómo gobernar","Loading models":"Cargando modelos","Install":"Instalar",
+"Night {{n}}":"Noche {{n}}","Day {{n}}":"Día {{n}}"," of {{n}}":" de {{n}}","Hero Lv {{n}}":"Héroe nv. {{n}}","Blood moon":"Luna de sangre",
+"score {{n}}":"puntos {{n}}","best {{n}}":"récord {{n}}"," · hero away":" · héroe ausente",
+"{{n}} raiders still out there":"quedan {{n}} asaltantes","The keep has fallen":"El castillo ha caído","Start again from the board":"Empieza de nuevo desde el tablero",
+"Ring the bell":"Toca la campana","Begin night {{n}}":"Empieza la noche {{n}}","{{n}} coming":"{{n}} en camino"," to {{r}}":" hacia {{r}}",", hero away":", héroe ausente",
+"{{n}} unbuilt orders will be dropped":"se perderán {{n}} órdenes sin construir",
+// seasons and weather
+"Spring":"Primavera","Summer":"Verano","Harvest":"Cosecha","Winter":"Invierno","Rain":"Lluvia","Sandstorm":"Tormenta de arena","Snow":"Nieve",
+// resources
+"gold":"oro","food":"comida","wood":"madera","stone":"piedra","Gold":"Oro","Food":"Comida","Wood":"Madera","Stone":"Piedra","Villagers":"Aldeanos","Mood":"Ánimo",
+"at dawn":"al amanecer","steady":"estable","famine":"hambruna","unemployed":"sin trabajo","idle":"libres","all working":"todos trabajan","content":"contentos","unhappy":"descontentos",
+// tools and buildings
+"Farm":"Granja","House":"Casa","Lumber":"Leña","Mine":"Mina","Palisade":"Empalizada","Trap":"Trampa","Tower":"Torre","Catapult":"Catapulta","Barracks":"Cuartel","Market":"Mercado",
+"Well":"Pozo","Shrine":"Santuario","Archers":"Arqueros","Clear":"Quitar","Harbor":"Puerto","Ride":"Cabalgar","Lumber camp":"Aserradero","Spike trap":"Trampa de pinchos","Watchtower":"Atalaya",
+"Archery range":"Campo de tiro","Keep":"Castillo","Fort":"Fuerte","Stone wall":"Muro de piedra","level {{n}}":"nivel {{n}}","day {{n}}":"día {{n}}","refund":"reembolso","move":"mover",
+// difficulty
+"Easy":"Fácil","Normal":"Normal","Hard":"Difícil","Smaller raids and a fuller treasury. Score ×0.7":"Asaltos más pequeños y un tesoro más lleno. Puntos ×0,7",
+"The intended challenge":"El reto previsto","Bigger, tougher raids and a lean start. Score ×1.5":"Asaltos más grandes y duros, y un comienzo escaso. Puntos ×1,5",
+"Found a new kingdom":"Fundar un reino nuevo","Choose how hard the raids will be. Hold the keep through 20 nights to win.":"Elige la dureza de los asaltos. Defiende el castillo durante 20 noches para ganar.",
+// save slots
+"Choose a kingdom":"Elige un reino","Three save slots, kept on this device. Each one is a separate kingdom.":"Tres ranuras de guardado en este dispositivo. Cada una es un reino distinto.",
+"Slot {{n}} · empty":"Ranura {{n}} · vacía","Found a new kingdom here":"Fundar un reino nuevo aquí","Slot {{n}} · day {{d}} on {{x}}":"Ranura {{n}} · día {{d}} en {{x}}",
+"{{g}} gold, {{f}} food, {{p}} villagers":"{{g}} de oro, {{f}} de comida, {{p}} aldeanos","Keep playing":"Seguir jugando","Back to slot {{n}}":"Volver a la ranura {{n}}",
+"Slot {{n}}":"Ranura {{n}}","Day {{d}} on {{x}}. {{g}} gold, {{f}} food and {{p}} villagers, keep at {{k}}/{{m}}.":"Día {{d}} en {{x}}. {{g}} de oro, {{f}} de comida y {{p}} aldeanos, castillo a {{k}}/{{m}}.",
+"Continue":"Continuar","Pick up at day {{n}}":"Retomar en el día {{n}}","This saved kingdom will be lost":"Se perderá este reino guardado","Back":"Atrás","Save slots":"Partidas",
+// quests
+"Quest":"Misión","Reward":"Premio","Every quest done and the crown secure. Endless mode: see how long you can last.":"Todas las misiones cumplidas y la corona a salvo. Modo infinito: ¿cuánto aguantarás?",
+"Every quest done. Hold the keep until night {{n}}.":"Todas las misiones cumplidas. Defiende el castillo hasta la noche {{n}}.",
+"Build a farm":"Construye una granja","Build a house so more villagers can move in":"Construye una casa para que lleguen más aldeanos",
+"Build a watchtower near a red raider route":"Construye una atalaya junto a una ruta roja de asaltantes","Survive your first night":"Sobrevive a tu primera noche",
+"Build a lumber camp in a palm grove":"Construye un aserradero en un palmeral","Grow your village to 7 villagers":"Haz crecer tu aldea hasta 7 aldeanos",
+"Open a mine on ore":"Abre una mina sobre mineral","Open the realm map and ride to Saltreach Cove":"Abre el mapa del reino y cabalga a Cala Salobre",
+"Build a harbor on the cove’s shore":"Construye un puerto en la orilla de la cala","Send a ship on a trade voyage":"Envía un barco en un viaje comercial",
+"Buy a kingdom upgrade":"Compra una mejora del reino","Raise a barracks":"Levanta un cuartel","Use Charge or Rally in battle":"Usa Carga o Arenga en combate",
+"Upgrade a palisade to stone":"Mejora una empalizada a piedra","Build a market":"Construye un mercado","Defeat the first warlord":"Derrota al primer caudillo",
+"Grow your village to 15 villagers":"Haz crecer tu aldea hasta 15 aldeanos","Build a catapult":"Construye una catapulta","Own 6 kingdom upgrades":"Consigue 6 mejoras del reino",
+"Survive night 10":"Sobrevive a la noche 10","Survive night 15":"Sobrevive a la noche 15","Build a well to lift your villagers’ mood":"Construye un pozo para animar a tus aldeanos",
+"Raise your hero to level 3":"Sube a tu héroe al nivel 3","Build an archery range":"Construye un campo de tiro","Build a shrine":"Construye un santuario",
+"Reach a mood of 75":"Alcanza un ánimo de 75","Bring iron home from Ironhold":"Trae hierro de Ironhold",
+// upgrades
+"Economy":"Economía","Defense":"Defensa","Army":"Ejército","Hero":"Héroe","Buy":"Comprar","Needs {{n}}":"Requiere {{n}}","Opens on day {{n}}":"Disponible el día {{n}}",
+"Irrigation":"Regadío","Farms grow +1 food each dawn.":"Las granjas dan +1 de comida cada amanecer.",
+"Iron tools":"Herramientas de hierro","Lumber camps cut +1 wood and mines dig +1 stone.":"Los aserraderos cortan +1 de madera y las minas sacan +1 de piedra.",
+"Granary":"Granero","Every house holds 1 more villager.":"Cada casa aloja 1 aldeano más.",
+"Tax collectors":"Recaudadores","An extra gold for every 3 villagers each dawn.":"Un oro extra por cada 3 aldeanos cada amanecer.",
+"Fletching":"Emplumado","Watchtowers and the keep deal +1 damage.":"Las atalayas y el castillo hacen +1 de daño.",
+"Masonry":"Cantería","Palisades and walls gain +5 health, including ones already built.":"Empalizadas y muros ganan +5 de vida, también los ya construidos.",
+"Barbed spikes":"Pinchos de púas","Traps deal +1 damage and hold 3 more charges.":"Las trampas hacen +1 de daño y tienen 3 cargas más.",
+"Counterweights":"Contrapesos","Catapults fire a third faster.":"Las catapultas disparan un tercio más rápido.",
+"Drill yard":"Patio de instrucción","Soldiers deal +1 damage and have +2 health.":"Los soldados hacen +1 de daño y tienen +2 de vida.",
+"Muster roll":"Leva","Every barracks and archery range fields one more soldier.":"Cada cuartel y campo de tiro aporta un soldado más.",
+"Warhorse":"Caballo de guerra","Your hero gains +6 health and +2 damage.":"Tu héroe gana +6 de vida y +2 de daño.",
+"Shipwrights":"Carpinteros de ribera","Every harbor berths a second ship.":"Cada puerto amarra un segundo barco.",
+"Great horn":"Gran cuerno","Rally recharges twice as fast and Charge hits 2 harder.":"Arenga se recarga el doble de rápido y Carga golpea 2 más fuerte.",
+// realm map
+"The Valley":"El Valle","Saltreach Cove":"Cala Salobre","The realm":"El reino","Close":"Cerrar","Unknown lands":"Tierras desconocidas","THE OPEN SEA":"MAR ABIERTO",
+"Your scouts are searching the coast to the south. They should find a way by day 3.":"Tus exploradores recorren la costa del sur. Deberían encontrar un camino hacia el día 3.",
+"Your canyon home. If its keep falls, the kingdom falls.":"Tu hogar en el cañón. Si cae su castillo, cae el reino.",
+"A sheltered cove to the south where ships can land. If its fort falls, raiders plunder your stores.":"Una cala resguardada al sur donde pueden atracar barcos. Si cae su fuerte, los asaltantes saquean tus reservas.",
+"Your hero is here":"Tu héroe está aquí","Under attack":"Bajo ataque","Tonight’s raid":"Asalto de esta noche","{{a}} of {{b}} ships in port":"{{a}} de {{b}} barcos en puerto",
+"You are here":"Estás aquí","Travel by day":"Viaja de día","Ride here":"Cabalga aquí","At sea:":"En el mar:","{{p}}, home on day {{d}}":"{{p}}, vuelve el día {{d}}",
+// harbor
+"The Salt Isles":"Las Islas de Sal","Qasr Amber":"Qasr Ámbar","Ironhold":"Ironhold","Far Cathay":"Catay Lejano","Send":"Enviar","{{p}} (home day {{d}})":"{{p}} (vuelve el día {{d}})",
+"Close by. Buys stone for its sea walls.":"Cerca. Compra piedra para sus diques.",
+"A spice port. Pays well for food and sends back spices that lift your villagers’ mood.":"Un puerto de especias. Paga bien la comida y devuelve especias que animan a tus aldeanos.",
+"A mining town short of timber. Sends back iron for your soldiers’ weapons.":"Un pueblo minero falto de madera. Devuelve hierro para las armas de tus soldados.",
+"Far and risky. Silks bought with gold sell for much more at home.":"Lejano y arriesgado. Las sedas compradas con oro se venden mucho más caras en casa.",
+"Ship {{a}} {{g}}, get about {{e}} gold · {{r}}% risk":"Envía {{a}} de {{g}} y recibe unos {{e}} de oro · {{r}}% de riesgo",
+// tour
+"Your goods":"Tus bienes","Gold, food, wood and stone, plus your villagers. The small line under each number is what the next dawn will bring.":"Oro, comida, madera y piedra, más tus aldeanos. La línea pequeña bajo cada número es lo que traerá el próximo amanecer.",
+"The valley":"El valle","Tap a tile to send your hero to build there. Steer him with the joystick in the corner, drag to look around and pinch to zoom.":"Toca una casilla para que tu héroe construya allí. Guíalo con el joystick de la esquina, arrastra para mirar alrededor y pellizca para acercar.",
+"Tap a tile to send your hero to build there. Right-click to ride somewhere or steer with W A S D. Drag to look around and scroll to zoom.":"Toca una casilla para que tu héroe construya allí. Clic derecho para cabalgar a un sitio o guíalo con W A S D. Arrastra para mirar alrededor y usa la rueda para acercar.",
+"Quests":"Misiones","Your next goal and what it pays. The first few walk you through the basics.":"Tu próximo objetivo y lo que paga. Las primeras te enseñan lo básico.",
+"Build tools":"Herramientas de construcción","Farms feed your villagers, houses bring more of them, and every villager pays taxes. Palisades, traps and towers stop raiders.":"Las granjas alimentan a tus aldeanos, las casas traen más y cada aldeano paga impuestos. Empalizadas, trampas y torres frenan a los asaltantes.",
+"Hero abilities":"Habilidades del héroe","Charge cuts through raiders in a line. Rally pulls every soldier to your hero.":"Carga atraviesa a los asaltantes en línea. Arenga reúne a todos los soldados junto a tu héroe.",
+"When you are ready, start the night. Red dots on the ground show where raiders will walk. Hold the keep for {{n}} nights.":"Cuando estés listo, empieza la noche. Los puntos rojos marcan por dónde caminarán los asaltantes. Defiende el castillo durante {{n}} noches.",
+"Spend spare goods on permanent improvements to your economy, defenses, army and hero.":"Gasta los bienes sobrantes en mejoras permanentes de tu economía, defensas, ejército y héroe.",
+"Next":"Siguiente","High":"Alta","Low":"Baja","Start ruling":"A gobernar",
+// How to rule
+"help1":"<b>El objetivo</b> es defender el castillo durante 20 noches. Tu puntuación cuenta las noches resistidas, los asaltantes abatidos, los aldeanos y los edificios, y la dificultad Difícil la aumenta. Tras la noche 20 puedes seguir reinando en modo infinito. Las misiones enseñan lo básico y pagan en bienes.",
+"help2":"<b>El reino.</b> A partir del día 3 tus exploradores encuentran Cala Salobre en la costa. Abre el mapa del reino (<kbd>M</kbd>, o el botón del mapa sobre el valle) para viajar allí. Tu héroe solo puede estar en una región a la vez. Cada amanecer anuncia qué región atacará el asalto de esa noche, así que cabalga allí a tiempo; una región sin tu héroe se defiende sola. Si cae el fuerte de la cala, los asaltantes saquean un tercio de tu oro y tu comida. Si cae el castillo del valle, cae el reino.",
+"help3":"<b>Puerto y comercio.</b> Construye un puerto (<kbd>N</kbd>) en la orilla de la cala. Pesca comida y amarra un barco. Toca el puerto para enviar barcos a puertos extranjeros: las Islas de Sal compran piedra, Qasr Ámbar compra comida y devuelve especias que animan a la gente, Ironhold compra madera y devuelve hierro para las armas de tus soldados, y Catay Lejano convierte oro en más oro. Los viajes largos pagan más pero arriesgan más, sobre todo en invierno. Los piratas asaltan la cala desde el mar.",
+"help4":"<b>Las estaciones</b> cambian cada 5 días. Las lluvias de primavera añaden 1 de comida por granja, el calor del verano resta 1, la cosecha suma 2 y anima los mercados, y el invierno resta 2 mientras cada casa quema 1 de madera al amanecer para calentarse. El tiempo se decide cada amanecer: la lluvia apaga los incendios, las tormentas de arena frenan a los asaltantes pero acortan la vista de tus torres y la nieve frena a todos.",
+"help5":"<b>Ánimo.</b> Los aldeanos están más contentos con pozos y santuarios cerca, graneros llenos y buena cosecha, y menos tras el hambre, las casas frías y los edificios perdidos. Los aldeanos contentos pagan impuestos extra; los descontentos pagan menos, dejan de llegar y por debajo de 20 empiezan a marcharse. Los pozos también protegen del fuego a los edificios cercanos.",
+"help6":"<b>Niveles del héroe.</b> Los asaltantes que abate tu héroe y cada noche superada dan experiencia. Cada nivel suma vida, cada dos niveles suma daño y cada uno te deja elegir una ventaja.",
+"help7":"<b>Habilidades del héroe.</b> <b>Carga</b> (<kbd>Q</kbd>) lanza a tu héroe hacia delante, derribando a todo asaltante a su paso. <b>Arenga</b> (<kbd>E</kbd>) hace sonar un cuerno: todos los soldados acuden a su lado y luchan con más fuerza durante 8 segundos.",
+"help8":"<b>Tu héroe</b> monta un caballo blanco. Elige una herramienta y toca casillas para darle órdenes: cabalga a cada sitio y construye allí, hasta 8 órdenes seguidas. Toca de nuevo una orden para cancelarla. Con <b>Cabalgar</b>, o en cualquier momento de noche, tocar el suelo lo envía allí. Lucha contra cualquier asaltante a su alcance y, si cae, vuelve al castillo unos segundos después.",
+"help9":"<b>Tu aldea</b> vive de oro, comida, madera y piedra. Los aldeanos viven en el castillo (sitio para 4) y en casas (3 cada una). Cada amanecer cada aldeano paga 1 de oro en impuestos y come 1 de comida, y cada soldado también come 1. Con comida de sobra y sitio en las casas llegan aldeanos nuevos. Si se acaba la comida, algunos se van.",
+"help10":"<b>Los productores necesitan un aldeano que los trabaje.</b> Las granjas dan 4 de comida, los aserraderos en un palmeral cortan 4 de madera, las minas sobre mineral sacan 3 de piedra y el mercado (día 3) gana 3 de oro y te deja comprar y vender. Los trabajadores ocupan primero las granjas, luego el puerto, las minas, los aserraderos y el mercado. Pausa un productor desde su panel para mover a su trabajador. Catapultas y cuarteles cuestan 1 de oro de mantenimiento cada amanecer y, si el tesoro no alcanza, no luchan esa noche.",
+"help11":"<b>Los precios del mercado</b> suben al comprar y bajan al vender, y vuelven poco a poco a lo normal cada amanecer. Caravanas, sequías, fiestas y emigrantes pueden aparecer al amanecer y cambiarlo todo.",
+"help12":"<b>Defensas.</b> Los puntos rojos marcan el camino que seguirá cada banda por el cañón. Las empalizadas son baratas y tozudas. Las trampas hieren y frenan a quien las cruza y se rearman cada amanecer. Las atalayas disparan al más cercano a tu castillo. Las catapultas (día 4) golpean a todos donde cae la piedra, pero no disparan de cerca. Los cuarteles (día 2) sacan soldados que defienden el terreno a su alrededor. Los corredores esquivan a los soldados. Lo construido hoy se reembolsa entero.",
+"help13":"<b>De noche</b> los asaltantes toman el camino más fácil y destrozan lo que se lo impida. Los corredores aparecen desde la noche 3, los brutos desde la 6 y un caudillo cada quinta noche. Los chamanes aparecen desde la noche 7 y curan a los asaltantes cercanos, así que atácalos primero. Algunas noches trae luna de sangre: la mitad más de asaltantes, pero cada baja paga el doble. Los arqueros aparecen desde la noche 4 y disparan de lejos a tu héroe, soldados y edificios. Los arietes llegan desde la noche 8, ignoran a los soldados y derriban edificios rápido. Vence a un caudillo y elegirás una bendición. Las mejoras del reino son permanentes y se compran con tus bienes en cualquier momento. El progreso se guarda tras cada construcción y cada amanecer.",
+"help14":"<b>La vista</b> sigue a tu héroe. Arrastra el tablero para mirar alrededor, usa la rueda o pellizca para acercar, toca el minimapa para saltar a cualquier punto y usa el botón de marco (<kbd>V</kbd>) para ver todo el valle.",
+"help15":"<b>Moverse y construir.</b> Tu héroe rodea edificios y acantilados solo. Clic derecho en cualquier sitio para enviarlo allí. Con la empalizada o la trampa, arrastra por el suelo para trazar una línea entera de órdenes. Clic derecho sobre una orden para cancelarla.",
+"help16":"Teclas: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> mueven al héroe, las flechas mueven la vista, <kbd>H</kbd> vuelve al héroe, <kbd>+</kbd> <kbd>−</kbd> zoom, <kbd>1</kbd>–<kbd>0</kbd>, <kbd>Z</kbd>, <kbd>C</kbd>, <kbd>B</kbd>, <kbd>N</kbd> herramientas, <kbd>X</kbd> quitar, <kbd>M</kbd> mapa del reino, <kbd>R</kbd> cabalgar, <kbd>Espacio</kbd> tocar la campana, <kbd>U</kbd> mejorar, <kbd>P</kbd> pausa, <kbd>F</kbd> velocidad, <kbd>Esc</kbd> deseleccionar. Se recuerdan la velocidad, el zoom, el sonido, la calidad gráfica y el idioma.",
+"help17":"<b>En un teléfono o tableta</b>, guía a tu héroe con el joystick de la esquina inferior izquierda del valle. Tocar casillas sigue sirviendo para construir y seleccionar.",
+"help18":"Botón de <b>sonido</b>: tócalo una vez para los efectos, dos para añadir música y una tercera para silencio. <button class=\"linkbtn\" id=\"tourBtn\" type=\"button\">Hacer la visita guiada</button>",
+"help19":"<b>Los daños</b> se ven: los edificios echan humo al ser dañados y arden si están muy dañados. Toca uno y usa <b>Reparar</b> de día, o espera al amanecer para que se arreglen poco a poco. Los edificios destruidos dejan escombros que desaparecen en dos días."
+};
+
+let lang='en';
+if(window.i18next) i18next.init({lng:'en',fallbackLng:'en',keySeparator:false,nsSeparator:false,initImmediate:false,returnEmptyString:false,interpolation:{escapeValue:false},resources:{en:{translation:{}},es:{translation:ES}}});
+const T=(k,o)=>{ if(window.i18next&&i18next.isInitialized) return i18next.t(k,o||{}); let r=lang==='es'&&ES[k]?ES[k]:(o&&o.defaultValue)||k; return o?r.replace(/\{\{(\w+)\}\}/g,(m,x)=>o[x]??m):r; };
+const ESW={building:'edificio',day:'día',ship:'barco',villager:'aldeano'};
+const TP=(n,w)=>lang==='es'&&ESW[w]?`${n} ${ESW[w]}${n===1?'':'s'}`:plural(n,w);
+const TR=r=>T(r);
+function costStr(c){ return RES.filter(r=>c[r]).map(r=>lang==='es'?`${c[r]} de ${T(r)}`:`${c[r]} ${r}`).join(', '); }
 function costShort(c){ const p=RES.filter(r=>c[r]).map(r=>`<span class="c${r[0]}">${c[r]}${r[0]}</span>`); return p.length?p.join(' '):'free'; }
 function canPay(c){ return RES.every(r=>S.res[r]>=(c[r]||0)); }
 function spend(c){ RES.forEach(r=>S.res[r]-=(c[r]||0)); }
 function addC(a,b){ const o={...a}; RES.forEach(r=>{ if(b&&b[r]) o[r]=(o[r]||0)+b[r]; }); return o; }
-const count=t=>S.grid.filter(g=>g.b&&g.b.type===t).length;
+const count=t=>allGrids().reduce((a,g)=>a+g.filter(x=>x.b&&x.b.type===t).length,0);
 const housing=()=>4+(3+S.mods.housing)*count('house');
 const WIN_NIGHTS=20;
 const SEASONS=[
@@ -355,12 +503,13 @@ const UPGS=[
   {id:'granary',branch:'Economy',name:'Granary',desc:'Every house holds 1 more villager.',cost:{wood:10,stone:4},day:3,apply:()=>{S.mods.housing++}},
   {id:'collectors',branch:'Economy',name:'Tax collectors',desc:'An extra gold for every 3 villagers each dawn.',cost:{gold:16},req:'granary',apply:()=>{S.mods.taxes++}},
   {id:'fletching',branch:'Defense',name:'Fletching',desc:'Watchtowers and the keep deal +1 damage.',cost:{gold:12,wood:6},apply:()=>{S.mods.dmg++}},
-  {id:'masonry',branch:'Defense',name:'Masonry',desc:'Palisades and walls gain +5 health, including ones already built.',cost:{gold:6,stone:6},apply:()=>{S.mods.wall++;each(b=>{if(b.type==='wall'){b.max+=5;b.hp+=5}})}},
+  {id:'masonry',branch:'Defense',name:'Masonry',desc:'Palisades and walls gain +5 health, including ones already built.',cost:{gold:6,stone:6},apply:()=>{S.mods.wall++;eachAll(b=>{if(b.type==='wall'){b.max+=5;b.hp+=5}})}},
   {id:'spikes',branch:'Defense',name:'Barbed spikes',desc:'Traps deal +1 damage and hold 3 more charges.',cost:{wood:6,stone:3},apply:()=>{S.mods.trap++}},
   {id:'counterweights',branch:'Defense',name:'Counterweights',desc:'Catapults fire a third faster.',cost:{gold:12,stone:8},day:4,req:'fletching',apply:()=>{S.mods.cataRate=.67}},
   {id:'drill',branch:'Army',name:'Drill yard',desc:'Soldiers deal +1 damage and have +2 health.',cost:{gold:14,wood:6},day:2,apply:()=>{S.mods.drill++;S.units.forEach(u=>{u.max=unitMax();u.hp=u.max})}},
   {id:'muster',branch:'Army',name:'Muster roll',desc:'Every barracks and archery range fields one more soldier.',cost:{gold:18,stone:6},req:'drill',apply:()=>{S.mods.muster++;S.grid.forEach((t,i)=>{ if(t.b&&(t.b.type==='barr'||t.b.type==='range')) spawnUnits(i); })}},
   {id:'warhorse',branch:'Hero',name:'Warhorse',desc:'Your hero gains +6 health and +2 damage.',cost:{gold:16},apply:()=>{S.mods.hero++;S.hero.max=heroMax();S.hero.hp=S.hero.max}},
+  {id:'ships',branch:'Economy',name:'Shipwrights',desc:'Every harbor berths a second ship.',cost:{wood:12,stone:6},day:3,apply:()=>{S.mods.ships=1; if(S.kind==='coast') rebuildFleet();}},
   {id:'horn',branch:'Hero',name:'Great horn',desc:'Rally recharges twice as fast and Charge hits 2 harder.',cost:{gold:14,stone:4},req:'warhorse',apply:()=>{S.mods.horn=1}}
 ];
 const hasUpg=id=>S.upg.includes(id);
@@ -383,6 +532,9 @@ const QUESTS=[
   {text:'Build a lumber camp in a palm grove',goal:()=>[count('lumber'),1],reward:{gold:4}},
   {text:'Grow your village to 7 villagers',goal:()=>[S.pop,7],reward:{food:6}},
   {text:'Open a mine on ore',goal:()=>[count('mine'),1],reward:{gold:5}},
+  {text:'Open the realm map and ride to Saltreach Cove',goal:()=>[S.visitedCoast?1:0,1],reward:{wood:6}},
+  {text:'Build a harbor on the cove\u2019s shore',goal:()=>[count('harbor'),1],reward:{gold:8}},
+  {text:'Send a ship on a trade voyage',goal:()=>[S.voyagesSent||0,1],reward:{stone:4}},
   {text:'Buy a kingdom upgrade',goal:()=>[S.upg.length,1],reward:{stone:4}},
   {text:'Raise a barracks',goal:()=>[count('barr'),1],reward:{wood:6}},
   {text:'Use Charge or Rally in battle',goal:()=>[S.abilUsed||0,1],reward:{gold:5}},
@@ -398,7 +550,8 @@ const QUESTS=[
   {text:'Raise your hero to level 3',goal:()=>[S.hl,3],reward:{gold:12}},
   {text:'Build an archery range',goal:()=>[count('range'),1],reward:{wood:8}},
   {text:'Build a shrine',goal:()=>[count('shrine'),1],reward:{gold:10,food:8}},
-  {text:'Reach a mood of 75',goal:()=>[S.mood,75],reward:{gold:20}}
+  {text:'Reach a mood of 75',goal:()=>[S.mood,75],reward:{gold:20}},
+  {text:'Bring iron home from Ironhold',goal:()=>[S.iron||0,1],reward:{gold:15}}
 ];
 const CONF_COL=['#F0BE4E','#D99A60','#E8604F','#8FCB7E','#F2EADD'];
 function party(kind){
@@ -421,7 +574,7 @@ function checkQuests(){
   }
 }
 function score(){
-  let b=0; each(x=>{ if(x.type!=='keep') b++; });
+  let b=0; eachAll(x=>{ if(x.type!=='keep') b++; });
   return Math.round(((S.day-1)*100+S.kills*5+S.pop*25+b*10+S.upg.length*20)*DIFF[S.diff].mult);
 }
 let bestScore=0; try{ bestScore=+localStorage.getItem('smallcrown-bestscore')||0 }catch(e){}
@@ -433,7 +586,7 @@ const BOONS=[
   {name:'Long sight',desc:'Watchtowers and catapults reach 0.4 tiles further.',apply:()=>{S.mods.range+=.4}},
   {name:'Good harvest',desc:'Farms grow +1 food each dawn.',apply:()=>{S.mods.harvest++}},
   {name:'Woodsmen',desc:'Lumber camps cut +2 wood each dawn.',apply:()=>{S.mods.wood+=2}},
-  {name:'Masons',desc:'Palisades gain +5 health, including ones already built.',apply:()=>{S.mods.wall++;each(b=>{if(b.type==='wall'){b.max+=5;b.hp+=5}})}},
+  {name:'Masons',desc:'Palisades gain +5 health, including ones already built.',apply:()=>{S.mods.wall++;eachAll(b=>{if(b.type==='wall'){b.max+=5;b.hp+=5}})}},
   {name:'Sharp stakes',desc:'Traps deal +1 damage and hold 3 more charges.',apply:()=>{S.mods.trap++}},
   {name:'Bounty',desc:'Every raider felled pays +1 extra gold.',apply:()=>{S.mods.tax++}},
   {name:'Royal treasury',desc:'+20 gold, +10 wood and +6 stone right now.',apply:()=>{S.res.gold+=20;S.res.wood+=10;S.res.stone+=6}},
@@ -453,27 +606,113 @@ const idx=(x,y)=>y*N+x;
 const inb=(x,y)=>x>=0&&y>=0&&x<N&&y<N;
 const G=(x,y)=>S.grid[idx(x,y)];
 function each(fn){ S.grid.forEach((t,i)=>{ if(t.b) fn(t.b,i%N,(i/N)|0,t); }); }
-const plural=(n,w)=>n===1?`1 ${w}`:`${n} ${w}s`;
+// ---------- regions: the region on screen lives in S.grid and friends; the others wait in S.R ----------
+const REGIONS={home:{name:'The Valley',fort:'Keep',desc:'Your canyon home. If its keep falls, the kingdom falls.'},
+  coast:{name:'Saltreach Cove',fort:'Fort',desc:'A sheltered cove to the south where ships can land. If its fort falls, raiders plunder your stores.'}};
+const RK=['grid','spawns','seed','units','keep','keepMax','kind','shore'];
+function stash(){ const r=S.R[S.cur]||(S.R[S.cur]={}); RK.forEach(k=>r[k]=S[k]); }
+function unstash(id){ const r=S.R[id]; RK.forEach(k=>S[k]=r[k]); if(!S.units) S.units=[]; if(!S.spawns) S.spawns=[]; S.cur=id; }
+function allGrids(){ const out=[S.grid]; for(const id in S.R) if(id!==S.cur&&S.R[id].grid) out.push(S.R[id].grid); return out; }
+function eachAll(fn){ for(const g of allGrids()){ const here=g===S.grid; g.forEach((t,i)=>{ if(t.b) fn(t.b,i%N,(i/N)|0,t,here); }); } }
+function withRegion(id,fn){ if(id===S.cur) return fn(); const prev=S.cur; stash(); unstash(id); try{ return fn(); } finally{ stash(); unstash(prev); } }
+const heroHere=()=>!S.heroAt||S.heroAt===S.cur;
+const regionName=id=>REGIONS[id]?REGIONS[id].name:id;
+const mkNoise=()=>window.SimplexNoise?new SimplexNoise(Math.random):null;
+function shoreAt(fx){ const sh=S.shore; if(!sh) return 99; const x=Math.max(0,Math.min(N-1,fx)), i=Math.floor(x), f=x-i; return sh[i]*(1-f)+sh[Math.min(N-1,i+1)]*f; }
+function isSea(x,y){ if(S.kind!=='coast') return false; if(inb(x,y)) return !!G(x,y).water; return y>shoreAt(x); }
+function waterDir(x,y){ for(const [a,c] of [[0,1],[1,0],[-1,0],[0,-1]]) if(isSea(x+a,y+c)) return [a,c]; return [0,1]; }
+function genCoast(){
+  const prev=S.cur; stash();
+  Object.assign(S,{cur:'coast',kind:'coast',seed:Math.random()*1000,grid:[],units:[],spawns:[],keep:8,keepMax:8});
+  const nz=mkNoise();
+  S.shore=[]; for(let x=0;x<N;x++) S.shore.push(Math.max(8,Math.min(11,Math.round(9.4+(nz?nz.noise2D(x*.2,4.7)*1.7:Math.sin(x*.7)*1.3)))));
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){
+    const a=Math.atan2(y-C,x-C), r=Math.hypot(x-C,y-C), sea=y>S.shore[x];
+    const edge=6+(nz?nz.noise2D(Math.cos(a)*1.4+9,Math.sin(a)*1.4)*1.1:0);
+    S.grid.push({land:!sea&&(r<=edge||y>=C+1)&&x>=1&&x<=N-2,ore:false,b:null,water:sea});
+  }
+  const seen=new Set([idx(C,C)]), q=[[C,C]];
+  while(q.length){ const [x,y]=q.pop(); for(const [a,b] of NB){ const nx=x+a,ny=y+b; if(inb(nx,ny)&&G(nx,ny).land&&!seen.has(idx(nx,ny))){seen.add(idx(nx,ny));q.push([nx,ny])} } }
+  S.grid.forEach((t,i)=>{ if(t.land&&!seen.has(i)) t.land=false; });
+  const cand=[]; for(let y=0;y<N;y++)for(let x=0;x<N;x++){ const r=Math.hypot(x-C,y-C); if(G(x,y).land&&r>=2.4&&r<=5&&!NB.some(([a,c])=>isSea(x+a,y+c))) cand.push([x,y]); }
+  for(let i=0;i<2&&cand.length;i++){ const [x,y]=cand.splice((Math.random()*cand.length)|0,1)[0]; G(x,y).ore=true; }
+  G(C,C).b={type:'keep',cd:0};
+  addGroves();
+  stash(); unstash(prev);
+}
+function enterRegion(id,heroToo){
+  if(!S.R[id]) return;
+  if(id!==S.cur){ stash(); unstash(id); }
+  if(heroToo){ S.heroAt=id; const h=S.hero; h.queue=[]; h.dash=null; h.dead=false; h.x=C; h.y=C+1.2; h.tx=h.x; h.ty=h.y; h.tstop=0; h.pathKey=null; if(id==='coast') S.visitedCoast=true; }
+  sel=null; hover=null; walkers.length=0;
+  S.grid.forEach((t,i)=>{ if(t.b&&(t.b.type==='barr'||t.b.type==='range')) spawnUnits(i); });
+  field(); buildWorld(); camFree=null; S.ver++; ui();
+}
+function travelTo(id){
+  if(S.phase!=='day'||S.over||S.modal){ say('Nobody travels by night.'); return; }
+  if(!S.R[id]) return;
+  closeRealm();
+  if(S.cur===id&&S.heroAt===id) return;
+  enterRegion(id,true); sfx('ride'); save();
+  say(`<b>Your hero rides to ${regionName(id)}.</b> ${S.raid===id?'Tonight’s raid strikes here.':`Tonight’s raid strikes ${regionName(S.raid)}.`}`);
+}
+// ---------- maritime trade ----------
+const PORTS=[
+  {id:'salt',name:'The Salt Isles',days:1,good:'stone',amt:8,pay:2.3,desc:'Close by. Buys stone for its sea walls.'},
+  {id:'amber',name:'Qasr Amber',days:2,good:'food',amt:10,pay:2.4,bonus:'spice',desc:'A spice port. Pays well for food and sends back spices that lift your villagers’ mood.'},
+  {id:'iron',name:'Ironhold',days:3,good:'wood',amt:10,pay:2.6,bonus:'iron',desc:'A mining town short of timber. Sends back iron for your soldiers’ weapons.'},
+  {id:'cathay',name:'Far Cathay',days:4,good:'gold',amt:20,pay:2.3,desc:'Far and risky. Silks bought with gold sell for much more at home.'}];
+const shipsTotal=()=>count('harbor')*(1+(S.mods.ships||0));
+const shipsFree=()=>Math.max(0,shipsTotal()-S.voyages.length);
+const portEst=p=>Math.round(p.amt*p.pay*(S.portPrice[p.id]||1));
+const portRisk=p=>Math.min(.45,.05+p.days*.025+(season().name==='Winter'?.08:0)+(S.weather==='rain'?.03:0));
+function sendVoyage(id){
+  const p=PORTS.find(x=>x.id===id); if(!p||S.over) return;
+  if(!shipsFree()){ say('Every ship is already at sea. Build another harbor or wait for one to come home.'); sfx('no'); return; }
+  if(S.res[p.good]<p.amt){ say(`A voyage to ${p.name} needs ${p.amt} ${p.good}. You have ${S.res[p.good]}.`); sfx('no'); return; }
+  S.res[p.good]-=p.amt; S.voyages.push({port:p.id,back:S.day+p.days,risk:portRisk(p)}); S.voyagesSent=(S.voyagesSent||0)+1;
+  departShip(); sfx('splash');
+  say(`<b>A ship sails for ${p.name}</b> with ${p.amt} ${p.good}. Expect it home at dawn on day ${S.day+p.days}, carrying about ${portEst(p)} gold.`); save(); ui();
+}
+function resolveVoyages(notes){
+  const due=S.voyages.filter(v=>v.back<=S.day); S.voyages=S.voyages.filter(v=>v.back>S.day); let home=0;
+  for(const v of due){ const p=PORTS.find(x=>x.id===v.port); if(!p) continue;
+    if(Math.random()<v.risk){ notes.push(`<b>Lost at sea:</b> the ship bound for ${p.name} never came back`); continue; }
+    home++; const g=Math.round(portEst(p)*(.85+Math.random()*.3)); S.res.gold+=g; let extra='';
+    if(p.bonus==='spice'){ S.mood=Math.min(100,S.mood+8); extra=', and spices lift the mood by 8'; }
+    if(p.bonus==='iron'){ if((S.iron||0)<3){ S.iron=(S.iron||0)+1; extra=`, and iron arms your soldiers (+${S.iron} damage)`; } else { S.res.gold+=6; extra=', and spare iron sells for 6 more gold'; } }
+    S.portPrice[p.id]=Math.max(.6,(S.portPrice[p.id]||1)*.85);
+    notes.push(`<b>Ship home from ${p.name}:</b> +${g} gold${extra}`); }
+  for(const p of PORTS) S.portPrice[p.id]=Math.min(1.25,(S.portPrice[p.id]||1)+.05);
+  return home;
+}
+function plunder(){
+  const g=Math.floor(S.res.gold*.3), f=Math.floor(S.res.food*.3);
+  S.res.gold-=g; S.res.food-=f; S.queue=[]; for(const e of S.enemies) e.gone=true;
+  S.keep=1; shake=.4; sfx('hurt');
+  say(`<b>The fort at ${regionName(S.cur)} has fallen.</b> Raiders plunder ${g} gold and ${f} food and sail away.`); ui();
+}
+var plural=(n,w)=>n===1?`1 ${w}`:`${n} ${w}s`;
 function joinList(a){ return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' and '+a[a.length-1]; }
 
 // =============== GAME RULES ===============
 function blank(){
   return {res:{gold:10,food:10,wood:14,stone:2},pop:3,idle:0,price:{...BASEP},day:1,phase:'day',keep:10,keepMax:10,grid:[],enemies:[],shots:[],puffs:[],floats:[],spawns:[],queue:[],
     spawnT:0,kills:0,nightKills:0,dist:[],tool:'farm',over:false,t:0,modal:false,ver:0,
-    mods:{dmg:0,range:0,harvest:0,wall:0,trap:0,tax:0,hero:0,drill:0,wood:0,stone:0,housing:0,taxes:0,cataRate:1,muster:0,horn:0},hero:null,units:[],
-    upg:[],quest:0,diff:'normal',won:false,abilUsed:0,mood:60,weather:'clear',blood:false,hx:0,hl:1,perks:[],perkPending:0,lostTonight:0,hungry:false,cold:false};
+    mods:{dmg:0,range:0,harvest:0,wall:0,trap:0,tax:0,hero:0,drill:0,wood:0,stone:0,housing:0,taxes:0,cataRate:1,muster:0,horn:0,ships:0},hero:null,units:[],
+    upg:[],quest:0,diff:'normal',won:false,abilUsed:0,cur:'home',heroAt:'home',raid:'home',R:{},coastUnlocked:false,kind:'canyon',shore:null,voyages:[],iron:0,portPrice:{},voyagesSent:0,visitedCoast:false,mood:60,weather:'clear',blood:false,hx:0,hl:1,perks:[],perkPending:0,lostTonight:0,hungry:false,cold:false};
 }
 function newGame(){
-  showOver('Found a new kingdom','Choose how hard the raids will be. Hold the keep through 20 nights to win.',
-    Object.entries(DIFF).map(([k,d])=>({label:d.label,sub:d.sub,primary:k==='normal',fn:()=>{ startGame(k); maybeTour(); }})));
+  showOver(T('Found a new kingdom'),T('Choose how hard the raids will be. Hold the keep through 20 nights to win.'),
+    Object.entries(DIFF).map(([k,d])=>({label:T(d.label),sub:T(d.sub),primary:k==='normal',fn:()=>{ saveOn=true; startGame(k); maybeTour(); }})));
 }
 function startGame(diff){
   S=blank(); S.diff=diff||'normal'; S.weather=rollWeather();
   RES.forEach(r=>S.res[r]=Math.round(S.res[r]*DIFF[S.diff].res));
-  const off=Math.random()*6.28;
+  const off=Math.random()*6.28, nz=mkNoise();
   for(let y=0;y<N;y++)for(let x=0;x<N;x++){
     const dx=x-C,dy=y-C,a=Math.atan2(dy,dx),r=Math.hypot(dx,dy);
-    const edge=(4.55+0.55*Math.sin(a*3+off)+0.35*Math.sin(a*5-off*2)+0.3*Math.sin(a*7+off*3))*1.36;
+    const edge=nz?6.1+nz.noise2D(Math.cos(a)*1.3,Math.sin(a)*1.3)*1.15+nz.noise2D(Math.cos(a)*3+5,Math.sin(a)*3)*.35:(4.55+0.55*Math.sin(a*3+off)+0.35*Math.sin(a*5-off*2)+0.3*Math.sin(a*7+off*3))*1.36;
     S.grid.push({land:r<=edge,ore:false,b:null});
   }
   const seen=new Set([idx(C,C)]), q=[[C,C]];
@@ -484,6 +723,7 @@ function startGame(diff){
   G(C,C).b={type:'keep',cd:0};
   addGroves();
   S.seed=Math.random()*1000; S.hero=mkHero();
+  Object.assign(S,{kind:'canyon',shore:null,cur:'home',heroAt:'home',raid:'home'}); stash();
   sel=null; pickSpawns(); field(); planWave(); hideOver(); buildWorld(); save(); ui(); forecast(true);
 }
 function edgeTiles(){
@@ -496,7 +736,8 @@ function edgeTiles(){
 }
 function pickSpawns(){
   const k=Math.min(4,1+Math.floor((S.day-1)/3));
-  const edge=edgeTiles(), base=Math.random()*6.28, picks=[];
+  let edge=edgeTiles(); if(S.kind==='coast'){ const sh=edge.filter(([x,y])=>NB.some(([a,c])=>isSea(x+a,y+c))); if(sh.length) edge=sh; }
+  const base=Math.random()*6.28, picks=[];
   for(let i=0;i<k;i++){
     const ang=base+i*(6.28/k)+(Math.random()-.5)*.6;
     let bt=null,bd=9;
@@ -530,8 +771,9 @@ function dirName(x,y){
 function waveText(){
   const c={}; S.queue.forEach(t=>c[t]=(c[t]||0)+1);
   const parts=[]; if(c.raider)parts.push(plural(c.raider,'raider')); if(c.runner)parts.push(plural(c.runner,'runner')); if(c.archer)parts.push(plural(c.archer,'archer')); if(c.brute)parts.push(plural(c.brute,'brute')); if(c.ram)parts.push(plural(c.ram,'battering ram')); if(c.shaman)parts.push(plural(c.shaman,'shaman')); if(c.warlord)parts.push('a warlord');
-  const dirs=[...new Set(S.spawns.map(([x,y])=>dirName(x,y)))];
-  return `${joinList(parts)} coming through the ${joinList(dirs)} pass${dirs.length>1?'es':''}`;
+  const sp=S.raid===S.cur?S.spawns:((S.R[S.raid]||{}).spawns||[]), dirs=[...new Set(sp.map(([x,y])=>dirName(x,y)))];
+  if(S.raid==='coast') return `${joinList(parts)} landing on the ${joinList(dirs)} shore of ${regionName('coast')}`;
+  return `${joinList(parts)} coming through the ${joinList(dirs)} pass${dirs.length>1?'es':''}${S.coastUnlocked?' into The Valley':''}`;
 }
 function forecast(first){
   say(`<b>Day ${S.day}.</b> Scouts report ${waveText()}.${first?' Tap tiles to send your hero out to build. Farms feed your villagers, houses bring more of them, and every villager pays taxes. Then ring the bell.':''}`);
@@ -563,8 +805,8 @@ function addGroves(){
   for(let i=0;i<4&&c.length;i++){ const [x,y]=c.splice((Math.random()*c.length)|0,1)[0]; G(x,y).grove=true; }
 }
 function assignWorkers(){
-  let free=S.pop; const order={farm:0,mine:1,lumber:2,market:3}, prods=[];
-  each(b=>{ if(DEF[b.type].work) prods.push(b); else b.worked=false; });
+  let free=S.pop; const order={farm:0,harbor:1,mine:2,lumber:3,market:4}, prods=[];
+  eachAll(b=>{ if(DEF[b.type].work) prods.push(b); else b.worked=false; });
   prods.sort((a,b)=>order[a.type]-order[b.type]||(a.day||0)-(b.day||0));
   for(const b of prods){ b.worked=!b.off&&free>0; if(b.worked) free--; }
   S.idle=free;
@@ -573,16 +815,17 @@ function assignWorkers(){
 function econ(){
   assignWorkers();
   const L={gold:[],food:[],wood:[],stone:[]};
-  let farms=0,lum=0,mines=0,mk=0,cata=0,barr=0,ranges=0,soldiers=0,houses=0,idleP=0;
-  each(b=>{
+  let farms=0,lum=0,mines=0,mk=0,cata=0,barr=0,ranges=0,soldiers=0,houses=0,idleP=0,hb=0;
+  eachAll(b=>{
     if(DEF[b.type].work&&!b.worked&&!b.off) idleP++;
-    if(b.worked){ if(b.type==='farm')farms++; if(b.type==='lumber')lum++; if(b.type==='mine')mines++; if(b.type==='market')mk++; }
+    if(b.worked){ if(b.type==='harbor')hb++; if(b.type==='farm')farms++; if(b.type==='lumber')lum++; if(b.type==='mine')mines++; if(b.type==='market')mk++; }
     if(b.type==='cata')cata++; if(b.type==='barr'){barr++;soldiers+=b.lvl+1+S.mods.muster;} if(b.type==='range'){ranges++;soldiers+=b.lvl+1+S.mods.muster;} if(b.type==='house')houses++;
   });
   const sea=season(), fo=farmOut(), wo=4+S.mods.wood, fnote=[sea.farm?`${sea.name} ${sea.farm>0?'+':'−'}${Math.abs(sea.farm)}`:'',S.weather==='rain'?'rain +1':''].filter(Boolean).join(', ');
   if(farms) L.food.push([`${plural(farms,'farm')} × ${fo}${fnote?` (${fnote})`:''}`,farms*fo]);
   if(S.pop) L.food.push([`${plural(S.pop,'villager')} eat`,-S.pop]);
   if(soldiers) L.food.push([`${plural(soldiers,'soldier')} eat`,-soldiers]);
+  if(hb) L.food.push([`${plural(hb,'harbor')} fishing`,hb*3]);
   if(lum) L.wood.push([`${plural(lum,'lumber camp')} × ${wo}`,lum*wo]);
   const so=3+S.mods.stone;
   if(mines) L.stone.push([`${plural(mines,'mine')} × ${so}`,mines*so]);
@@ -645,7 +888,7 @@ function stepWalkers(dt){
     if(w.stuck||d<=stop+.04){ if(!w.stuck&&kind!=='home') w.dir=Math.atan2(gy-w.y,gx-w.x); w.carry=(kind==='home'||w.stuck)?null:kind; w.goal=null; w.wait=1.2+Math.random()*2.4; }
   }
 }
-const heroMax=()=>12+S.mods.hero*6+((S&&S.hl)||1)*2-2, heroDmg=()=>2+S.mods.hero*2+Math.floor((((S&&S.hl)||1)-1)/2), unitMax=()=>4+S.mods.drill*2, unitDmg=()=>1+S.mods.drill;
+const heroMax=()=>12+S.mods.hero*6+((S&&S.hl)||1)*2-2, heroDmg=()=>2+S.mods.hero*2+Math.floor((((S&&S.hl)||1)-1)/2), unitMax=()=>4+S.mods.drill*2, unitDmg=()=>1+S.mods.drill+((S&&S.iron)||0);
 function mkHero(){ return {x:C,y:C+1,tx:C,ty:C+1,hp:12+((S&&S.mods.hero)||0)*6,max:12+((S&&S.mods.hero)||0)*6,dead:false,respawn:0,atk:0,dir:-Math.PI/2,queue:[],moving:false,age:0,hit:0,swing:0}; }
 function spawnUnits(i){
   const b=S.grid[i].b; if(!b||(b.type!=='barr'&&b.type!=='range')||b.unpaid) return;
@@ -738,6 +981,7 @@ function rideTo(x,y){
 const CHARGE_CD=10, RALLY_CD=24;
 function useCharge(){
   const h=S.hero; if(!h||h.dead||S.over||S.modal||(h.cdC||0)>0) return;
+  if(!heroHere()){ say(`Your hero is in ${regionName(S.heroAt)}.`); return; }
   let tx=Math.cos(h.dir), ty=Math.sin(h.dir), best=3.2;
   for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-h.x,e.y-h.y); if(d<best){ best=d; tx=(e.x-h.x)/d; ty=(e.y-h.y)/d; } }
   h.dash={t:hasPerk('lance')?.5:.38,dx:tx,dy:ty,hit:new Set()}; h.dir=Math.atan2(ty,tx); h.cdC=CHARGE_CD*(hasPerk('lance')?.6:1); if(!(h.queue.length&&S.phase==='day')){ h.tx=h.x; h.ty=h.y; }
@@ -745,6 +989,7 @@ function useCharge(){
 }
 function useRally(){
   const h=S.hero; if(!h||h.dead||S.over||S.modal||(h.cdR||0)>0) return;
+  if(!heroHere()){ say(`Your hero is in ${regionName(S.heroAt)}.`); return; }
   h.cdR=RALLY_CD*(S.mods.horn?.5:1); h.rallyFx=1;
   for(const u of S.units){ u.rally=hasPerk('inspire')?12:8; if(hasPerk('inspire')) u.hp=u.max; u.target=null; u.pathKey=null; }
   S.abilUsed=(S.abilUsed||0)+(S.phase==='night'?1:0); sfx('horn');
@@ -753,6 +998,7 @@ function useRally(){
 function stepHero(dt){
   const h=S.hero; h.age+=dt; h.hit=Math.max(0,h.hit-dt); h.swing=Math.max(0,h.swing-dt);
   h.cdC=Math.max(0,(h.cdC||0)-dt); h.cdR=Math.max(0,(h.cdR||0)-dt); if(h.rallyFx) h.rallyFx=Math.max(0,h.rallyFx-dt*1.4);
+  if(!heroHere()){ h.moving=false; return; }
   if(h.dash&&!h.dead){
     const v=7*dt; tryStep(h,h.dash.dx*v,h.dash.dy*v); h.moving=true; h.dash.t-=dt;
     if(!reduce) dust(h.x,h.y,.9);
@@ -798,7 +1044,7 @@ function stepUnits(dt){
     u.age+=dt; u.hit=Math.max(0,u.hit-dt); u.swing=Math.max(0,u.swing-dt);
     if(u.hp<=0) continue;
     if(u.rally>0) u.rally-=dt;
-    const rl=u.rally>0&&!S.hero.dead, hx=rl?S.hero.x:u.home%N, hy=rl?S.hero.y:(u.home/N)|0, sp=rl?2.6:1.9;
+    const rl=u.rally>0&&!S.hero.dead&&heroHere(), hx=rl?S.hero.x:u.home%N, hy=rl?S.hero.y:(u.home/N)|0, sp=rl?2.6:1.9;
     if(u.ranged){
       let t=null,bd=2.7-wxRange(); for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-u.x,e.y-u.y); if(d<bd){bd=d;t=e} }
       u.atk-=dt; u.aiming=!!t;
@@ -841,10 +1087,12 @@ function enemyStats(type){
 }
 function startNight(){
   if(S.phase!=='day'||S.over||S.modal) return;
-  S.phase='night'; S.spawnT=.5; S.nightKills=0; S.keepAtDusk=S.keep; S.lostTonight=0;
+  closeRealm();
+  if(S.raid!==S.cur) enterRegion(S.raid,false);
+  S.phase='night'; S.spawnT=S.kind==='coast'?3:.5; S.nightKills=0; S.keepAtDusk=S.keep; S.lostTonight=0;
   if(S.hero.queue.length){ S.hero.queue=[]; }
-  sfx('bell');
-  say(`<b>Night ${S.day}.</b> ${waveText().replace(/^./,c=>c.toUpperCase())}.`);
+  sfx('bell'); if(S.kind==='coast') launchPirates();
+  say(`<b>Night ${S.day}.</b> ${waveText().replace(/^./,c=>c.toUpperCase())}.${heroHere()?'':` Your hero is in ${regionName(S.heroAt)}, so ${regionName(S.cur)} stands on its own tonight.`}`);
   ui();
 }
 function spawnNext(){
@@ -853,13 +1101,14 @@ function spawnNext(){
   const st=enemyStats(type);
   const horiz=Math.abs(x-C)>=Math.abs(y-C);
   const ox=x+(horiz?Math.sign(x-C)*.9:0), oy=y+(horiz?0:Math.sign(y-C)*.9);   // walk in from the rocks
-  S.enemies.push({type,x:ox,y:oy,cx:x,cy:y,tx:x,ty:y,moving:true,atk:.6,dir:Math.atan2(C-y,C-x),age:0,slow:0,hit:0,swing:0,lane:(Math.random()-.5)*.38,max:st.hp,...st});
+  S.enemies.push({pirate:S.kind==='coast',type,x:ox,y:oy,cx:x,cy:y,tx:x,ty:y,moving:true,atk:.6,dir:Math.atan2(C-y,C-x),age:0,slow:0,hit:0,swing:0,lane:(Math.random()-.5)*.38,max:st.hp,...st});
 }
 function dawn(){
+  if(S.heroAt&&S.cur!==S.heroAt) enterRegion(S.heroAt,false);
   const E=econ();
-  each((b,x,y)=>{
+  eachAll((b,x,y,t,here)=>{
     if(b.type==='keep') return;
-    if(b.worked){
+    if(b.worked&&here){
       if(b.type==='farm') floatText(x,y,`+${farmOut()} food`,RCOL.food);
       if(b.type==='lumber') floatText(x,y,`+${4+S.mods.wood} wood`,RCOL.wood);
       if(b.type==='mine') floatText(x,y,`+${3+S.mods.stone} stone`,RCOL.stone);
@@ -880,9 +1129,9 @@ function dawn(){
   S.pop=Math.max(0,S.pop+E.popD);
   if(E.popD<0) notes.push(`<b>Famine:</b> ${plural(-E.popD,'villager')} left for lack of food`);
   else if(E.popD>0) notes.push(`${E.popD===1?'A new villager':E.popD+' new villagers'} moved in`);
-  each(b=>{b.unpaid=false});
+  eachAll(b=>{b.unpaid=false});
   if(S.res.gold<0){ let short=-S.res.gold; S.res.gold=0;
-    each(b=>{ if(short>0&&DEF[b.type].upkeep){ b.unpaid=true; short--; } });
+    eachAll(b=>{ if(short>0&&DEF[b.type].upkeep){ b.unpaid=true; short--; } });
     notes.push('<b>Upkeep unpaid:</b> some catapults or barracks sit out tonight'); }
   for(const r of ['food','wood','stone']){ S.price[r]+=(BASEP[r]-S.price[r])*.3; S.price[r]*=.92+Math.random()*.16; }
   const ev=rollEvent(); if(ev) notes.push(ev);
@@ -893,6 +1142,7 @@ function dawn(){
   if(S.hero.dead){S.hero.dead=false;S.hero.x=C;S.hero.y=C+1;S.hero.tx=C;S.hero.ty=C+1}
   S.hero.hp=S.hero.max=heroMax();
   S.keep=Math.min(S.keepMax,S.keep+1);
+  for(const id in S.R) if(id!==S.cur&&S.R[id].keep!=null) S.R[id].keep=Math.min(S.R[id].keepMax,S.R[id].keep+1);
   const lost=S.keepAtDusk-S.keep+1, felled=S.nightKills, wasBoss=S.day%5===0;
   S.day++; S.phase='day'; S.shots=[]; ageRubble();
   if(S.day-1>best){best=S.day-1;try{localStorage.setItem(BEST,best)}catch(e){}}
@@ -901,7 +1151,13 @@ function dawn(){
   if(season()!==seaBefore) notes.push(`<b>${season().name} begins</b>`);
   if(S.weather!=='clear') notes.push(`<b>${WX[S.weather].name}:</b> ${WX[S.weather].desc}`);
   if(S.blood) notes.push('<b>Blood moon tonight:</b> half again as many raiders, and every kill pays double');
-  pickSpawns(); field(); planWave(); sfx('dawn');
+  if(!S.coastUnlocked&&S.day>=3){ S.coastUnlocked=true; genCoast(); notes.push(`<b>Scouts found ${regionName('coast')}</b> to the south. Open the realm map to ride there and build a harbor`); }
+  const shipsHome=resolveVoyages(notes);
+  S.raid=S.coastUnlocked&&S.day>=5&&S.day%5!==0&&Math.random()<.4?'coast':'home';
+  for(const id in S.R) if(id!==S.raid){ if(id===S.cur) S.spawns=[]; else S.R[id].spawns=[]; }
+  withRegion(S.raid,()=>pickSpawns()); field(); planWave(); sfx('dawn');
+  if(S.coastUnlocked) notes.push(`<b>Tonight’s raid will strike ${regionName(S.raid)}</b>${S.heroAt!==S.raid?`, and your hero is in ${regionName(S.heroAt)}`:''}`);
+  if(S.kind==='coast') rebuildFleet(shipsHome);
   const justWon=!S.won&&S.day-1>=WIN_NIGHTS; if(justWon) S.won=true;
   const gains=RES.filter(r=>E.net[r]).map(r=>`${E.net[r]>0?'+':''}${E.net[r]} ${r}`).join(', ');
   say(`<b>Dawn, day ${S.day}.</b> Felled ${plural(felled,'raider')}${lost>0?`, keep took ${lost} damage`:''}. ${gains?`Ledger: ${gains}. `:''}${notes.length?notes.join('. ')+'. ':''}Tonight: ${waveText()}.`);
@@ -919,7 +1175,7 @@ function lose(){
   S.over=true; S.phase='over'; sel=null;
   const held=S.day-1;
   if(held>best){best=held;try{localStorage.setItem(BEST,best)}catch(e){}}
-  try{localStorage.removeItem(KEY)}catch(e){}
+  dropSlot(slot);
   const sc=recordScore();
   showOver('The keep has fallen',`It fell on night ${S.day}. You held ${plural(held,'night')} and felled ${plural(S.kills,'raider')}. Score ${sc.toLocaleString()}${sc>=bestScore&&sc>0?', your best yet':''}.`,
     [{label:'Found a new kingdom',sub:'A fresh valley',primary:true,fn:newGame}]);
@@ -973,6 +1229,7 @@ function place(x,y){
 const MAXQ=12;
 function queueOrder(x,y,quiet){
   const h=S.hero;
+  if(!heroHere()){ if(!quiet){ say(`Your hero is in ${regionName(S.heroAt)}. Open the realm map to ride here, then give build orders.`); sfx('no'); } return false; }
   if(h.queue.some(q=>q.x===x&&q.y===y)) return false;
   const err=buildError(S.tool,x,y,true);
   if(err){ if(!quiet){ say(cap1(err)); sfx('no'); } return false; }
@@ -987,6 +1244,8 @@ function buildError(tool,x,y,planning){
   if(isSpawn(x,y)) return 'raiders enter there tonight. Build further in.';
   if(d.need==='ore'&&!t.ore) return 'mines need ore. Look for the blue-grey stones.';
   if(d.need==='grove'&&!t.grove) return 'lumber camps go in a palm grove.';
+  if(d.need==='shore'&&S.kind!=='coast') return 'there is no sea here. Build harbors at Saltreach Cove.';
+  if(d.need==='shore'&&!NB.some(([a,c])=>isSea(x+a,y+c))) return 'harbors go on the shore, right next to the water.';
   if(t.grove&&d.need!=='grove') return 'that palm grove is for a lumber camp.';
   if(t.ore&&d.need!=='ore') return 'that ore is for a mine.';
   if(d.unlock&&S.day<d.unlock) return `the ${d.name.toLowerCase()} unlocks on day ${d.unlock}.`;
@@ -1011,6 +1270,7 @@ function doBuild(tool,x,y){
   else if(tool==='market') say('Market built. Tap it to trade goods for gold.');
   else if(tool==='well') say('Well built. Villagers are happier, and fire keeps away from the buildings around it.');
   else if(tool==='shrine') say('Shrine built. Your villagers\u2019 mood rises.');
+  else if(tool==='harbor'){ say('Harbor built. It fishes for food and berths a ship. Tap it to send trade voyages.'); rebuildFleet(); }
   else if(tool==='range') say('Archery range built. Its archers shoot raiders from range. Upkeep: 1 gold a dawn.');
 }
 function clearAt(x,y){
@@ -1061,7 +1321,7 @@ function step(dt){
     }
     S.shots=S.shots.filter(s=>!s.done);
     S.enemies=S.enemies.filter(e=>!e.gone);
-    if(S.keep<=0) return lose();
+    if(S.keep<=0){ if(S.cur==='home') return lose(); plunder(); }
     if(!S.queue.length&&!S.enemies.length) dawn();
   }
   for(const p of S.puffs){p.x+=p.vx*dt;p.y+=p.vy*dt;p.vx*=.93;p.vy*=.93;p.h+=p.vh*dt;p.vh-=7*dt;if(p.h<.03){p.h=.03;p.vh=0}p.life-=dt}
@@ -1095,7 +1355,7 @@ function damageBuilding(x,y,d){
 }
 function archerTarget(e){
   const R=e.range; let best=null,bd=R;
-  const h=S.hero; if(!h.dead){ const d=Math.hypot(h.x-e.x,h.y-e.y); if(d<bd){bd=d;best={kind:'ally',o:h,x:h.x,y:h.y};} }
+  const h=S.hero; if(!h.dead&&heroHere()){ const d=Math.hypot(h.x-e.x,h.y-e.y); if(d<bd){bd=d;best={kind:'ally',o:h,x:h.x,y:h.y};} }
   for(const u of S.units){ if(u.hp<=0) continue; const d=Math.hypot(u.x-e.x,u.y-e.y); if(d<bd){bd=d;best={kind:'ally',o:u,x:u.x,y:u.y};} }
   if(best) return best;
   for(let y=Math.max(0,Math.floor(e.y-R));y<=Math.min(N-1,Math.ceil(e.y+R));y++)for(let x=Math.max(0,Math.floor(e.x-R));x<=Math.min(N-1,Math.ceil(e.x+R));x++){
@@ -1108,7 +1368,7 @@ function moveEnemy(e,dt){
   if(foe&&(foe.hp<=0||foe.dead||Math.hypot(foe.x-e.x,foe.y-e.y)>.8)) foe=e.foe=null;
   if(!foe&&e.age>.3&&e.type!=='ram'){
     if(e.type!=='runner') for(const u of S.units) if(u.hp>0&&Math.hypot(u.x-e.x,u.y-e.y)<.5){ foe=u; break; }
-    if(!foe&&!S.hero.dead&&Math.hypot(S.hero.x-e.x,S.hero.y-e.y)<.5) foe=S.hero;
+    if(!foe&&!S.hero.dead&&heroHere()&&Math.hypot(S.hero.x-e.x,S.hero.y-e.y)<.5) foe=S.hero;
     e.foe=foe;
   }
   if(foe){ e.dir=Math.atan2(foe.y-e.y,foe.x-e.x); e.atk-=dt; e.swing=Math.max(0,1-e.atk);
@@ -1213,6 +1473,7 @@ const V3=THREE.Vector3, flameMat=new THREE.MeshBasicMaterial({color:0xFFB347});
 function loadAssets(){
   if(!THREE.GLTFLoader){ $('cLoad').hidden=true; return; }
   const L=new THREE.GLTFLoader(), TL=new THREE.TextureLoader();
+  TL.load('models/waternormals.png',t=>{ t.wrapS=t.wrapT=THREE.RepeatWrapping; waterTex=t; if(S&&S.kind==='coast') buildWorld(); });
   const canyonTex=new Promise(res=>TL.load('models/canyon_palette.png',t=>res(t),undefined,()=>res(null)));
   const b64=t=>{ const bin=atob(t), u=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return u.buffer; };
   const bundle=fetch('models/models.json').then(r=>{ if(!r.ok) throw new Error('missing'); return r.json(); }).catch(()=>({}));
@@ -1257,6 +1518,7 @@ function assetModel(b,x,y){
   const g=new THREE.Group(); let o;
   switch(b.type){
   case 'keep':
+    if(S.kind==='coast'){ put(g,'castle_curtain_gate_01',0,0,0); towerStack(g,-.4,-.5,1); towerStack(g,4.4,-.5,1); put(g,'castle_banner_01',2,5.6,.55); o=fitTo(g,1.15); o.userData.flame=add(o,BX(.08,.1,.08),0,0,.28,.38,0,0,0,flameMat); return o; }
     put(g,'castle_curtain_gate_01',0,0,0); put(g,'castle_curtain_01',-2,0,0); put(g,'castle_curtain_01',4,0,0); towerStack(g,-2.2,-.5,2); towerStack(g,6.2,-.5,2); put(g,'castle_banner_01',2,6.4,.55);
     o=fitTo(g,1.45); o.userData.flame=add(o,BX(.08,.1,.08),0,0,.3,.42,0,0,0,flameMat); return o;
   case 'tower':
@@ -1312,7 +1574,7 @@ function decorateWorld(){
     else{ put(g,'nature_pine_01',-.18,0,-.16,+k,.11); put(g,'nature_oak_01',.2,0,.12,(+k)*2,.12); put(g,'nature_oak_sapling_01',-.22,0,.28,1,.32); } }
   // canyon cliffs line every edge where rock meets the valley floor
   const isL=(x,y)=>inb(x,y)&&G(x,y).land, P={nature_cliff_01:[],nature_cliff_02:[],nature_cliff_03:[]};
-  for(let y=-1;y<=N;y++)for(let x=-1;x<=N;x++){ if(isL(x,y)) continue;
+  for(let y=-1;y<=N;y++)for(let x=-1;x<=N;x++){ if(isL(x,y)||isSea(x,y)) continue;
     for(const [dx,dz] of NB){ if(!isL(x+dx,y+dz)) continue;
       const h=dz>0?.66:dz<0?.26:.5, v=dz<0?'nature_cliff_03':(hash(x,y,dx+3*dz)<.5?'nature_cliff_01':'nature_cliff_02');
       P[v].push([W2(x)+dx*.5,W2(y)+dz*.5,Math.atan2(dx,dz),h]); } }
@@ -1342,6 +1604,7 @@ function decorateWorld(){
     for(let k=0;k<n;k++){
       const h1=hash(x+k*7,y,seed+k), px=(hash(x,y+k,seed)-.5)*.72, pz=(hash(x+k*3,y,seed*2)-.5)*.72, ry=h1*6.28;
       if(edge&&h1>.94) qput(g,QDEAD[Math.floor(h1*300)%3],px,pz,.6,ry);
+      else if(edge&&h1<.42&&NB.some(([a,c])=>isSea(x+a,y+c))) qput(g,h1<.2?'PalmTree_'+(1+Math.floor(h1*20)%4):QROCK[Math.floor(h1*17)%5],px,pz,h1<.2?.7:.1,ry);
       else if(edge&&h1<.42) qput(g,QCACTUS[Math.floor(h1*11)%5],px,pz,.28+h1*.4,ry);
       else if(h1<.5) qput(g,QFLOWER[Math.floor(h1*10)%5],px,pz,.12+h1*.1,ry,false);
       else if(h1<.7) qput(g,QROCK[Math.floor(h1*17)%5],px,pz,.07+h1*.07,ry);
@@ -1351,7 +1614,7 @@ function decorateWorld(){
     world.add(g); plantMeshes.push([idx(x,y),g]);
   }
 }
-let gridLines=null, ghost=null, ghostKey='';
+let gridLines=null, ghost=null, ghostKey='', waterMesh=null, waterTex=null;
 let world=null, groveMeshes={}, oreMeshes={}, plantMeshes=[], bMeshes={}, spawnKey='';
 const spawnGroup=new THREE.Group(); scene.add(spawnGroup);
 const eMeshes=new Map(), sMeshes=new Map();
@@ -1362,12 +1625,20 @@ function buildWorld(){
   world=new THREE.Group(); scene.add(world);
   const seed=S.seed||1;
   const gg=new THREE.PlaneGeometry(60,60,150,150); gg.rotateX(-Math.PI/2);
-  const gp=gg.attributes.position, gc=[], base=new THREE.Color(COL.sand);
+  const gp=gg.attributes.position, gc=[], base=new THREE.Color(COL.sand), coast=S.kind==='coast', wetC=new THREE.Color(0xA8784C), bedC=new THREE.Color(0x2F6A72), tc=new THREE.Color();
   for(let i=0;i<gp.count;i++){ const x=gp.getX(i),z=gp.getZ(i);
     const v=1+.035*Math.sin(x*2.3+z*1.1+Math.sin(z*.7)*2)+.02*(hash(Math.round(x*3),Math.round(z*3),seed)-.5);
+    if(coast){ const d=(z+C)-(shoreAt(x+C)+.5);
+      if(d>-.4){ gp.setY(i,-Math.min(.9,Math.max(0,d+.1)*.75)); tc.copy(base).lerp(wetC,Math.min(1,(d+.4)/.45)).lerp(bedC,Math.max(0,Math.min(1,(d-.05)/.9))); gc.push(tc.r*v,tc.g*v,tc.b*v); continue; } }
     gc.push(base.r*v,base.g*v,base.b*v); }
   gg.setAttribute('color',new THREE.Float32BufferAttribute(gc,3));
+  if(coast) gg.computeVertexNormals();
   const ground=new THREE.Mesh(gg,new THREE.MeshLambertMaterial({vertexColors:true})); ground.receiveShadow=true; ground.userData.own=true; world.add(ground);
+  waterMesh=null;
+  if(coast){ const wg=new THREE.PlaneGeometry(60,60); let wm;
+    if(THREE.Water&&waterTex&&quality==='high'){ try{ wm=new THREE.Water(wg,{textureWidth:512,textureHeight:512,waterNormals:waterTex,sunDirection:new THREE.Vector3(.5,.8,.3).normalize(),sunColor:0xFFF1DA,waterColor:0x1E6A78,distortionScale:2.4,fog:false,alpha:.9}); wm.material.transparent=true; }catch(e){ wm=null; } }
+    if(!wm) wm=new THREE.Mesh(wg,new THREE.MeshLambertMaterial({color:0x2C7486,transparent:true,opacity:.86}));
+    wm.rotation.x=-Math.PI/2; wm.position.y=-.07; wm.userData.own=true; world.add(wm); waterMesh=wm; }
   { const gp2=[]; for(let y=0;y<N;y++)for(let x=0;x<N;x++){ if(!G(x,y).land) continue; const a=W2(x)-.5,b=W2(y)-.5;
       gp2.push(a,.012,b, a+1,.012,b, a,.012,b, a,.012,b+1);
       if(!(inb(x+1,y)&&G(x+1,y).land)) gp2.push(a+1,.012,b, a+1,.012,b+1);
@@ -1397,6 +1668,7 @@ function buildWorld(){
   let s=seed;
   for(let y=-7;y<N+4;y++)for(let x=-6;x<N+6;x++){
     if(inb(x,y)&&G(x,y).land) continue;
+    if(coast&&y>shoreAt(x)-.6) continue;
     if(ASSET.ready&&NB.some(([a,c])=>inb(x+a,y+c)&&G(x+a,y+c).land)) continue;   // the cliff models line this edge instead
     const d=nearLand(x,y); if(d>9) continue;
     s+=1.37;
@@ -1440,6 +1712,7 @@ function buildWorld(){
   if(ghost){ scene.remove(ghost); ghost=null; ghostKey=''; }
   spawnKey=''; routesVer=-1;
   decorateWorld();
+  rebuildFleet();
 }
 
 // --- building models ---
@@ -1556,6 +1829,18 @@ function modelFor(b,x,y){
     add(g,BX(.03,.6,.03),COL.wood,.3,.3,.18); g.userData.flag=add(g,BX(.18,.12,.02),b.lvl>=2?COL.gold:0x3A6A5A,.39,.54,.18);
     if(ASSET.ready){ put(g,'weapons_rack_01',-.18,0,.22,0,.28); put(g,'weapons_quiver_01',.12,0,.22,0,.3); put(g,'props_crate_01',.28,0,-.05,.4,.35); }
     else add(g,BX(.3,.18,.05),COL.wood,-.18,.09,.22);
+    break;}
+  case 'harbor':{
+    const d=waterDir(x,y), dock=new THREE.Group(); dock.rotation.y=Math.atan2(-d[1],d[0]); g.add(dock);
+    add(dock,BX(1.55,.05,.42),COL.woodLight,.6,.07,0);
+    for(let i=0;i<4;i++) for(const sd of [-.18,.18]) add(dock,CY(.03,.03,.6,6),COL.wood,.15+i*.4,-.2,sd);
+    for(let i=0;i<8;i++) add(dock,BX(.02,.056,.43),COL.wood,-.12+i*.2,.075,0);
+    add(dock,BX(.36,.28,.44),COL.plank,-.24,.14,0);
+    const prism=geo('prism',()=>{ const p=new THREE.CylinderGeometry(.34,.34,.86,3,1); p.rotateZ(Math.PI/2); p.rotateX(-Math.PI/2); p.scale(1,.62,1); return p; });
+    add(dock,prism,COL.roof,-.24,.38,0).scale.set(.52,.6,.6);
+    add(dock,BX(.04,.7,.04),COL.wood,.5,.42,.17); add(dock,BX(.42,.035,.035),COL.wood,.68,.76,.17,0,0,-.18); add(dock,BX(.01,.24,.01),COL.dark,.86,.6,.17);
+    if(ASSET.ready){ put(dock,'props_crate_01',.2,.09,-.12,.3,.33); put(dock,'props_barrel_01',.32,.09,.12,0,.3); put(dock,'props_sack_01',-.02,.09,.14,0,.3); }
+    else add(dock,BX(.14,.14,.14),COL.woodLight,.2,.16,-.12);
     break;}
   case 'barr':{
     add(g,BX(.8,.3,.52),COL.plank,0,.15,0);
@@ -1699,6 +1984,7 @@ function enemyModel(e){
   else if(e.type==='shaman'){ g=person({body:0x2E4A3A,legs:0x2E4A3A,hat:'hood',hatCol:0xD8CCB0,belt:0x7CFF9A});
     const st=new THREE.Group(); st.position.set(.02,-.17,0); g.userData.arms[1].add(st); add(st,BX(.022,.42,.022),COL.wood,0,.1,0);
     const orb=new THREE.Mesh(DO(.045),new THREE.MeshBasicMaterial({color:0x7CFF9A})); orb.position.y=.33; orb.userData.noFlash=true; st.add(orb); }
+  else if(e.pirate) g=person({body:0x2A3348,legs:0x3A2A20,hat:'band',hatCol:0xC0392B,belt:0x1A1A1A});
   else g=person({body:COL.foe,legs:0x4A2A20,hat:'hood',hatCol:0x5A1A22});
   const [armL,armR]=g.userData.arms;
   if(e.type==='shaman'){}
@@ -1781,7 +2067,7 @@ function flashMat(group,on){ group.traverse(c=>{ if(!c.isMesh||c===group.userDat
 function syncHero(t,raw){
   const h=S.hero; if(!h) return;
   if(!heroMesh) heroMesh=heroModel();
-  heroMesh.visible=!h.dead;
+  heroMesh.visible=!h.dead&&heroHere();
   heroMesh.position.set(W2(h.x),0,W2(h.y)); turnTo(heroMesh,-h.dir,9);
   const gal=h.moving&&!reduce, ph=h.age*16;
   heroMesh.userData.legs.forEach((l,i)=>{ l.rotation.z=gal?Math.sin(ph+(i<2?0:Math.PI)+(i%2)*.6)*.7:0; });
@@ -1826,7 +2112,7 @@ for(let i=0;i<18;i++){ const m=new THREE.Mesh(geo('glowP',()=>new THREE.PlaneGeo
 let scorchI=0;
 function scorch(x,y){ const s=SCORCH[scorchI++%SCORCH.length]; s.life=25; s.m.position.set(W2(x),.014,W2(y)); s.m.rotation.z=Math.random()*6; const k=.7+Math.random()*.4; s.m.scale.set(k,k,1); s.m.visible=true; }
 function emit(pool,x,y,h,life,sz,col){ const p=pool.find(q=>q.life<=0); if(!p) return; p.life=p.max=life; p.x=W2(x); p.z=W2(y); p.h=h; p.sz=sz; p.vx=(Math.random()-.5)*.12+.08; p.sp.visible=true; if(col!==undefined) p.sp.material.color.setHex(col); }
-const TOPH={well:.4,shrine:.6,range:.4,keep:1.25,tower:1.1,cata:.45,barr:.55,house:.65,wall:.45,mine:.4,market:.5,lumber:.45};
+const TOPH={harbor:.45,well:.4,shrine:.6,range:.4,keep:1.25,tower:1.1,cata:.45,barr:.55,house:.65,wall:.45,mine:.4,market:.5,lumber:.45};
 function buildingFrac(b){ return b.type==='keep'?S.keep/S.keepMax:b.hp/Math.max(1,b.max); }
 function nearWell(x,y){ for(let j=Math.max(0,y-2);j<=Math.min(N-1,y+2);j++)for(let i=Math.max(0,x-2);i<=Math.min(N-1,x+2);i++){ const b=G(i,j).b; if(b&&b.type==='well'&&Math.hypot(i-x,j-y)<=1.6) return true; } return false; }
 function stepBurn(raw,t){
@@ -1859,6 +2145,66 @@ function addRubble(x,y,type){
 }
 function removeRubble(i){ const r=rubble.get(i); if(r){ scene.remove(r.g); rubble.delete(i); } }
 function ageRubble(){ for(const [k,r] of [...rubble]) if(S.day-r.day>=2) removeRubble(k); }
+const fleet={mgr:null,list:[],gulls:[]};
+function ykReady(){ if(!window.YUKA) return false; if(!fleet.mgr) fleet.mgr=new YUKA.EntityManager(); return true; }
+function boatModel(pirate){
+  const g=new THREE.Group(), b=new THREE.Group(); g.add(b); const hc=pirate?0x2A2226:COL.wood;
+  add(b,BX(.9,.16,.32),hc,0,.04,0); add(b,CN(.16,.3,4),hc,.55,.04,0,0,Math.PI/4,-Math.PI/2).scale.set(1,1,.82);
+  add(b,BX(.82,.03,.28),COL.woodLight,0,.13,0); add(b,BX(.03,.78,.03),COL.wood,0,.5,0);
+  add(b,BX(.02,.42,.5),pirate?0x2A2026:0xEDE3CE,.02,.55,0);
+  add(b,BX(.021,.08,.5),pirate?0xEDE3CE:COL.roof,.02,pirate?.6:.66,0,0,0,0).scale.set(1,1,pirate?.24:1);
+  add(b,BX(.03,.03,.14),pirate?0x9A2030:COL.gold,0,.91,.07);
+  g.userData.body=b; scene.add(g); return g;
+}
+function gullModel(){
+  const g=new THREE.Group(), wl=new THREE.Group(), wr=new THREE.Group(); g.add(wl); g.add(wr);
+  add(g,BX(.12,.03,.04),0xF2EEE6,0,0,0); add(wl,BX(.05,.01,.16),0xF2EEE6,0,0,.08); add(wr,BX(.05,.01,.16),0xF2EEE6,0,0,-.08);
+  g.userData.w=[wl,wr]; g.traverse(o=>{ if(o.isMesh) o.castShadow=false; }); scene.add(g); return g;
+}
+function addBoat(kind,from,to,opt={}){
+  if(!ykReady()) return null;
+  const v=new YUKA.Vehicle(); v.position.set(from.x,0,from.z); v.maxSpeed=opt.speed||1.2; v.maxForce=2.5; v.mass=1.5;
+  const ar=new YUKA.ArriveBehavior(new YUKA.Vector3(to.x,0,to.z),2,.05); v.steering.add(ar);
+  if(opt.face) v.rotation.fromEuler(0,opt.face,0);
+  const mesh=boatModel(kind==='pirate'); mesh.position.set(from.x,-.05,from.z); mesh.rotation.y=opt.yaw||0; mesh.userData.yaw=opt.yaw||0;
+  fleet.mgr.add(v); const f={v,mesh,kind,ar,leaving:false,seed:Math.random()*6}; fleet.list.push(f); return f;
+}
+function clearFleet(){ if(!fleet.mgr) return; for(const f of fleet.list){ scene.remove(f.mesh); fleet.mgr.remove(f.v); } fleet.list=[]; for(const gl of fleet.gulls){ scene.remove(gl.m); fleet.mgr.remove(gl.v); } fleet.gulls=[]; }
+function harborMoorings(){ const out=[]; S.grid.forEach((t,i)=>{ if(t.b&&t.b.type==='harbor'){ const x=i%N,y=(i/N)|0, d=waterDir(x,y); out.push({x:W2(x)+d[0]*1.5,z:W2(y)+d[1]*1.5,px:-d[1],pz:d[0],yaw:Math.atan2(-d[0],d[1])}); } }); return out; }
+function rebuildFleet(arriving=0){
+  if(!ykReady()) return; clearFleet(); if(S.kind!=='coast') return;
+  const ms=harborMoorings(), free=ms.length?Math.max(0,ms.length*(1+(S.mods.ships||0))-S.voyages.length):0;
+  for(let i=0;i<free;i++){ const m=ms[i%ms.length], o=Math.floor(i/ms.length)*.62, to={x:m.x+o*m.px,z:m.z+o*m.pz};
+    const from=i>=free-arriving?{x:to.x+(Math.random()-.5)*3,z:W2(Math.round(shoreAt(C))+6)}:to;
+    addBoat('trade',from,to,{speed:.9,yaw:m.yaw}); }
+  if(S.phase==='day'){ const cz=W2(shoreAt(C))+.5;
+    for(let i=0;i<8;i++){ const v=new YUKA.Vehicle(); v.position.set((Math.random()-.5)*5,0,cz+(Math.random()-.5)*3); v.velocity.set(Math.random()-.5,0,Math.random()-.5); v.maxSpeed=1.5; v.updateNeighborhood=true; v.neighborhoodRadius=2.2;
+      const al=new YUKA.AlignmentBehavior(), co=new YUKA.CohesionBehavior(), se=new YUKA.SeparationBehavior(), wa=new YUKA.WanderBehavior(), sk=new YUKA.SeekBehavior(new YUKA.Vector3(0,0,cz));
+      al.weight=.9; co.weight=.8; se.weight=1.5; wa.weight=.7; sk.weight=.22; [al,co,se,wa,sk].forEach(bh=>v.steering.add(bh));
+      fleet.mgr.add(v); fleet.gulls.push({v,m:gullModel(),ph:Math.random()*6}); } }
+}
+function departShip(){
+  if(S.kind!=='coast') return;
+  const f=fleet.list.find(x=>x.kind==='trade'&&!x.leaving); if(!f) return;
+  f.leaving=true; f.v.maxSpeed=1.5; f.ar.target.set(f.v.position.x+(Math.random()-.5)*2,0,W2(Math.round(shoreAt(C))+8));
+}
+function launchPirates(){
+  if(!ykReady()) return;
+  for(const [x,y] of S.spawns){ const to={x:W2(x),z:W2(y)+1.15}; addBoat('pirate',{x:to.x+(Math.random()-.5)*2,z:W2(Math.round(shoreAt(x))+6)},to,{speed:1.7,yaw:Math.PI/2}); }
+}
+function syncFleet(raw){
+  if(!fleet.mgr) return;
+  fleet.mgr.update(Math.min(.05,raw*speed));
+  for(let i=fleet.list.length-1;i>=0;i--){ const f=fleet.list[i], v=f.v, m=f.mesh;
+    m.position.x=v.position.x; m.position.z=v.position.z; m.position.y=-.05+Math.sin(clock*1.6+f.seed)*.02;
+    const sp=Math.hypot(v.velocity.x,v.velocity.z); if(sp>.06) turnTo(m,Math.atan2(-v.velocity.z,v.velocity.x),3);
+    m.userData.body.rotation.x=Math.sin(clock*1.3+f.seed)*.05;
+    if(f.leaving&&v.position.z>W2(Math.round(shoreAt(C))+6.5)){ scene.remove(m); fleet.mgr.remove(v); fleet.list.splice(i,1); } }
+  for(const gl of fleet.gulls){ const v=gl.v, m=gl.m; m.visible=nightA<.5;
+    m.position.set(v.position.x,1.9+Math.sin(clock*.8+gl.ph)*.25,v.position.z);
+    const sp=Math.hypot(v.velocity.x,v.velocity.z); if(sp>.05) m.rotation.y=Math.atan2(-v.velocity.z,v.velocity.x);
+    const fl=reduce?0:Math.sin(clock*9+gl.ph)*.5; m.userData.w[0].rotation.x=fl; m.userData.w[1].rotation.x=-fl; }
+}
 const puffPool=[]; for(let i=0;i<260;i++){ const m=new THREE.Mesh(BX(.07,.07,.07),M(COL.sand)); m.visible=false; scene.add(m); puffPool.push(m); }
 function syncPuffs(){
   for(let i=0;i<puffPool.length;i++){
@@ -1981,12 +2327,13 @@ function syncLight(t){
   scene.background.lerp(DUSKBG,dk*.5);
   sun.intensity=.86-.44*k; sun.color.copy(DAY.sun).lerp(NIGHT.sun,k).lerp(DUSK,dk);
   hemi.intensity=.62-.1*k; hemi.color.copy(DAY.sky).lerp(NIGHT.sky,k); hemi.groundColor.copy(DAY.gnd).lerp(NIGHT.gnd,k);
+  if(waterMesh&&waterMesh.material.uniforms){ const U=waterMesh.material.uniforms; U.sunColor.value.setHex(0xFFF1DA).lerp(new THREE.Color(0x5A6AA0),k); U.waterColor.value.setHex(0x1E6A78).lerp(new THREE.Color(0x0C2240),k); }
   sun.position.set(camTarget.x+10-k*16,16-k*4,camTarget.z+5); sun.target.position.set(camTarget.x,0,camTarget.z);
   const sr=curHH*Math.max(aspect,1)*1.2+3, sc=sun.shadow.camera;
   if(Math.abs(sc.right-sr)>.1){ sc.left=-sr; sc.right=sr; sc.top=sr; sc.bottom=-sr; sc.updateProjectionMatrix(); }
   const srcs=[]; each((b,x,y)=>{ if(b.type==='keep'||b.type==='tower'||b.type==='cata') srcs.push([b.type,x,y]); });
   srcs.sort((a,b)=>Math.hypot(a[1]-C,a[2]-C)-Math.hypot(b[1]-C,b[2]-C));
-  if(S.hero&&!S.hero.dead) srcs.splice(1,0,['hero',S.hero.x,S.hero.y]);
+  if(S.hero&&!S.hero.dead&&heroHere()) srcs.splice(1,0,['hero',S.hero.x,S.hero.y]);
   torches.forEach((l,i)=>{ const s=srcs[i]; if(!s||k<.02){ l.intensity=0; return; }
     if(s[0]==='hero'){ l.position.set(W2(s[1]),.9,W2(s[2])); l.intensity=k*1.3; l.distance=2.6; return; }
     l.position.set(W2(s[1])+(s[0]==='tower'?.29:0),s[0]==='tower'?1.2:.9,W2(s[2])+(s[0]==='tower'?.29:.4));
@@ -2003,7 +2350,7 @@ function updateCamera(raw){
   if(camFree&&camVel&&!drag){ camFree.x+=camVel.x*raw; camFree.y+=camVel.y*raw; const f=Math.exp(-raw*5); camVel.x*=f; camVel.y*=f; if(Math.hypot(camVel.x,camVel.y)<.05) camVel=null; }
   if(camFree){ const L=C+.5; camFree.x=Math.max(-L,Math.min(L,camFree.x)); camFree.y=Math.max(-L,Math.min(L,camFree.y)); }
   let tx=0,tz=.35;
-  if(viewNear){ if(camFree){ tx=camFree.x; tz=camFree.y; } else if(S.hero){ tx=W2(S.hero.x); tz=W2(S.hero.y)+.3; } }
+  if(viewNear){ if(camFree){ tx=camFree.x; tz=camFree.y; } else if(S.hero&&heroHere()){ tx=W2(S.hero.x); tz=W2(S.hero.y)+.3; } }
   const lim=C+.5; tx=Math.max(-lim,Math.min(lim,tx)); tz=Math.max(-lim,Math.min(lim,tz));
   const k=Math.min(1,raw*(reduce?30:camFree?12:3.5));
   camTarget.x+=(tx-camTarget.x)*k; camTarget.z+=(tz-camTarget.z)*k;
@@ -2023,6 +2370,7 @@ function drawMini(){
   const r=mc.getBoundingClientRect(); if(!r.width) return; const s=Math.round(r.width*dpr); if(mc.width!==s){ mc.width=mc.height=s; }
   mx.setTransform(1,0,0,1,0,0); mx.clearRect(0,0,s,s);
   const pad=s*.07, cs=(s-2*pad)/N, P=v=>pad+(v+.5)*cs;
+  if(S.kind==='coast'){ mx.fillStyle=mixHex('#3E7E92','#22386E',nightA); for(let y=0;y<N;y++)for(let x=0;x<N;x++) if(G(x,y).water) mx.fillRect(pad+x*cs,pad+y*cs,cs+.6,cs+.6); }
   mx.fillStyle=mixHex('#C98A55','#4D68B8',nightA);
   for(let y=0;y<N;y++)for(let x=0;x<N;x++) if(G(x,y).land) mx.fillRect(pad+x*cs,pad+y*cs,cs+.6,cs+.6);
   S.grid.forEach((t,i)=>{ const x=i%N,y=(i/N)|0;
@@ -2033,7 +2381,7 @@ function drawMini(){
   const dot=(x,y,r,c)=>{ mx.fillStyle=c; mx.beginPath(); mx.arc(P(x),P(y),r,0,6.29); mx.fill(); };
   for(const e of S.enemies) dot(e.x,e.y,Math.max(1.6*dpr,cs*(e.type==='warlord'?.3:.18)),'#FF4A3D');
   for(const u of S.units) dot(u.x,u.y,Math.max(1.4*dpr,cs*.15),'#5E8DFF');
-  if(S.hero&&!S.hero.dead){ dot(S.hero.x,S.hero.y,Math.max(2.4*dpr,cs*.26),'#1A1A24'); dot(S.hero.x,S.hero.y,Math.max(1.7*dpr,cs*.19),'#FFFFFF'); }
+  if(S.hero&&!S.hero.dead&&heroHere()){ dot(S.hero.x,S.hero.y,Math.max(2.4*dpr,cs*.26),'#1A1A24'); dot(S.hero.x,S.hero.y,Math.max(1.7*dpr,cs*.19),'#FFFFFF'); }
   if(viewNear){ const hw=curHH*aspect, hd=curHH/SIN58;
     mx.strokeStyle='rgba(255,255,255,.7)'; mx.lineWidth=Math.max(1,dpr);
     mx.strokeRect(P(camTarget.x-hw+C),P(camTarget.z-hd+C),hw*2*cs,hd*2*cs); }
@@ -2080,9 +2428,9 @@ function drawHud(){
     const h=b.type==='tower'?1.4+.18*b.lvl:.8; const [px,py]=scr(W2(x),h,W2(y)); bar(px-u*.4,py-6,u*.8,b.hp/b.max,b.hp/b.max<.35?CSS.foe:CSS.ink);
   });
   const h=S.hero;
-  if(h&&!h.dead&&(h.hp<h.max||S.phase==='night')){ const [px,py]=scr(W2(h.x),1.05,W2(h.y)); bar(px-u*.4,py-6,u*.8,h.hp/h.max,'#86B6FF'); }
+  if(h&&!h.dead&&heroHere()&&(h.hp<h.max||S.phase==='night')){ const [px,py]=scr(W2(h.x),1.05,W2(h.y)); bar(px-u*.4,py-6,u*.8,h.hp/h.max,'#86B6FF'); }
   for(const un of S.units){ if(un.hp>=un.max) continue; const [px,py]=scr(W2(un.x),.62,W2(un.y)); bar(px-u*.25,py-6,u*.5,un.hp/un.max,'#86B6FF'); }
-  if(h&&h.dead){ const [px,py]=scr(W2(C),1.9,W2(C)); hctx.font=`600 ${Math.round(Math.max(12,u*.36))}px Inter, system-ui, sans-serif`; hctx.textAlign='center'; hctx.lineWidth=4; hctx.strokeStyle=CSS.dark; const tx=`Hero back in ${Math.ceil(h.respawn)}s`; hctx.strokeText(tx,px,py); hctx.fillStyle='#86B6FF'; hctx.fillText(tx,px,py); }
+  if(h&&h.dead&&heroHere()){ const [px,py]=scr(W2(C),1.9,W2(C)); hctx.font=`600 ${Math.round(Math.max(12,u*.36))}px Inter, system-ui, sans-serif`; hctx.textAlign='center'; hctx.lineWidth=4; hctx.strokeStyle=CSS.dark; const tx=`Hero back in ${Math.ceil(h.respawn)}s`; hctx.strokeText(tx,px,py); hctx.fillStyle='#86B6FF'; hctx.fillText(tx,px,py); }
   if(S.phase==='day'&&h&&!h.dead&&h.queue.length){
     hctx.setLineDash([4,5]); hctx.strokeStyle='rgba(240,190,78,.85)'; hctx.lineWidth=2; hctx.beginPath();
     let [ox,oy]=scr(W2(h.x),.05,W2(h.y)); hctx.moveTo(ox,oy);
@@ -2125,15 +2473,15 @@ function initBloom(){
 function applyQuality(){
   const hi=quality==='high'; dprCap=hi?2:1;
   const ms=hi?(isSmall?1024:2048):1024; sun.shadow.mapSize.set(ms,ms); if(sun.shadow.map){ sun.shadow.map.dispose(); sun.shadow.map=null; }
-  resize(); $('qual').textContent=hi?'High':'Low'; $('qual').setAttribute('aria-label',`Graphics quality: ${hi?'high':'low'}`);
+  resize(); $('qual').textContent=T(hi?'High':'Low'); $('qual').setAttribute('aria-label',`Graphics quality: ${hi?'high':'low'}`);
 }
 let abilKey='';
 function syncAbil(){
   const h=S.hero; if(!h) return;
-  const c=h.cdC/CHARGE_CD, r=h.cdR/(RALLY_CD*(S.mods.horn?.5:1)), key=c.toFixed(2)+r.toFixed(2)+h.dead+S.over;
+  const c=h.cdC/CHARGE_CD, r=h.cdR/(RALLY_CD*(S.mods.horn?.5:1)), key=c.toFixed(2)+r.toFixed(2)+h.dead+S.over+heroHere();
   if(key===abilKey) return; abilKey=key;
   $('aCharge').style.setProperty('--cd',c); $('aRally').style.setProperty('--cd',r);
-  $('aCharge').disabled=h.dead||S.over||c>0; $('aRally').disabled=h.dead||S.over||r>0;
+  const away=!heroHere(); $('aCharge').disabled=away||h.dead||S.over||c>0; $('aRally').disabled=away||h.dead||S.over||r>0;
 }
 function render(raw,t){
   FR=raw;
@@ -2154,9 +2502,40 @@ function render(raw,t){
   const go=(Math.pow(nightA,1.6)*.72).toFixed(2); if(gradeEl.style.opacity!==go) gradeEl.style.opacity=go;
   const gc=S.blood&&S.phase!=='day'?'#9A2030':'#3756B8'; if(gradeEl.dataset.c!==gc){ gradeEl.dataset.c=gc; gradeEl.style.background=gc; }
   drawHud(); drawMini(); syncAbil(); syncMusicTempo();
+  if(!paused&&!S.modal) syncFleet(raw);
+  if(waterMesh&&waterMesh.material.uniforms&&!paused) waterMesh.material.uniforms.time.value+=raw*.45;
 }
 
 // =============== SOUND ===============
+// ZzFXMicro v1.3.0, Zuper Zmall Zound Zynth by Frank Force. MIT License. https://github.com/KilledByAPixel/ZzFX
+const zzfxV=.3;
+const zzfx=(p=1,k=.05,b=220,e=0,r=0,t=.1,q=0,D=1,u=0,y=0,v=0,z=0,l=0,E=0,A=0,F=0,c=0,w=1,m=0,B=0
+,N=0)=>{let M=Math,d=2*M.PI,R=44100,G=u*=500*d/R/R,C=b*=(1-k+2*k*M.random(k=[]))*d/R,
+g=0,H=0,a=0,n=1,I=0,J=0,f=0,h=N<0?-1:1,x=d*h*N*2/R,L=M.cos(x),Z=M.sin,K=Z(x)/4,O=1+K,
+X=-2*L/O,Y=(1-K)/O,P=(1+h*L)/2/O,Q=-(h+L)/O,S=P,T=0,U=0,V=0,W=0;e=R*e+9;m*=R;r*=R;t*=
+R;c*=R;y*=500*d/R**3;A*=d/R;v*=d/R;z*=R;l=R*l|0;p*=zzfxV;for(h=e+m+r+t+c|0;a<h;k[a++]
+=f*p)++J%(100*F|0)||(f=q?1<q?2<q?3<q?Z(g*g):M.max(M.min(M.tan(g),1),-1):1-(2*g/d%2+2)
+%2:1-4*M.abs(M.round(g/d)-g/d):Z(g),f=(l?1-B+B*Z(d*a/l):1)*(f<0?-1:1)*M.abs(f)**D*(a<
+e?a/e:a<e+m?1-(a-e)/m*(1-w):a<e+m+r?w:a<h-c?(h-a-c)/t*w:0),f=c?f/2+(c>a?0:(a<h-c?1:(h
+-a)/c)*k[a-c|0]/2/p):f,N?f=W=S*T+Q*(T=U)+P*(U=f)-Y*V-X*(V=W):0),x=(b+=u+=y)*M.cos(A*
+H++),g+=x+x*E*Z(a**5),n&&++n>z&&(b+=v,C+=v,n=0),!l||++I%l||(b=C,u=G,n=n||1);p=actx.
+createBuffer(1,h,R);p.getChannelData(0).set(k);b=actx.createBufferSource();
+b.buffer=p;b.connect(actx.destination);b.start()};
+const ZZ={
+  shot:[.35,.05,1500,0,.01,.04,2,1.6,-30],
+  kill:[.7,.05,520,.01,.03,.14,1,1.8,-9],
+  thud:[1.1,.05,110,0,.04,.22,0,1,-3,0,0,0,0,.7],
+  chip:[.35,.05,300,0,.01,.05,4,1,0,0,0,0,0,.3],
+  hurt:[1,.05,150,.01,.1,.32,3,2,-4,0,0,0,0,.8,0,.2],
+  build:[.6,.05,330,.01,.04,.1,1,1,4],
+  up:[.7,0,440,.01,.08,.16,1,1,0,0,220,.06],
+  no:[.45,0,200,0,.05,.08,4,1,-5],
+  splash:[.9,.1,170,.03,.15,.5,4,1,-2,0,0,0,0,2],
+  horn:[.7,0,196,.06,.3,.3,2,1,0,0,98,.2,0,0,0,0,0,.7],
+  charge:[.8,.05,180,.02,.1,.22,2,1,15],
+  slash:[.45,.05,900,0,.02,.06,3,1,-20,0,0,0,0,.4],
+  ride:[.35,.05,520,0,.02,.05,1,1,6],
+  order:[.35,0,600,0,.02,.04,1,1,8]};
 function tone(f,dur,type,vol,f2,delay=0){
   const t=actx.currentTime+delay, o=actx.createOscillator(), g=actx.createGain();
   o.type=type; o.frequency.setValueAtTime(f,t); if(f2) o.frequency.exponentialRampToValueAtTime(f2,t+dur);
@@ -2165,8 +2544,10 @@ function tone(f,dur,type,vol,f2,delay=0){
 }
 function sfx(k){
   if(!sound||!actx) return;
-  try{ switch(k){
-    case 'shot': { const n=performance.now(); if(n-lastShot<70) return; lastShot=n; tone(1400,.05,'triangle',.03,700); break; }
+  try{
+    if(k==='shot'){ const n=performance.now(); if(n-lastShot<70) return; lastShot=n; }
+    if(ZZ[k]){ zzfx(...ZZ[k]); return; }
+    switch(k){
     case 'kill': tone(520,.12,'triangle',.07,240); break;
     case 'thud': tone(140,.18,'sine',.12,60); break;
     case 'chip': tone(300,.05,'square',.02,200); break;
@@ -2174,6 +2555,7 @@ function sfx(k){
     case 'build': tone(330,.08,'triangle',.06,440); break;
     case 'up': tone(440,.1,'triangle',.06); tone(660,.14,'triangle',.06,null,.08); break;
     case 'no': tone(200,.12,'square',.03,150); break;
+    case 'splash': tone(220,.4,'sine',.06,90); break;
     case 'horn': tone(196,.5,'sawtooth',.05,220); tone(294,.6,'sawtooth',.04,294,.15); break;
     case 'charge': tone(180,.25,'sawtooth',.05,520); break;
     case 'slash': tone(900,.07,'sawtooth',.025,300); break;
@@ -2185,18 +2567,56 @@ function sfx(k){
 }
 
 // =============== SAVE ===============
+let slot=1, saveOn=false;
+const LF=window.localforage?localforage.createInstance({name:'smallcrown',storeName:'saves'}):null;
+const slotKey=n=>'slot-'+n, lsKey=n=>KEY+'-slot'+n;
+async function readSlot(n){
+  try{ if(LF){ const v=await LF.getItem(slotKey(n)); if(v) return JSON.parse(v); } }catch(e){}
+  try{ const v=localStorage.getItem(lsKey(n)); if(v) return JSON.parse(v); }catch(e){}
+  return null;
+}
+function writeSlot(n,json){
+  const ls=()=>{ try{ localStorage.setItem(lsKey(n),json); }catch(e){} };
+  if(LF) LF.setItem(slotKey(n),json).catch(ls); else ls();
+}
+function dropSlot(n){ if(LF) LF.removeItem(slotKey(n)).catch(()=>{}); try{ localStorage.removeItem(lsKey(n)); }catch(e){} }
+async function migrateSave(){
+  try{ const old=localStorage.getItem(KEY); if(!old) return;
+    if(!(await readSlot(1))){ if(LF) await LF.setItem(slotKey(1),old); else localStorage.setItem(lsKey(1),old); }
+    localStorage.removeItem(KEY); }catch(e){}
+}
+async function slotMenu(boot){
+  await migrateSave();
+  const info=[]; for(let n=1;n<=3;n++) info.push(await readSlot(n));
+  const opts=info.map((d,i)=>{ const n=i+1;
+    if(!d) return {label:T('Slot {{n}} · empty',{n}),sub:T('Found a new kingdom here'),fn:()=>{ slot=n; savePrefs(); newGame(); }};
+    return {label:T('Slot {{n}} · day {{d}} on {{x}}',{n,d:d.day,x:T((DIFF[d.diff]||DIFF.normal).label)}),primary:n===slot,
+      sub:T('{{g}} gold, {{f}} food, {{p}} villagers',{g:d.res?d.res.gold:0,f:d.res?d.res.food:0,p:d.pop||0})+(d.coastUnlocked?' · '+T('Saltreach Cove'):''),fn:()=>slotPick(n,d,boot)}; });
+  if(!boot) opts.push({label:T('Keep playing'),sub:T('Back to slot {{n}}',{n:slot}),fn:()=>{ hideOver(); ui(); }});
+  showOver(T('Choose a kingdom'),T('Three save slots, kept on this device. Each one is a separate kingdom.'),opts);
+}
+function slotPick(n,d,boot){
+  showOver(T('Slot {{n}}',{n}),T('Day {{d}} on {{x}}. {{g}} gold, {{f}} food and {{p}} villagers, keep at {{k}}/{{m}}.',{d:d.day,x:T((DIFF[d.diff]||DIFF.normal).label),g:d.res?d.res.gold:0,f:d.res?d.res.food:0,p:d.pop||0,k:(d.R&&d.R.home?d.R.home.keep:d.keep),m:(d.R&&d.R.home?d.R.home.keepMax:d.keepMax)}),[
+    {label:T('Continue'),sub:T('Pick up at day {{n}}',{n:d.day}),primary:true,fn:()=>{ slot=n; savePrefs(); if(load(d)){ saveOn=true; hideOver(); ui(); forecast(); } else newGame(); }},
+    {label:T('Found a new kingdom here'),sub:T('This saved kingdom will be lost'),fn:()=>{ slot=n; savePrefs(); newGame(); }},
+    {label:T('Back'),sub:'',fn:()=>slotMenu(boot)}]);
+}
+function encRegion(r){ return {grid:r.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...t.b,aim:undefined,born:undefined,hitT:undefined,worked:undefined,sm_:undefined,fl_:undefined}:null,t.grove?1:0,t.water?1:0]),spawns:r.spawns,seed:r.seed,keep:r.keep,keepMax:r.keepMax,kind:r.kind,shore:r.shore}; }
 function save(){
-  if(!S||S.over) return;
-  try{ localStorage.setItem(KEY,JSON.stringify({mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
+  if(!S||S.over||!saveOn) return;
+  stash();
+  try{ writeSlot(slot,JSON.stringify({R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
     grid:S.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...t.b,aim:undefined,born:undefined,hitT:undefined,worked:undefined}:null,t.grove?1:0]),spawns:S.spawns,queue:S.queue})); }catch(e){}
 }
-function load(){
+function load(d){
   try{
-    const d=JSON.parse(localStorage.getItem(KEY)||'null'); if(!d||!d.grid) return false;
+    if(typeof d==='string') d=JSON.parse(d); if(!d||!d.grid) return false;
     S=blank();
     Object.assign(S,{res:d.res||{gold:d.gold??10,food:10,wood:12,stone:2},pop:d.pop??3,price:d.price||{...BASEP},day:d.day,keep:d.keep,keepMax:d.keepMax,
       mods:{...S.mods,...d.mods},kills:d.kills||0,spawns:d.spawns,queue:d.queue,seed:d.seed||Math.random()*1000});
-    S.grid=d.grid.map(([l,o,b,gr])=>({land:!!l,ore:!!o,grove:!!gr,b}));
+    if(d.R){ S.R={}; for(const id in d.R){ const r=d.R[id]; S.R[id]={grid:r.grid.map(([l,o,b,gr,w])=>({land:!!l,ore:!!o,grove:!!gr,water:!!w,b})),spawns:r.spawns||[],seed:r.seed,keep:r.keep,keepMax:r.keepMax,kind:r.kind||'canyon',shore:r.shore||null,units:[]}; } unstash(d.cur&&S.R[d.cur]?d.cur:'home'); }
+    else{ S.grid=d.grid.map(([l,o,b,gr])=>({land:!!l,ore:!!o,grove:!!gr,b})); Object.assign(S,{kind:'canyon',shore:null,units:[],cur:'home'}); stash(); }
+    Object.assign(S,{heroAt:d.heroAt||S.cur,raid:d.raid||'home',coastUnlocked:!!d.coastUnlocked,voyages:d.voyages||[],iron:d.iron||0,portPrice:d.portPrice||{},voyagesSent:d.voyagesSent||0,visitedCoast:!!d.visitedCoast});
     Object.assign(S,{mood:d.mood??60,weather:d.weather||'clear',blood:!!d.blood,hx:d.hx||0,hl:d.hl||1,perks:d.perks||[],perkPending:d.perkPending||0,hungry:!!d.hungry,cold:!!d.cold});
     S.diff=DIFF[d.diff]?d.diff:'normal'; S.quest=d.quest||0; S.upg=d.upg||[]; S.won=!!d.won; S.abilUsed=d.abilUsed||0;
     if(!S.grid.some(t=>t.grove)) addGroves();
@@ -2211,39 +2631,40 @@ function say(h){ $('msg').innerHTML=h; }
 function bump(id,cls){ const el=$(id); el.classList.remove('bump','hurt'); void el.offsetWidth; el.classList.add(cls); setTimeout(()=>el.classList.remove(cls),700); }
 function ui(){
   assignWorkers(); checkQuests();
-  $('hp').textContent=`${Math.max(0,S.keep)}/${S.keepMax}`; $('day').textContent=(S.phase==='night'?`Night ${S.day}`:`Day ${S.day}`)+(S.won?'':` of ${WIN_NIGHTS}`);
+  $('hp').textContent=`${Math.max(0,S.keep)}/${S.keepMax}`; $('day').textContent=(S.phase==='night'?T('Night {{n}}',{n:S.day}):T('Day {{n}}',{n:S.day}))+(S.won?'':T(' of {{n}}',{n:WIN_NIGHTS}));
   const night=S.phase!=='day', bell=$('bell');
   bell.disabled=night||S.modal;
-  bell.innerHTML=S.phase==='night'?`Night ${S.day}<small>${S.enemies.length+S.queue.length} raiders still out there</small>`
-    :S.phase==='over'?`The keep has fallen<small>Start again from the board</small>`
-    :`Ring the bell<small>Begin night ${S.day} · ${S.queue.length} coming${S.hero.queue.length?` · ${S.hero.queue.length} unbuilt order${S.hero.queue.length>1?'s':''} will be dropped`:''}</small>`;
+  bell.innerHTML=S.phase==='night'?`${T('Night {{n}}',{n:S.day})}<small>${T('{{n}} raiders still out there',{n:S.enemies.length+S.queue.length})}</small>`
+    :S.phase==='over'?`${T('The keep has fallen')}<small>${T('Start again from the board')}</small>`
+    :`${T('Ring the bell')}<small>${T('Begin night {{n}}',{n:S.day})} · ${T('{{n}} coming',{n:S.queue.length})}${S.coastUnlocked?T(' to {{r}}',{r:T(regionName(S.raid))})+(S.heroAt!==S.raid?T(', hero away'):''):''}${S.hero.queue.length?' · '+T('{{n}} unbuilt orders will be dropped',{n:S.hero.queue.length}):''}</small>`;
   renderTools(); renderRes(); renderLedger(); renderQuest(); renderUpgrades();
-  const sea=season(); $('season').textContent=sea.name+(S.weather!=='clear'?` · ${WX[S.weather].name}`:'')+(S.blood?' · Blood moon':''); $('seaDot').setAttribute('fill',sea.col); $('cSeason').classList.toggle('blood',!!S.blood);
-  $('hlv').textContent=`Hero Lv ${S.hl}`; $('xpf').style.width=Math.round(100*S.hx/xpNeed(S.hl))+'%';
+  $('region').textContent=T(regionName(S.cur))+(heroHere()?'':T(' · hero away')); if(!$('realm').hidden) renderRealm();
+  const sea=season(); $('season').textContent=T(sea.name)+(S.weather!=='clear'?` · ${T(WX[S.weather].name)}`:'')+(S.blood?' · '+T('Blood moon'):''); $('seaDot').setAttribute('fill',sea.col); $('cSeason').classList.toggle('blood',!!S.blood);
+  $('hlv').textContent=T('Hero Lv {{n}}',{n:S.hl}); $('xpf').style.width=Math.round(100*S.hx/xpNeed(S.hl))+'%';
   if(S.phase==='day'&&!S.modal&&!S.over&&S.perkPending>0) offerPerk();
-  $('best').textContent=[DIFF[S.diff].label,`score ${score().toLocaleString()}`,bestScore?`best ${bestScore.toLocaleString()}`:''].filter(Boolean).join(' · ');
+  $('best').textContent=[T(DIFF[S.diff].label),T('score {{n}}',{n:score().toLocaleString()}),bestScore?T('best {{n}}',{n:bestScore.toLocaleString()}):''].filter(Boolean).join(' · ');
   renderInsp();
 }
 function renderQuest(){
   const box=$('quest');
-  if(S.quest>=QUESTS.length){ box.innerHTML=`<span class="ql">Quest</span><span class="qt"></span>`; box.querySelector('.qt').textContent=S.won?'Every quest done and the crown secure. Endless mode: see how long you can last.':`Every quest done. Hold the keep until night ${WIN_NIGHTS}.`; return; }
+  if(S.quest>=QUESTS.length){ box.innerHTML=`<span class="ql">${T('Quest')}</span><span class="qt"></span>`; box.querySelector('.qt').textContent=S.won?T('Every quest done and the crown secure. Endless mode: see how long you can last.'):T('Every quest done. Hold the keep until night {{n}}.',{n:WIN_NIGHTS}); return; }
   const q=QUESTS[S.quest], [have,need]=q.goal();
-  box.innerHTML=`<span class="ql">Quest ${S.quest+1}/${QUESTS.length}</span><span class="qt"></span>${need>1?`<span class="qp">${Math.min(have,need)}/${need}</span>`:''}<span class="qr">Reward <b></b></span>`;
-  box.querySelector('.qt').textContent=q.text; box.querySelector('.qr b').textContent=costStr(q.reward);
+  box.innerHTML=`<span class="ql">${T('Quest')} ${S.quest+1}/${QUESTS.length}</span><span class="qt"></span>${need>1?`<span class="qp">${Math.min(have,need)}/${need}</span>`:''}<span class="qr">${T('Reward')} <b></b></span>`;
+  box.querySelector('.qt').textContent=T(q.text); box.querySelector('.qr b').textContent=costStr(q.reward);
 }
 let upgKey='';
 function renderUpgrades(){
-  const box=$('upg'), key=UPGS.map(u=>upgState(u)).join()+S.day+S.over;
+  const box=$('upg'), key=UPGS.map(u=>upgState(u)).join()+S.day+S.over+lang;
   if(key===upgKey) return; upgKey=key;
   box.innerHTML=UPGS.map(u=>{ const st=upgState(u);
-    const why=st==='req'?`Needs ${UPGS.find(x=>x.id===u.req).name}`:st==='day'?`Opens on day ${u.day}`:'';
-    return `<div class="uc${st==='done'?' done':''}"><div class="un">${u.name}<small>${u.branch}</small></div><div class="ud">${u.desc}</div>${st==='done'?'':why?`<div class="ud">${why}</div>`:`<button type="button" data-upg="${u.id}" ${st!=='buy'?'disabled':''}>Buy <span class="c">${costShort(u.cost)}</span></button>`}</div>`; }).join('');
+    const why=st==='req'?T('Needs {{n}}',{n:T(UPGS.find(x=>x.id===u.req).name)}):st==='day'?T('Opens on day {{n}}',{n:u.day}):'';
+    return `<div class="uc${st==='done'?' done':''}"><div class="un">${T(u.name)}<small>${T(u.branch)}</small></div><div class="ud">${T(u.desc)}</div>${st==='done'?'':why?`<div class="ud">${why}</div>`:`<button type="button" data-upg="${u.id}" ${st!=='buy'?'disabled':''}>${T('Buy')} <span class="c">${costShort(u.cost)}</span></button>`}</div>`; }).join('');
   box.querySelectorAll('[data-upg]').forEach(b=>b.addEventListener('click',()=>buyUpg(b.dataset.upg)));
 }
 function renderTools(){
   const box=$('tools');
   if(!box.dataset.built){
-    box.innerHTML=TOOLS.map(t=>`<button class="tool" data-tool="${t}" type="button" title="${DEF[t]?DEF[t].name:TNAME[t]} (${KEYS[t]})"><span class="k">${KEYS[t]}</span><svg viewBox="0 0 22 22" aria-hidden="true">${ICON[t]}</svg><span class="n">${TNAME[t]}</span><span class="c"></span></button>`).join('');
+    box.innerHTML=TOOLS.map(t=>`<button class="tool" data-tool="${t}" type="button" title="${T(DEF[t]?DEF[t].name:TNAME[t])} (${KEYS[t]})"><span class="k">${KEYS[t]}</span><svg viewBox="0 0 22 22" aria-hidden="true">${ICON[t]}</svg><span class="n">${T(TNAME[t])}</span><span class="c"></span></button>`).join('');
     box.dataset.built=1; box.querySelectorAll('.tool').forEach(b=>b.addEventListener('click',()=>setTool(b.dataset.tool)));
   }
   const night=S.phase!=='day';
@@ -2252,26 +2673,26 @@ function renderTools(){
     b.setAttribute('aria-pressed',t===S.tool); b.disabled=night&&t!=='ride';
     if(d){ const locked=d.unlock&&S.day<d.unlock;
       b.classList.toggle('locked',!!locked); b.classList.toggle('poor',!locked&&!canPay(d.cost));
-      b.querySelector('.c').innerHTML=locked?`day ${d.unlock}`:costShort(d.cost); }
-    else b.querySelector('.c').textContent=t==='clear'?'refund':'move';
+      b.querySelector('.c').innerHTML=locked?T('day {{n}}',{n:d.unlock}):costShort(d.cost); }
+    else b.querySelector('.c').textContent=t==='clear'?T('refund'):T('move');
   });
 }
 function renderRes(){
   const E=econ(), box=$('res');
   if(!box.dataset.built){
-    box.innerHTML=[...RES,'people','mood'].map(r=>`<div class="rc" id="r-${r}"><div class="lab"><i style="background:${RCOL[r]}"></i>${r==='people'?'Villagers':cap1(r)}</div><div class="v">0</div><div class="d"></div></div>`).join('');
+    box.innerHTML=[...RES,'people','mood'].map(r=>`<div class="rc" id="r-${r}"><div class="lab"><i style="background:${RCOL[r]}"></i>${r==='people'?T('Villagers'):T(cap1(r))}</div><div class="v">0</div><div class="d"></div></div>`).join('');
     box.dataset.built=1;
   }
   RES.forEach(r=>{ const c=$('r-'+r), n=E.net[r], d=c.querySelector('.d');
     c.querySelector('.v').textContent=S.res[r];
-    d.innerHTML=n?`${n>0?'+':''}${n}<span class="ad"> at dawn</span>`:'steady'; d.className='d'+(n>0?' up':n<0?' dn':''); c.title=`${cap1(r)}: ${S.res[r]}, ${n>=0?'+':''}${n} at dawn`; });
+    d.innerHTML=n?`${n>0?'+':''}${n}<span class="ad"> ${T('at dawn')}</span>`:T('steady'); d.className='d'+(n>0?' up':n<0?' dn':''); c.title=`${cap1(r)}: ${S.res[r]}, ${n>=0?'+':''}${n} at dawn`; });
   const c=$('r-people'), d=c.querySelector('.d');
   c.querySelector('.v').textContent=`${S.pop}/${E.cap}`;
-  d.innerHTML=E.popD<0?`${E.popD} famine`:S.idle?`${S.idle} <span class="ad">un</span>employed`.replace('<span class="ad">un</span>employed',`<span class="ad">unemployed</span><span class="sh">idle</span>`):E.popD>0?`+${E.popD}<span class="ad"> at dawn</span>`:'all working';
+  d.innerHTML=E.popD<0?`${E.popD} ${T('famine')}`:S.idle?`${S.idle} <span class="ad">${T('unemployed')}</span><span class="sh">${T('idle')}</span>`:E.popD>0?`+${E.popD}<span class="ad"> ${T('at dawn')}</span>`:T('all working');
   d.className='d'+(E.popD<0?' dn':E.popD>0?' up':'');
   const mc=$('r-mood'), md=mc.querySelector('.d'), MI=moodInfo();
   mc.querySelector('.v').textContent=S.mood;
-  md.innerHTML=`${S.mood>=70?'content':S.mood>=35?'steady':'unhappy'}<span class="ad"> → ${MI.target}</span>`; md.className='d'+(S.mood>=70?' up':S.mood<35?' dn':'');
+  md.innerHTML=`${T(S.mood>=70?'content':S.mood>=35?'steady':'unhappy')}<span class="ad"> → ${MI.target}</span>`; md.className='d'+(S.mood>=70?' up':S.mood<35?' dn':'');
   mc.title=`Mood ${S.mood}, heading toward ${MI.target} at dawn`;
 }
 function renderLedger(){
@@ -2279,11 +2700,11 @@ function renderLedger(){
   const rows=RES.map(r=>{
     const lines=E.L[r].map(([t,v])=>`${t} <span class="${v<0?'neg':'pos'}">${v>0?'+':''}${v}</span>`).join('<br>')||'Nothing yet';
     const n=E.net[r];
-    return `<tr><th><span class="c${r[0]}">${cap1(r)}</span></th><td>${lines}</td><td class="n ${n<0?'neg':n>0?'pos':''}">${n>0?'+':''}${n}</td></tr>`;
+    return `<tr><th><span class="c${r[0]}">${T(cap1(r))}</span></th><td>${lines}</td><td class="n ${n<0?'neg':n>0?'pos':''}">${n>0?'+':''}${n}</td></tr>`;
   });
   const grow=E.popD>0?`<span class="pos">+${E.popD}</span> will move in`:E.popD<0?`<span class="neg">${-E.popD}</span> will leave hungry`:S.pop>=E.cap?'Houses are full. Build more to grow':'No change';
-  const MI=moodInfo(); rows.push(`<tr><th style="color:${RCOL.mood}">Mood</th><td>${S.mood} now, heading toward ${MI.target}. ${MI.parts.map(([t,v])=>`${t} <span class="${v<0?'neg':'pos'}">${v>0?'+':''}${v}</span>`).join(', ')||'Nothing yet'}. ${S.mood>=70?'Content villagers pay extra taxes.':S.mood<35?'Unhappy villagers pay less and stop moving in.':''}</td><td class="n">${S.mood}</td></tr>`);
-  rows.push(`<tr><th style="color:${RCOL.people}">Villagers</th><td>${S.pop} living here, room for ${E.cap}. ${grow}.${S.idle?` ${plural(S.idle,'villager')} without work still pay taxes.`:''}</td><td class="n ${E.popD<0?'neg':E.popD>0?'pos':''}">${E.popD>0?'+':''}${E.popD}</td></tr>`);
+  const MI=moodInfo(); rows.push(`<tr><th style="color:${RCOL.mood}">${T('Mood')}</th><td>${S.mood} now, heading toward ${MI.target}. ${MI.parts.map(([t,v])=>`${t} <span class="${v<0?'neg':'pos'}">${v>0?'+':''}${v}</span>`).join(', ')||'Nothing yet'}. ${S.mood>=70?'Content villagers pay extra taxes.':S.mood<35?'Unhappy villagers pay less and stop moving in.':''}</td><td class="n">${S.mood}</td></tr>`);
+  rows.push(`<tr><th style="color:${RCOL.people}">${T('Villagers')}</th><td>${S.pop} living here, room for ${E.cap}. ${grow}.${S.idle?` ${plural(S.idle,'villager')} without work still pay taxes.`:''}</td><td class="n ${E.popD<0?'neg':E.popD>0?'pos':''}">${E.popD>0?'+':''}${E.popD}</td></tr>`);
   const warn=[];
   if(E.foodAfter<0) warn.push(`Food will run short by ${-E.foodAfter}. Build farms, buy food at a market, or expect villagers to leave.`);
   if(E.goldAfter<0) warn.push(`Gold won't cover upkeep. ${plural(Math.min(-E.goldAfter,99),'military building')} will sit out the next night.`);
@@ -2305,7 +2726,8 @@ function renderInsp(){
   let det='';
   const work=b.off?'paused':b.worked?'worked by a villager':'idle, no free villager';
   switch(b.type){
-    case 'keep': det=`Health ${S.keep}/${S.keepMax} · houses 4 villagers · shoots raiders close by`; break;
+    case 'keep': det=S.kind==='coast'?`Health ${S.keep}/${S.keepMax} · if it falls, raiders plunder a third of your gold and food · shoots raiders close by`:`Health ${S.keep}/${S.keepMax} · houses 4 villagers · shoots raiders close by`; break;
+    case 'harbor': det=`${hp} · ${work} · +3 food from fishing · ${shipsFree()} of ${shipsTotal()} ship${shipsTotal()===1?'':'s'} in port`; break;
     case 'trap': det=`${b.charges}/${trapMax()} charges · ${1+S.mods.trap} damage and slows`; break;
     case 'barr': det=`${hp} · ${S.units.filter(u=>u.home===i).length}/${b.lvl+1+S.mods.muster} soldiers · ${unitDmg()} damage each · 1 gold upkeep, soldiers eat 1 food each`+(b.unpaid?' · unpaid, idle tonight':''); break;
     case 'house': det=`${hp} · room for 3 villagers · ${S.pop}/${housing()} housed`; break;
@@ -2328,17 +2750,22 @@ function renderInsp(){
   if(d.work) acts+=`<button id="iOff" type="button">${b.off?'Resume':'Pause'}</button>`;
   if(b.type!=='keep') acts+=`<button id="iClr" type="button" ${S.phase!=='day'?'disabled':''}>Clear <span class="c">${costShort(refundOf(b))}</span></button>`;
   let extra='';
+  if(b.type==='harbor'){
+    const sea=S.voyages.map(v=>{ const p=PORTS.find(x=>x.id===v.port); return T('{{p}} (home day {{d}})',{p:p?T(p.name):'?',d:v.back}); });
+    extra=`<div class="ports">${PORTS.map(p=>`<div class="port"><span class="pn">${T(p.name)} · ${TP(p.days,'day')}</span><span class="pd">${T(p.desc)} ${T('Ship {{a}} {{g}}, get about {{e}} gold · {{r}}% risk',{a:p.amt,g:T(p.good),e:portEst(p),r:Math.round(portRisk(p)*100)})}</span><button type="button" data-port="${p.id}" ${!shipsFree()||S.res[p.good]<p.amt?'disabled':''}>${T('Send')} <span class="c">${p.amt}${p.good[0]}</span></button></div>`).join('')}</div>${sea.length?`<div class="prod">${T('At sea:')} ${sea.join(', ')}</div>`:''}`;
+  }
   if(b.type==='market'){
     extra=b.worked?`<div class="trade">${['food','wood','stone'].map(r=>`<span class="tn c${r[0]}">${cap1(r)}</span><span class="ts">you have ${S.res[r]}</span><button type="button" data-buy="${r}" ${S.res.gold<buyCost(r)?'disabled':''}>Buy ${LOT} <span class="c">${buyCost(r)}g</span></button><button type="button" data-sell="${r}" ${S.res[r]<LOT?'disabled':''}>Sell ${LOT} <span class="c">+${sellGain(r)}g</span></button>`).join('')}</div>`
       :`<div class="prod">Trading opens once a villager works the market.</div>`;
   }
   box.innerHTML=`<div class="info"><div class="name"></div><div class="det"></div></div><div class="acts">${acts}</div>${extra}`;
-  box.querySelector('.name').textContent=b.type==='wall'?(b.lvl>1?'Stone wall':'Palisade'):d.name+(d.upg?` · level ${b.lvl}`:'');
+  box.querySelector('.name').textContent=b.type==='keep'?T(REGIONS[S.cur].fort):b.type==='wall'?T(b.lvl>1?'Stone wall':'Palisade'):T(d.name)+(d.upg?' · '+T('level {{n}}',{n:b.lvl}):'');
   box.querySelector('.det').textContent=det;
   $('iUp')?.addEventListener('click',upgradeSel);
   $('iFix')?.addEventListener('click',()=>{ const c=repairCost(b); if(!c||!canPay(c)) return; spend(c); if(b.type==='keep') S.keep=S.keepMax; else b.hp=b.max; puff(sel[0],sel[1],COL.gold,10); dustRing(sel[0],sel[1]); sfx('up'); say(`${b.type==='keep'?'Keep':DEF[b.type].name} repaired.`); save(); ui(); });
   $('iClr')?.addEventListener('click',()=>{ if(sel) clearAt(...sel); });
   $('iOff')?.addEventListener('click',()=>{ b.off=!b.off; save(); ui(); say(b.off?`${d.name} paused. Its worker is free for other jobs.`:`${d.name} back to work.`); });
+  box.querySelectorAll('[data-port]').forEach(el=>el.addEventListener('click',()=>sendVoyage(el.dataset.port)));
   box.querySelectorAll('[data-buy]').forEach(el=>el.addEventListener('click',()=>trade(el.dataset.buy,true)));
   box.querySelectorAll('[data-sell]').forEach(el=>el.addEventListener('click',()=>trade(el.dataset.sell,false)));
 }
@@ -2349,6 +2776,47 @@ function repairCost(b){
   const stone=(b.type==='wall'&&b.lvl>1)||(b.type==='tower'&&b.lvl>1);
   return stone?{stone:Math.ceil(m/3),wood:Math.ceil(m/4)}:{wood:Math.ceil(m/2)};
 }
+function closeRealm(){ const r=$('realm'); if(r) r.hidden=true; }
+function openRealm(){ renderRealm(); $('realm').hidden=false; }
+function toggleRealm(){ if($('realm').hidden) openRealm(); else closeRealm(); }
+function regionStatus(id){
+  const r=id===S.cur?S:S.R[id]; if(!r||!r.grid) return null;
+  let b=0; r.grid.forEach(t=>{ if(t.b&&t.b.type!=='keep') b++; });
+  return {keep:r.keep,keepMax:r.keepMax,buildings:b};
+}
+function renderRealm(){
+  const night=S.phase!=='day', ids=['home','coast'];
+  const node=(id,x,y)=>{ const raid=S.raid===id, hero=S.heroAt===id, open=!!S.R[id];
+    return `<g class="node" data-go="${id}" tabindex="0" role="button" aria-label="${T(regionName(id))}">
+      <circle cx="${x}" cy="${y}" r="17" fill="${open?'#3A2E26':'#2A221D'}" stroke="${raid?'#E8604F':open?'#D99A60':'#5A4A3E'}" stroke-width="${raid?3:2}" ${open?'':'stroke-dasharray="4 4"'}/>
+      ${id==='home'?`<path d="M${x-8} ${y+6}v-9l3-3 3 3v-3l2-2 2 2v3l3-3 3 3v9z" fill="#F0BE4E"/>`:`<path d="M${x} ${y-9}v15M${x-6} ${y-3}h12M${x-9} ${y+2}c2 7 16 7 18 0" fill="none" stroke="${open?'#BFE0EA':'#6A5A4E'}" stroke-width="2" stroke-linecap="round"/>`}
+      ${hero?`<circle cx="${x+15}" cy="${y-14}" r="7" fill="#F2EADD"/><path d="M${x+11} ${y-15}l2 2 2-4 2 4 2-2v4h-8z" fill="#28201C"/>`:''}
+      ${raid&&open?`<path d="M${x-14} ${y-20}c2-5 6-4 5-9 4 3 5 7 3 10" fill="#E8604F"/>`:''}
+      <text x="${x}" y="${y+33}" text-anchor="middle" font-size="12" font-family="Inter,system-ui,sans-serif" font-weight="600" fill="${open?'#F2EADD':'#8A7A6A'}">${open?T(regionName(id)):T('Unknown lands')}</text></g>`; };
+  const sea=S.voyages.map((v,i)=>{ const p=PORTS.find(x=>x.id===v.port); return `<g transform="translate(${70+i*70},214)"><path d="M-10 0h20l-4 6h-12z" fill="#D99A60"/><path d="M0 0v-12l7 8h-7" fill="#EDE3CE"/><text y="18" text-anchor="middle" font-size="9" fill="#BFE0EA" font-family="Inter,system-ui,sans-serif">${p?T(p.name):''}</text></g>`; }).join('');
+  const svg=`<svg viewBox="0 0 400 240" role="img" aria-label="Map of the realm">
+    <defs><pattern id="wv" width="24" height="10" patternUnits="userSpaceOnUse"><path d="M0 6c4-4 8-4 12 0s8 4 12 0" fill="none" stroke="#3E7E92" stroke-width="1.2"/></pattern></defs>
+    <rect width="400" height="240" fill="#2A221D"/>
+    <path d="M0 165c50-12 90 8 140-2s90-22 140-8 80 16 120 4V240H0z" fill="#1E4A58"/><path d="M0 165c50-12 90 8 140-2s90-22 140-8 80 16 120 4V240H0z" fill="url(#wv)" opacity=".7"/>
+    <path d="M0 0h400v170c-40 12-80-2-120-12s-90 6-140 6-90-10-140 2z" fill="#6A4430"/>
+    <path d="M150 20c40-10 90-6 110 14s14 54-8 66-74 12-98-6-30-62-4-74z" fill="#C98A55"/>
+    <path d="M150 20c40-10 90-6 110 14s14 54-8 66-74 12-98-6-30-62-4-74z" fill="none" stroke="#A9553E" stroke-width="6" stroke-linejoin="round"/>
+    <path d="M226 120c20-4 44 4 52 18s-6 26-30 26-40-6-42-20 4-22 20-24z" fill="#C98A55" opacity="${S.coastUnlocked?1:.35}"/>
+    <path d="M200 98c6 14 16 18 32 26" fill="none" stroke="#EDE3CE" stroke-width="2" stroke-dasharray="3 5" opacity="${S.coastUnlocked?.8:.3}"/>
+    ${[[40,60],[330,50],[90,120],[350,120],[60,30]].map(([x,y])=>`<path d="M${x} ${y}l10-16 10 16z" fill="#8A5238"/><path d="M${x+6} ${y-9}l4-7 4 7z" fill="#EDE6D4"/>`).join('')}
+    <text x="200" y="232" text-anchor="middle" font-size="10" fill="#9CC6D2" font-family="Inter,system-ui,sans-serif" letter-spacing="2">${T('THE OPEN SEA')}</text>
+    ${node('home',200,58)}${node('coast',250,140)}${sea}</svg>`;
+  const card=id=>{ const st=regionStatus(id), open=!!S.R[id];
+    if(!open) return `<div class="rcard"><b>${T('Unknown lands')}</b><div class="rd">${T('Your scouts are searching the coast to the south. They should find a way by day 3.')}</div></div>`;
+    const here=S.cur===id&&S.heroAt===id, raid=S.raid===id;
+    return `<div class="rcard"><b>${T(regionName(id))}</b><div class="rd">${T(REGIONS[id].desc)}</div>
+      <div class="tags">${S.heroAt===id?`<span class="tag hero">${T('Your hero is here')}</span>`:''}${raid?`<span class="tag raid">${T(night?'Under attack':'Tonight’s raid')}</span>`:''}<span class="tag">${T(REGIONS[id].fort)} ${st.keep}/${st.keepMax}</span><span class="tag">${TP(st.buildings,'building')}</span>${id==='coast'?`<span class="tag">${T('{{a}} of {{b}} ships in port',{a:shipsFree(),b:shipsTotal()})}</span>`:''}</div>
+      <button type="button" data-go="${id}" ${here||night?'disabled':''}>${T(here?'You are here':night?'Travel by day':'Ride here')}</button></div>`; };
+  $('realm').innerHTML=`<div class="rh"><h2>${T('The realm')}</h2><span style="display:flex;gap:6px"><button class="x" type="button" id="realmSlots">${T('Save slots')}</button><button class="x" type="button" id="realmClose">${T('Close')}</button></span></div>${svg}<div class="rcards">${ids.map(card).join('')}</div>${S.voyages.length?`<div class="rd" style="font-size:13px;color:var(--muted)">${T('At sea:')} ${S.voyages.map(v=>{ const p=PORTS.find(x=>x.id===v.port); return T('{{p}}, home on day {{d}}',{p:p?T(p.name):'',d:v.back}); }).join(' · ')}</div>`:''}`;
+  $('realmClose').addEventListener('click',closeRealm);
+  $('realmSlots').addEventListener('click',()=>{ closeRealm(); save(); slotMenu(false); });
+  $('realm').querySelectorAll('[data-go]').forEach(el=>{ const go=()=>{ if(S.R[el.dataset.go]) travelTo(el.dataset.go); }; el.addEventListener('click',go); el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }); });
+}
 function setTool(t){ if(S.phase!=='day'&&t!=='ride') return; S.tool=t; if(t!=='ride') sel=null; ui(); }
 document.querySelectorAll('.tool').forEach(b=>b.addEventListener('click',()=>setTool(b.dataset.tool)));
 $('bell').addEventListener('click',startNight);
@@ -2356,8 +2824,20 @@ function togglePause(){ paused=!paused; $('pause').setAttribute('aria-pressed',p
 $('pause').addEventListener('click',togglePause);
 function toggleSpeed(){ speed=speed===1?2:speed===2?3:1; $('speed').textContent=speed+'×'; savePrefs(); }
 const PREF='smallcrown-prefs';
-function savePrefs(){ try{ localStorage.setItem(PREF,JSON.stringify({speed,zoom:+zoomHH.toFixed(2),sound,music:musicOn,quality,qualityChosen})); }catch(e){} }
-function loadPrefs(){ try{ const p=JSON.parse(localStorage.getItem(PREF)||'{}');
+function applyLang(){
+  if(window.i18next&&i18next.isInitialized) i18next.changeLanguage(lang);
+  document.documentElement.lang=lang;
+  document.querySelectorAll('[data-t]').forEach(el=>{ if(el.dataset.en==null) el.dataset.en=el.textContent; el.textContent=T(el.dataset.en); });
+  document.querySelectorAll('[data-th]').forEach(el=>{ if(el.dataset.en==null) el.dataset.en=el.innerHTML; el.innerHTML=lang==='es'?T(el.dataset.th,{defaultValue:el.dataset.en}):el.dataset.en; });
+  const lb=$('lang'); lb.textContent=lang.toUpperCase(); lb.setAttribute('aria-label',lang==='es'?'Idioma: español. Cambiar a inglés':'Language: English. Switch to Spanish');
+  $('install').textContent=T('Install');
+  delete $('tools').dataset.built; delete $('res').dataset.built; upgKey='';
+  if(S){ ui(); if(!$('realm').hidden) renderRealm(); }
+  $('qual').textContent=T(quality==='high'?'High':'Low');
+}
+function savePrefs(){ try{ localStorage.setItem(PREF,JSON.stringify({lang,slot,speed,zoom:+zoomHH.toFixed(2),sound,music:musicOn,quality,qualityChosen})); }catch(e){} }
+function loadPrefs(){ lang=/^es/i.test(navigator.language||'')?'es':'en'; try{ const p=JSON.parse(localStorage.getItem(PREF)||'{}');
+  if(p.lang==='es'||p.lang==='en') lang=p.lang; if(p.slot>=1&&p.slot<=3) slot=p.slot;
   if([1,2,3].includes(p.speed)){ speed=p.speed; $('speed').textContent=speed+'×'; }
   if(p.zoom>=ZMIN&&p.zoom<20) zoomHH=p.zoom;
   if(p.quality==='low'||p.quality==='high'){ quality=p.quality; qualityChosen=!!p.qualityChosen; }
@@ -2419,23 +2899,24 @@ function startTour(){
   const D=window.driver&&window.driver.js&&window.driver.js.driver;
   if(!D){ say('The tour is still loading. Try again in a moment.'); return; }
   const steps=[
-    {element:'#res',popover:{title:'Your goods',description:'Gold, food, wood and stone, plus your villagers. The small line under each number is what the next dawn will bring.'}},
-    {element:'#board',popover:{title:'The valley',description:COARSE?'Tap a tile to send your hero to build there. Steer him with the joystick in the corner, drag to look around and pinch to zoom.':'Tap a tile to send your hero to build there. Right-click to ride somewhere or steer with W A S D. Drag to look around and scroll to zoom.'}},
-    {element:'#quest',popover:{title:'Quests',description:'Your next goal and what it pays. The first few walk you through the basics.'}},
-    {element:'#tools',popover:{title:'Build tools',description:'Farms feed your villagers, houses bring more of them, and every villager pays taxes. Palisades, traps and towers stop raiders.'}},
-    {element:'#abil',popover:{title:'Hero abilities',description:'Charge cuts through raiders in a line. Rally pulls every soldier to your hero.'}},
-    {element:'#bell',popover:{title:'Ring the bell',description:`When you are ready, start the night. Red dots on the ground show where raiders will walk. Hold the keep for ${WIN_NIGHTS} nights.`}},
-    {element:'#upg',popover:{title:'Kingdom upgrades',description:'Spend spare goods on permanent improvements to your economy, defenses, army and hero.'}}
+    {element:'#res',popover:{title:T('Your goods'),description:T('Gold, food, wood and stone, plus your villagers. The small line under each number is what the next dawn will bring.')}},
+    {element:'#board',popover:{title:T('The valley'),description:COARSE?T('Tap a tile to send your hero to build there. Steer him with the joystick in the corner, drag to look around and pinch to zoom.'):T('Tap a tile to send your hero to build there. Right-click to ride somewhere or steer with W A S D. Drag to look around and scroll to zoom.')}},
+    {element:'#quest',popover:{title:T('Quests'),description:T('Your next goal and what it pays. The first few walk you through the basics.')}},
+    {element:'#tools',popover:{title:T('Build tools'),description:T('Farms feed your villagers, houses bring more of them, and every villager pays taxes. Palisades, traps and towers stop raiders.')}},
+    {element:'#abil',popover:{title:T('Hero abilities'),description:T('Charge cuts through raiders in a line. Rally pulls every soldier to your hero.')}},
+    {element:'#bell',popover:{title:T('Ring the bell'),description:T('When you are ready, start the night. Red dots on the ground show where raiders will walk. Hold the keep for {{n}} nights.',{n:WIN_NIGHTS})}},
+    {element:'#upg',popover:{title:T('Kingdom upgrades'),description:T('Spend spare goods on permanent improvements to your economy, defenses, army and hero.')}}
   ];
-  try{ D({showProgress:true,nextBtnText:'Next',prevBtnText:'Back',doneBtnText:'Start ruling',progressText:'{{current}} of {{total}}',steps}).drive(); }catch(e){}
+  try{ D({showProgress:true,nextBtnText:T('Next'),prevBtnText:T('Back'),doneBtnText:T('Start ruling'),progressText:lang==='es'?'{{current}} de {{total}}':'{{current}} of {{total}}',steps}).drive(); }catch(e){}
   try{ localStorage.setItem('smallcrown-toured','1'); }catch(e){}
 }
 function maybeTour(){ let seen=false; try{ seen=!!localStorage.getItem('smallcrown-toured'); }catch(e){} if(seen) return; let tries=0; const go=()=>{ if(window.driver&&window.driver.js) startTour(); else if(++tries<20) setTimeout(go,500); }; setTimeout(go,700); }
-$('tourBtn').addEventListener('click',startTour);
+document.addEventListener('click',e=>{ if(e.target&&e.target.id==='tourBtn') startTour(); });
 // full screen where the browser allows it
 const fsEl=document.documentElement;
 if(document.fullscreenEnabled&&fsEl.requestFullscreen){ $('fs').hidden=false;
   $('fs').addEventListener('click',()=>{ (document.fullscreenElement?document.exitFullscreen():fsEl.requestFullscreen()).catch(()=>{}); }); }
+addEventListener('load',()=>{ if(S&&S.kind==='coast') rebuildFleet(); });
 addEventListener('load',initJoy); setTimeout(initJoy,1500);
 const ptrs=new Map(); let paint=null, pinch=null;
 const LINE_TOOLS=new Set(['wall','trap']);
@@ -2495,6 +2976,13 @@ mc.addEventListener('pointerdown',ev=>{
   if(!viewNear) toggleView(); camFree={x:tx-C,y:ty-C}; camVel=null;
 });
 $('view').addEventListener('click',toggleView);
+$('realmBtn').addEventListener('click',toggleRealm);
+$('lang').addEventListener('click',()=>{ lang=lang==='es'?'en':'es'; applyLang(); savePrefs(); });
+// installable app (only where the page ships with a service worker, i.e. the Netlify build)
+let installEvt=null;
+if(document.querySelector('meta[name="pwa"]')&&'serviceWorker' in navigator) addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+addEventListener('beforeinstallprompt',e=>{ e.preventDefault(); installEvt=e; $('install').hidden=false; });
+$('install').addEventListener('click',async()=>{ if(!installEvt) return; installEvt.prompt(); try{ await installEvt.userChoice; }catch(e){} installEvt=null; $('install').hidden=true; });
 $('aCharge').addEventListener('click',useCharge);
 $('aRally').addEventListener('click',useRally);
 const HELD=new Set(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright']);
@@ -2508,8 +2996,9 @@ addEventListener('keydown',ev=>{
   else if(k==='p') togglePause();
   else if(k==='f') toggleSpeed();
   else if(k==='u') upgradeSel();
-  else if(k==='escape'){ sel=null; renderInsp(); }
+  else if(k==='escape'){ sel=null; closeRealm(); renderInsp(); }
   else if(k==='v') toggleView();
+  else if(k==='m') toggleRealm();
   else if(k==='q') useCharge();
   else if(k==='e') useRally();
   else if(k==='h'){ if(!viewNear) toggleView(); camFree=null; camVel=null; }
@@ -2537,13 +3026,8 @@ function loop(now){
 
 loadPrefs();
 applyQuality();
-if(load()){
-  ui(); forecast();
-  showOver('Your kingdom awaits',`Day ${S.day} on ${DIFF[S.diff].label}. ${S.res.gold} gold, ${S.res.food} food and ${S.pop} villagers, keep at ${S.keep}/${S.keepMax}.`,[
-    {label:'Continue',sub:`Pick up at day ${S.day}`,primary:true,fn:()=>{hideOver();ui()}},
-    {label:'Found a new kingdom',sub:'Your saved valley will be lost',fn:newGame}
-  ]);
-}else{ startGame('normal'); newGame(); }
+startGame('normal'); applyLang(); S.modal=true;
+slotMenu(true);
 loadAssets();
 requestAnimationFrame(loop);
 })();

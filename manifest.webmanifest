@@ -1,0 +1,17 @@
+{
+  "name": "Small Crown",
+  "short_name": "Small Crown",
+  "description": "A minimalist kingdom build-and-defend game in a low-poly desert canyon.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#1C1714",
+  "theme_color": "#1C1714",
+  "lang": "en",
+  "icons": [
+    {"src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png"},
+    {"src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png"},
+    {"src": "icons/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
