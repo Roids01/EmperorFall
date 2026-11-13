@@ -157,6 +157,27 @@ h1 .crest{width:26px;height:26px;vertical-align:-3px;margin-right:6px}
 .std{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px;font-size:12.5px}
 .std .tier{font-family:var(--f-display);font-weight:800;font-size:17px;color:var(--ink)}
 .std .need{background:var(--surface);border-radius:6px;padding:4px 8px}
+.crowns{display:grid;gap:6px}
+.crown{background:var(--surface);border-radius:8px;padding:9px 12px;display:grid;grid-template-columns:auto 1fr auto;gap:3px 10px;align-items:center}
+.crown .pl{font-family:var(--f-display);font-weight:800;font-size:20px;color:var(--muted);grid-row:1/4;min-width:26px;text-align:center}
+.crown.me{outline:1px solid var(--gold)} .crown.me .pl{color:var(--gold)}
+.crown .kn{font-weight:600;font-size:14px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.crown .kn .sw{width:10px;height:10px;border-radius:2px;display:inline-block}
+.crown .ks{font-size:12px;color:var(--muted);grid-column:2;line-height:1.4;font-variant-numeric:tabular-nums}
+.crown .tags{grid-column:2;display:flex;gap:5px;flex-wrap:wrap}
+.crown .tag{font-size:11px;border-radius:999px;padding:1px 8px;background:var(--raise);color:var(--ink)}
+.crown .tag.war{background:#5A2420;color:#FFB4A8} .crown .tag.ally{background:#2C3A26;color:#BFE0A8}
+.crown .ka{grid-column:3;grid-row:1/4;display:flex;flex-direction:column;gap:4px}
+.crown .ka button,.prov button,.realm .bar2 button{font:inherit;font-size:12px;font-weight:600;border:0;border-radius:6px;padding:5px 9px;background:var(--raise);color:var(--ink);cursor:pointer;white-space:nowrap}
+.crown .ka button.hot,.prov button.hot,.realm .bar2 button.hot{background:var(--sand);color:#2A1A10}
+.crown .ka button.red{background:#7A2A24;color:#FFE0D8}
+.crown .ka button:disabled,.prov button:disabled,.realm .bar2 button:disabled{opacity:.45;cursor:default}
+.provs{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:6px}
+.prov{background:var(--surface);border-radius:8px;padding:9px 12px;display:flex;flex-direction:column;gap:4px;border-left:3px solid var(--line)}
+.prov b{font-size:13.5px} .prov .pd{font-size:12px;color:var(--muted);line-height:1.4}
+.prov .pa{display:flex;gap:5px;flex-wrap:wrap}
+.realm .bar2{display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:13px;color:var(--muted)}
+.realm .bar2 b{color:var(--ink)}
 .toasts{position:absolute;top:52px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:6px;pointer-events:none;z-index:7;width:max-content;max-width:calc(100% - 24px)}
 .toast{display:flex;align-items:center;gap:10px;background:rgba(28,23,20,.92);border:1px solid rgba(240,190,78,.55);border-radius:10px;padding:8px 14px 8px 10px;box-shadow:0 6px 24px rgba(0,0,0,.35);animation:toastIn .45s cubic-bezier(.2,1.4,.4,1) both;max-width:100%}
 .toast.out{animation:toastOut .4s ease-in both}
@@ -431,6 +452,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <p data-th="help25"><b>Edicts, neighbors and gear.</b> Proclaim up to two edicts (three from day 10) for 5 gold each; every one helps somewhere and costs somewhere else. Three neighbors raid you: the Sand Wolves ride on The Valley, the Red Brotherhood on the cove and the Iron Clans on the pass. The angrier a neighbor, the bigger and more frequent its raids. Calm them with gifts from the realm map, beat their raids without losses, or kill their champions; once calm, offer a trade pact. Furious neighbors may demand tribute. Warlords and pirate captains drop gear for your hero's weapon, armor and charm slots. A watchtower at level 3 can become a ballista or a fire-arrow tower.</p>
     <p data-th="help26"><b>The throne.</b> Your realm grows in rank from hamlet to village, town, city and capital as it earns renown. Renown comes from defending without losses, slaying warlords and pirate captains, feasts, fulfilled requests and some petitions. Each rank opens a council seat; a town can raise the keep into a castle and a city into a citadel. Set taxes from low to crushing: more gold, unhappier villagers. Appoint a steward, marshal, treasurer, chaplain and spymaster from three candidates each, and watch their loyalty, since disloyal councillors may flee with your gold. Most days a petition reaches the throne: choose one of two answers and live with it.</p>
     <p data-th="help27"><b>Goods and living standards.</b> Beyond the basics, your villagers want cloth, ale and salt. Goat pastures (<kbd>J</kbd>) give wool, weavers (<kbd>O</kbd>) turn it into cloth, breweries (<kbd>I</kbd>) turn food into ale, and salt pans (<kbd>,</kbd>) on the cove's shore make salt. Meeting those wants lifts their living standard from poor to modest, comfortable and prosperous, which raises mood and multiplies taxes. Workshops (<kbd>.</kbd>) turn iron and wood into tools; with enough tools every producer yields 1 more. Food spoils a little each dawn (less in winter, half with salt), every store holds up to 80 of each good, and storehouses (<kbd>K</kbd>) add 60 more. Idle villagers pay half taxes. Market prices follow the seasons and drop when your stores are full; trade everything from the Market and stores panel. Vellmar buys cloth and Kharum buys salt by sea.</p>
+    <p data-th="help28"><b>Rival crowns.</b> Three other rulers want to be the foremost crown of the desert: King Harun of Qadir (warlike), Queen Ysolde of Merrow (cunning) and King Osric of Hallowmere (pious). They grow, build, claim land and fight each other every dawn. Prestige counts renown, gold, army, people and lands; your place among the crowns shows in the header and on the realm map. Send envoys, sign trade agreements, marry into a friendly house, denounce or declare war. At war, their knights join the raids on your lands, and you can march on their provinces. Six contested lands yield goods each dawn: settle unclaimed ones once your army can beat the bandits there, and reinforce your garrisons. Kings send letters with demands, offers, peace terms and tournament invitations. Finish 20 nights at the top to be named High King.</p>
     <p data-th="help4"><b>Seasons</b> turn every 5 days. Spring rains add 1 food per farm, summer heat costs 1, harvest adds 2 and lifts markets, and winter costs 2 while every house burns 1 wood a dawn to stay warm. Weather is rolled each dawn: rain stops fires, sandstorms slow raiders but shorten your towers' sight, snow slows everyone.</p>
     <p data-th="help5"><b>Mood.</b> Villagers are happier with wells and shrines nearby, full granaries and a good harvest, and unhappier after hunger, cold houses and buildings lost to raiders. Content villagers pay extra taxes; unhappy ones pay less, stop moving in, and below 20 they start to leave. Wells also keep fire off the buildings around them.</p>
     <p data-th="help6"><b>Hero levels.</b> Raiders your hero fells, and every night survived, earn experience. Each level adds health, every second level adds damage, and each one lets you pick a perk.</p>
@@ -1104,7 +1126,105 @@ const ES={
 "Weave your first cloth":"Teje tu primera tela",
 "Give your villagers a comfortable living":"Da a tus aldeanos una vida acomodada",
 "Land of plenty":"Tierra de abundancia",
-"Reach a prosperous living standard":"Alcanza un nivel de vida próspero"
+"Reach a prosperous living standard":"Alcanza un nivel de vida próspero",
+"help28":"<b>Coronas rivales.</b> Otros tres soberanos quieren ser la primera corona del desierto: el rey Harun de Qadir (belicoso), la reina Ysolde de Merrow (astuta) y el rey Osric de Hallowmere (piadoso). Cada amanecer crecen, construyen, reclaman tierras y luchan entre sí. El prestigio cuenta renombre, oro, ejército, población y tierras; tu puesto entre las coronas aparece en la cabecera y en el mapa del reino. Envía embajadas, firma acuerdos comerciales, emparienta con una casa amiga, denuncia o declara la guerra. En guerra, sus caballeros se unen a los asaltos a tus tierras y puedes marchar sobre sus provincias. Seis tierras en disputa producen bienes cada amanecer: coloniza las libres cuando tu ejército pueda vencer a los bandidos que las ocupan y refuerza tus guarniciones. Los reyes envían cartas con exigencias, ofertas, condiciones de paz e invitaciones a torneos. Termina las 20 noches en lo más alto y serás proclamado Rey Supremo.",
+"King Harun of Qadir":"Rey Harun de Qadir",
+"Queen Ysolde of Merrow":"Reina Ysolde de Merrow",
+"King Osric of Hallowmere":"Rey Osric de Hallowmere",
+"Harun":"Harun",
+"Ysolde":"Ysolde",
+"Osric":"Osric",
+"A warlord crowned by his own hand. Respects strength, takes what he can.":"Un caudillo coronado por su propia mano. Respeta la fuerza y toma lo que puede.",
+"A merchant queen. Grows rich on trade and plays every crown against the others.":"Una reina mercader. Se enriquece con el comercio y enfrenta a las coronas entre sí.",
+"A devout old king. Builds temples, values honor, slow to anger and slow to forgive.":"Un viejo rey devoto. Levanta templos, valora el honor, tarda en enojarse y en perdonar.",
+"Tamra Oasis":"Oasis de Tamra",
+"Copper Hills":"Colinas de Cobre",
+"The Salt Road":"El Camino de la Sal",
+"Date Groves":"Palmerales de dátiles",
+"Old Sun Tower":"Vieja Torre del Sol",
+"Highland Pastures":"Pastos altos",
+"Devoted":"Devotos",
+"Friendly":"Amistosos",
+"Cordial":"Cordiales",
+"Cool":"Fríos",
+"Hateful":"Llenos de odio",
+"Trade agreement":"Acuerdo comercial",
+"Royal wedding":"Boda real",
+"War":"Guerra",
+"Peace":"Paz",
+"New land":"Nueva tierra",
+"Victory at {{p}}":"Victoria en {{p}}",
+"Your army of {{a}} broke a garrison of {{d}}. The land is yours, and {{k}} loses a fifth of the army.":"Tu ejército de {{a}} rompió una guarnición de {{d}}. La tierra es tuya y {{k}} pierde una quinta parte de su ejército.",
+"Onward":"Adelante",
+"Defeat at {{p}}":"Derrota en {{p}}",
+"The garrison of {{d}} held against your army of {{a}}. The levies scatter home. Mood −5.":"La guarnición de {{d}} resistió a tu ejército de {{a}}. Las levas vuelven a casa. Ánimo −5.",
+"Fall back":"Retirarse",
+"A proposal from {{k}}":"Una propuesta de {{k}}",
+"{{k}} offers the hand of a royal child to your house. A marriage would bind your crowns: they would never march on you and would send knights when you are at war.":"{{k}} ofrece la mano de un hijo real a tu casa. Un matrimonio uniría vuestras coronas: nunca marcharían contra ti y enviarían caballeros cuando estés en guerra.",
+"Accept the marriage":"Aceptar el matrimonio",
+"An alliance, +10 renown":"Una alianza, +10 de renombre",
+"Decline politely":"Rechazar con cortesía",
+"Relations cool a little":"Las relaciones se enfrían un poco",
+"{{k}} makes a demand":"{{k}} exige algo",
+"“Pay me {{c}}, little crown, and my riders will look elsewhere this season.”":"«Págame {{c}}, coronita, y mis jinetes mirarán hacia otro lado esta estación.»",
+"Relations improve":"Las relaciones mejoran",
+"Relations sour, and war grows likelier":"Las relaciones se agrian y la guerra es más probable",
+"{{k}} proposes trade":"{{k}} propone comerciar",
+"Merrow’s caravans would stop in your markets. Both crowns grow richer.":"Las caravanas de Merrow pararían en tus mercados. Ambas coronas se enriquecen.",
+"Sign the agreement":"Firmar el acuerdo",
+"+3 gold each dawn":"+3 de oro cada amanecer",
+"{{k}} offers terms":"{{k}} ofrece condiciones",
+"The war goes badly for you. {{k}} will make peace for {{g}} gold.":"La guerra te va mal. {{k}} hará la paz por {{g}} de oro.",
+"Pay {{g}} gold for peace":"Pagar {{g}} de oro por la paz",
+"Fight on":"Seguir luchando",
+"{{k}} sues for peace":"{{k}} pide la paz",
+"Your victories have shaken {{k}}, who offers {{g}} gold and peace.":"Tus victorias han hecho temblar a {{k}}, que ofrece {{g}} de oro y la paz.",
+"Accept peace and gold":"Aceptar paz y oro",
+"+30 gold, +8 renown":"+30 de oro, +8 de renombre",
+"A grand tournament in the lands of {{k}}":"Un gran torneo en las tierras de {{k}}",
+"Champions of every crown will ride. Will your hero enter? The entry fee is 10 gold.":"Cabalgarán campeones de todas las coronas. ¿Participará tu héroe? La inscripción cuesta 10 de oro.",
+"Enter the lists":"Entrar en liza",
+"Win renown and gold":"Gana renombre y oro",
+"Your hero wins the tournament!":"¡Tu héroe gana el torneo!",
+"Unhorsed every champion of the desert. +40 gold, +14 renown.":"Derribó a todos los campeones del desierto. +40 de oro, +14 de renombre.",
+"Glory":"Gloria",
+"Your hero rode well":"Tu héroe cabalgó bien",
+"…but a rival champion took the crown of the lists. +3 renown for a fine showing.":"…pero un campeón rival se llevó la corona del torneo. +3 de renombre por la buena actuación.",
+"Next year":"El año que viene",
+"Stay home":"Quedarse en casa",
+"Your realm":"Tu reino",
+"Prestige {{p}} · army {{a}} · {{l}}":"Prestigio {{p}} · ejército {{a}} · {{l}}",
+"Levies raised":"Levas reunidas",
+"Raise levies":"Reunir levas",
+"Prestige {{p}} · army {{a}} · {{l}} · {{r}} toward you":"Prestigio {{p}} · ejército {{a}} · {{l}} · {{r}} contigo",
+"At war":"En guerra",
+"Allied by marriage":"Aliados por matrimonio",
+"Offer peace":"Ofrecer la paz",
+"Send envoy":"Enviar embajada",
+"Propose marriage":"Proponer matrimonio",
+"Denounce":"Denunciar",
+"Declare war":"Declarar la guerra",
+"Yours":"Tuya",
+"Unclaimed, held by bandits":"Libre, en manos de bandidos",
+"Settle":"Colonizar",
+"villagers":"aldeanos",
+"Reinforce":"Reforzar",
+"March":"Marchar",
+"yields {{y}} each dawn":"produce {{y}} cada amanecer",
+"garrison {{g}}":"guarnición {{g}}",
+"Rival crowns":"Coronas rivales",
+"You are the {{n}} crown of the desert.":"Eres la {{n}} corona del desierto.",
+"Prestige counts renown, gold, army, people and lands.":"El prestigio cuenta renombre, oro, ejército, población y tierras.",
+"Contested lands":"Tierras en disputa",
+"News from the courts":"Noticias de las cortes",
+"{{n}} crown":"{{n}} corona",
+"High King":"Rey Supremo",
+"Finish 20 nights as the foremost crown":"Termina 20 noches como la primera corona",
+"Conqueror":"Conquistador",
+"Hold four contested lands":"Posee cuatro tierras en disputa",
+"Champion of the lists":"Campeón del torneo",
+"Win a grand tournament":"Gana un gran torneo",
+"Settle a contested land from the realm map":"Coloniza una tierra en disputa desde el mapa del reino"
 };
 
 let lang='en';
@@ -1217,6 +1337,7 @@ const QUESTS=[
   {text:'Send a ship on a trade voyage',goal:()=>[S.voyagesSent||0,1],reward:{stone:4}},
   {text:'Lay a road beside a farm or mine',goal:()=>[count('road'),1],reward:{stone:3}},
   {text:'Build a tavern',goal:()=>[count('tavern'),1],reward:{gold:6}},
+  {text:'Settle a contested land from the realm map',goal:()=>[S.prov?landsOf('me').length:0,1],reward:{gold:10}},
   {text:'Appoint a steward to your council',goal:()=>[cm('steward')?1:0,1],reward:{gold:6}},
   {text:'Buy a kingdom upgrade',goal:()=>[S.upg.length,1],reward:{stone:4}},
   {text:'Grow your realm into a village',goal:()=>[rankIdx()>=1?1:0,1],reward:{gold:8}},
@@ -1418,6 +1539,7 @@ function hireMercs(){
   S.res.gold-=12; S.mercs=3; sfx('order'); say(`<b>Three sellswords hired.</b> They will guard the keep in ${regionName(S.raid)} tonight.`); save(); ui();
 }
 function spawnMercs(){
+  if(S.crowns&&Object.values(S.crowns).some(k=>k.war)&&Object.values(S.crowns).some(k=>k.wed)){ const home=idx(C,C+1); for(let k=0;k<2;k++){ const a=k*2.6+1; S.units.push({merc:true,home,slot:k+9,x:C+Math.cos(a)*.6,y:C+1+Math.sin(a)*.6,hp:unitMax()+4,max:unitMax()+4,atk:0,dir:-Math.PI/2,target:null,age:0,hit:0,swing:0,moving:false,ranged:false}); } }
   if(!S.mercs) return; const home=idx(C,C+1);
   for(let k=0;k<S.mercs;k++){ const a=k*2.1+.6; S.units.push({merc:true,home,slot:k+5,x:C+Math.cos(a)*.5,y:C+1+Math.sin(a)*.5,hp:unitMax()+3,max:unitMax()+3,atk:0,dir:-Math.PI/2,target:null,age:0,hit:0,swing:0,moving:false,ranged:false}); }
 }
@@ -1480,7 +1602,7 @@ function startGame(diff){
   addGroves();
   S.seed=Math.random()*1000; S.hero=mkHero();
   Object.assign(S,{kind:'canyon',shore:null,cur:'home',heroAt:'home',raid:'home'}); stash();
-  sel=null; pickSpawns(); field(); planWave(); hideOver(); buildWorld(); save(); ui(); forecast(true);
+  crowns(); sel=null; pickSpawns(); field(); planWave(); hideOver(); buildWorld(); save(); ui(); forecast(true);
   if(saveOn) setTimeout(()=>showChapter(CHAPTERS[0]),400);
 }
 function edgeTiles(){
@@ -1520,6 +1642,7 @@ function planWave(){
   if(S.raid==='mountain'&&d>=9){ let w=Math.floor(q.length*.3); for(let i=0;i<q.length&&w>0;i++) if(q[i]==='raider'){ q[i]='wolf'; w--; } for(let i=0;i<2;i++) q.unshift('wolf'); }
   if(d>=10) for(let i=0;i<1+Math.floor((d-10)/5);i++) q.splice(Math.floor(q.length*(.3+.4*Math.random())),0,'sapper');
   if(S.raid==='coast'&&d>=8&&(d%3===2||Math.random()<.3)) q.push('captain');
+  if(S.royalRaid) for(const id in S.royalRaid){ if(!S.crowns||!S.crowns[id]||!S.crowns[id].war) continue; for(let i=0;i<S.royalRaid[id];i++) q.splice(Math.floor(q.length*Math.random()),0,'knight:'+id); }
   if(d%5===0) q.push('warlord');
   S.queue=q;
 }
@@ -1530,8 +1653,8 @@ function dirName(x,y){
   return (dy>0?'south':'north')+(dx>0?'east':'west');
 }
 function waveText(){
-  const c={}; S.queue.forEach(t=>c[t]=(c[t]||0)+1);
-  const parts=[]; if(c.raider)parts.push(plural(c.raider,'raider')); if(c.runner)parts.push(plural(c.runner,'runner')); if(c.archer)parts.push(plural(c.archer,'archer')); if(c.brute)parts.push(plural(c.brute,'brute')); if(c.ram)parts.push(plural(c.ram,'battering ram')); if(c.shaman)parts.push(plural(c.shaman,'shaman')); if(c.wolf)parts.push(c.wolf===1?'1 wolf':`${c.wolf} wolves`); if(c.sapper)parts.push(plural(c.sapper,'sapper')); if(c.captain)parts.push('a pirate captain'); if(c.warlord)parts.push('a warlord');
+  const c={}; S.queue.forEach(t=>{ t=t.startsWith('knight:')?'knight':t; c[t]=(c[t]||0)+1; });
+  const parts=[]; if(c.raider)parts.push(plural(c.raider,'raider')); if(c.runner)parts.push(plural(c.runner,'runner')); if(c.archer)parts.push(plural(c.archer,'archer')); if(c.brute)parts.push(plural(c.brute,'brute')); if(c.ram)parts.push(plural(c.ram,'battering ram')); if(c.shaman)parts.push(plural(c.shaman,'shaman')); if(c.wolf)parts.push(c.wolf===1?'1 wolf':`${c.wolf} wolves`); if(c.sapper)parts.push(plural(c.sapper,'sapper')); if(c.captain)parts.push('a pirate captain'); if(c.knight)parts.push(plural(c.knight,'royal knight')); if(c.warlord)parts.push('a warlord');
   const sp=S.raid===S.cur?S.spawns:((S.R[S.raid]||{}).spawns||[]), dirs=[...new Set(sp.map(([x,y])=>dirName(x,y)))];
   if(S.raid==='coast') return `${joinList(parts)} landing on the ${joinList(dirs)} shore of ${regionName('coast')}`;
   if(S.raid==='mountain') return `${joinList(parts)} coming down from the ${joinList(dirs)} heights of ${regionName('mountain')}`;
@@ -1603,6 +1726,8 @@ function econ(){
   if(hasEdict('militia')&&S.pop>=3) L.gold.push([`Militia drills`,-Math.floor(S.pop/3)]);
   for(const f in (S.fac||{})){ const o=S.fac[f]; if(o.pact&&o.h<40){ if(f==='nomads') L.gold.push([`Pact with the Sand Wolves`,4]); if(f==='brotherhood') L.food.push([`Pact with the Red Brotherhood`,4]); if(f==='clans') L.iron.push([`Pact with the Iron Clans`,2]); } }
   if(S.warships) L.gold.push([`Warship crews`,-S.warships]);
+  if(S.prov) for(const pid of Object.keys(PROV)){ if(S.prov[pid].owner!=='me') continue; const y=PROV[pid].yield; for(const r in y) if(r!=='renown') L[r].push([PROV[pid].name,y[r]]); L.gold.push([`Garrison at ${PROV[pid].name}`,-1]); }
+  if(S.crowns) for(const id in S.crowns) if(S.crowns[id].pact&&!S.crowns[id].war) L.gold.push([`Trade with ${KINGS[id].short}`,3]);
   const idleN=Math.min(S.idle||0,S.pop), stdT=S.stdTier||0;
   if(S.pop) L.gold.push([`Taxes: ${plural(S.pop-idleN,'worker')}${idleN?` and ${idleN} idle at half`:''} (${TAXES[taxLvl()].name.toLowerCase()}${stdT?`, ${STD[stdT].name.toLowerCase()} ×${STD[stdT].tax}`:''})`,Math.round((S.pop-idleN+idleN*.5)*TAXES[taxLvl()].mult*STD[stdT].tax)]);
   if(skill('treasurer')) L.gold.push([`Treasurer ${cm('treasurer').name}`,skill('treasurer')*2]);
@@ -2008,6 +2133,7 @@ function enemyStats(type){
     case 'archer': return {hp:Math.max(1,Math.ceil(h*.75*DIFF[S.diff].hp)),spd:s*.9,dmg:1,pay:2,range:1.9};
     case 'ram': return {hp:Math.ceil(h*4.5*DIFF[S.diff].hp),spd:s*.42,dmg:3,bdmg:7,pay:5};
     case 'shaman': return {hp:Math.ceil(h*.9*DIFF[S.diff].hp),spd:s*.78,dmg:1,pay:3,heal:2};
+    case 'knight': return {hp:Math.ceil(h*2.2*DIFF[S.diff].hp),spd:s*.8,dmg:2,bdmg:3,pay:4};
     case 'wolf': return {hp:Math.max(1,Math.ceil(h*.5*DIFF[S.diff].hp)),spd:s*1.75,dmg:1,bdmg:1,pay:1};
     case 'sapper': return {hp:Math.ceil(h*.8*DIFF[S.diff].hp),spd:s*.85,dmg:1,pay:3,boom:9};
     case 'captain': return {hp:Math.ceil(h*5*DIFF[S.diff].hp),spd:.72,dmg:3,pay:12};
@@ -2026,13 +2152,13 @@ function startNight(){
   ui();
 }
 function spawnNext(){
-  const type=S.queue.shift();
+  let type=S.queue.shift(), king=null; if(type&&type.startsWith('knight:')){ king=type.slice(7); type='knight'; }
   const [x,y]=S.spawns[(Math.random()*S.spawns.length)|0];
   const st={...enemyStats(type)}; if(dmod('swift')) st.spd*=1.2;
   if(S.kind==='coast'&&S.grid.some(t=>t.b&&t.b.type==='lighthouse')) st.hp=Math.max(1,Math.round(st.hp*.75));
   const horiz=Math.abs(x-C)>=Math.abs(y-C);
   const ox=x+(horiz?Math.sign(x-C)*.9:0), oy=y+(horiz?0:Math.sign(y-C)*.9);   // walk in from the rocks
-  S.enemies.push({pirate:S.kind==='coast',type,x:ox,y:oy,cx:x,cy:y,tx:x,ty:y,moving:true,atk:.6,dir:Math.atan2(C-y,C-x),age:0,slow:0,hit:0,swing:0,lane:(Math.random()-.5)*.38,max:st.hp,...st});
+  S.enemies.push({king,pirate:S.kind==='coast'&&type!=='knight',type,x:ox,y:oy,cx:x,cy:y,tx:x,ty:y,moving:true,atk:.6,dir:Math.atan2(C-y,C-x),age:0,slow:0,hit:0,swing:0,lane:(Math.random()-.5)*.38,max:st.hp,...st});
 }
 function dawn(){
   const REP={day:S.day,region:S.cur,kills:S.nightKills||0,total:Math.max(S.nightTotal||0,S.nightKills||0),keep:Math.max(0,(S.keepAtDusk??S.keep)-S.keep),lost:S.lostTonight||0,gold:S.nightGold||0,by:{...(S.nr||{})},sunk:S.sunkTonight||0}; S.sunkTonight=0;
@@ -2106,14 +2232,15 @@ function dawn(){
   if(E.popD) bump('r-people',E.popD>0?'bump':'hurt');
   const ch=CHAPTERS.find(c=>c.day===S.day); if(ch) setTimeout(()=>showChapter(ch),600);
   factionDawn(REP);
-  { const kn=[]; kingdomDawn(kn,REP); if(kn.length) $('msg').innerHTML+=' '+kn.join('. ')+'.'; }
+  { const kn=[]; kingdomDawn(kn,REP); crownsDawn(kn); if(kn.length) $('msg').innerHTML+=' '+kn.join('. ')+'.'; }
   recordDaily(); checkAch(); if(REP.total) setTimeout(()=>showReport(REP),300);
   dawnExtras();
   if(justWon) offerVictory(wasBoss); else if(wasBoss) offerBoons();
 }
 function offerVictory(thenBoon){
   const sc=recordScore(); party('win');
-  showOver('The crown holds',`You held the keep through ${WIN_NIGHTS} nights on ${DIFF[S.diff].label}. Score ${sc.toLocaleString()}${sc>=bestScore?', your best yet':''}.`,[
+  const pl=myPlace(), top=standings()[0]; if(pl===1) S.highKing=true;
+  showOver(pl===1?'High King of the desert':'The crown holds',`You held the keep through ${WIN_NIGHTS} nights on ${DIFF[S.diff].label}. ${pl===1?'No crown in the desert outshines yours.':`You stand ${ordinal(pl)} among the crowns; ${KINGS[top.id]?KINGS[top.id].name:'another'} still outshines you.`} Score ${sc.toLocaleString()}${sc>=bestScore?', your best yet':''}.`,[
     {label:'Keep ruling',sub:'Endless mode: the raids keep growing',primary:true,fn:()=>{ hideOver(); if(thenBoon) offerBoons(); ui(); }},
     {label:'Found a new kingdom',sub:'Start a fresh valley',fn:newGame}]);
 }
@@ -2297,6 +2424,7 @@ function hurt(e,d,src){
     S.res.gold+=pay; S.kills++; S.nightKills++; S.nightGold=(S.nightGold||0)+pay; const nr=S.nr||(S.nr={}); nr[src||'other']=(nr[src||'other']||0)+1;
     if(e.type==='warlord'||e.type==='captain'){ addRenown(10); S.lootPending=(S.lootPending||0)+1; shiftHost(facOf(S.cur),-15,true); }
     if(src==='hero'&&gearOn('coin')){ S.res.gold+=2; }
+    if(e.type==='knight'&&e.king&&S.crowns&&S.crowns[e.king]){ const k=S.crowns[e.king]; k.army=Math.max(5,k.army-1); k.ws=(k.ws||0)+.25; }
     if(e.type==='captain'){ S.res.gold+=25; S.nightGold+=25; toast(T('Pirate captain defeated'),T('+25 gold from his sea chest'),'☠'); }
     puff(e.x,e.y,COL.foeLight,e.type==='warlord'?18:8); embers(e.x,e.y,e.type==='warlord'?30:7); floatText(e.x,e.y,'+'+pay,CSS.gold);
     sfx('kill'); ui();
@@ -3091,6 +3219,7 @@ function enemyModel(e){
   else if(e.type==='shaman'){ g=person({body:0x2E4A3A,legs:0x2E4A3A,hat:'hood',hatCol:0xD8CCB0,belt:0x7CFF9A});
     const st=new THREE.Group(); st.position.set(.02,-.17,0); g.userData.arms[1].add(st); add(st,BX(.022,.42,.022),COL.wood,0,.1,0);
     const orb=new THREE.Mesh(DO(.045),new THREE.MeshBasicMaterial({color:0x7CFF9A})); orb.position.y=.33; orb.userData.noFlash=true; st.add(orb); }
+  else if(e.type==='knight'){ const kc=e.king&&KINGS[e.king]?new THREE.Color(KINGS[e.king].color).getHex():0x6A6A80; g=person({body:kc,legs:0x4A4A55,arms:0x8A8A96,hat:'helm',belt:0x2A2A30,cape:kc}); }
   else if(e.type==='captain'){ g=person({body:0x8A1E22,legs:0x2A2228,belt:COL.gold,cape:0x2A2228}); const hd=g.userData.head; add(hd,CY(.13,.13,.02,3),0x1A1A1E,0,.05,0); add(hd,CY(.06,.065,.05,8),0x1A1A1E,0,.075,0); add(hd,BX(.02,.02,.02),0xEDE3CE,.06,.07,0); }
   else if(e.type==='sapper'){ g=person({body:0x4A3A2A,legs:0x3A2A1E,hat:'band',hatCol:0x2A2220}); const k=new THREE.Group(); k.position.set(-.07,.13,0); g.userData.hips.add(k); add(k,CY(.06,.06,.12,8),0x6A4A2A,0,0,0,0,0,Math.PI/2); add(k,CY(.062,.062,.015,8),COL.dark,0,.035,0,0,0,Math.PI/2); add(k,CY(.062,.062,.015,8),COL.dark,0,-.035,0,0,0,Math.PI/2);
     const sp=new THREE.Mesh(DO(.022),new THREE.MeshBasicMaterial({color:0xFFB040})); sp.position.set(0,.09,0); sp.userData.noFlash=true; k.add(sp); g.userData.spark=sp; }
@@ -3100,6 +3229,7 @@ function enemyModel(e){
   if(e.type==='shaman'){}
   else if(e.type==='archer'){ bow(armL); add(g.userData.hips,CY(.03,.03,.18,6),COL.wood,-.07,.14,.04,0,0,.3); }
   else if(e.type==='sapper'){}
+  else if(e.type==='knight'){ hold(armR,'sword'); shield(armL,true); }
   else hold(armR,e.type==='brute'?'club':e.type==='runner'||e.type==='captain'&&false?'dagger':e.type==='warlord'||e.type==='captain'?'sword':'axe');
   if(e.type==='raider'||e.type==='brute'){ g.userData.torch=torch(armL); g.userData.glow=groundGlow(g,.06,.16,1.2); }
   else if(e.type==='warlord'){ shield(armL,true); g.userData.glow=groundGlow(g,0,0,.9); }
@@ -3926,7 +4056,7 @@ function encRegion(r){ return {grid:r.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...
 function save(){
   if(!S||S.over||!saveOn) return;
   stash();
-  try{ writeSlot(slot,JSON.stringify({R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,mtnUnlocked:S.mtnUnlocked,visitedMtn:S.visitedMtn,daily:S.daily||null,survivedBlood:!!S.survivedBlood,ph:S.ph||{},renown:S.renown||0,tax:taxLvl(),council:S.council||{},petition:S.petition||null,lastPet:S.lastPet||null,debt:S.debt||null,keepLvl:S.keepLvl||1,edicts:S.edicts||[],fac:S.fac||{},gear:S.gear||{},lootPending:S.lootPending||0,demand:S.demand||null,req:S.req||null,lastReq:S.lastReq||null,trader:S.trader||null,seedDays:S.seedDays||0,oilNights:S.oilNights||0,banner:S.banner||0,spy:!!S.spy,feastSeason:S.feastSeason??null,feastDay:S.feastDay||0,sapperWarned:!!S.sapperWarned,warships:S.warships,plate:S.plate,mercs:S.mercs,sunk:S.sunk,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
+  try{ writeSlot(slot,JSON.stringify({R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,mtnUnlocked:S.mtnUnlocked,visitedMtn:S.visitedMtn,daily:S.daily||null,survivedBlood:!!S.survivedBlood,crowns:S.crowns||null,prov:S.prov||null,levy:S.levy||null,royalMsg:S.royalMsg||null,royalRaid:S.royalRaid||null,newsLog:S.newsLog||[],marched:S.marched||0,tourneys:S.tourneys||0,highKing:!!S.highKing,ph:S.ph||{},renown:S.renown||0,tax:taxLvl(),council:S.council||{},petition:S.petition||null,lastPet:S.lastPet||null,debt:S.debt||null,keepLvl:S.keepLvl||1,edicts:S.edicts||[],fac:S.fac||{},gear:S.gear||{},lootPending:S.lootPending||0,demand:S.demand||null,req:S.req||null,lastReq:S.lastReq||null,trader:S.trader||null,seedDays:S.seedDays||0,oilNights:S.oilNights||0,banner:S.banner||0,spy:!!S.spy,feastSeason:S.feastSeason??null,feastDay:S.feastDay||0,sapperWarned:!!S.sapperWarned,warships:S.warships,plate:S.plate,mercs:S.mercs,sunk:S.sunk,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
     grid:S.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...t.b,aim:undefined,born:undefined,hitT:undefined,worked:undefined}:null,t.grove?1:0]),spawns:S.spawns,queue:S.queue})); }catch(e){}
 }
 function load(d){
@@ -3938,6 +4068,7 @@ function load(d){
     if(d.R){ S.R={}; for(const id in d.R){ const r=d.R[id]; S.R[id]={grid:r.grid.map(([l,o,b,gr,w])=>({land:!!l,ore:!!o,grove:!!gr,water:!!w,b})),spawns:r.spawns||[],seed:r.seed,keep:r.keep,keepMax:r.keepMax,kind:r.kind||'canyon',shore:r.shore||null,units:[]}; } unstash(d.cur&&S.R[d.cur]?d.cur:'home'); }
     else{ S.grid=d.grid.map(([l,o,b,gr])=>({land:!!l,ore:!!o,grove:!!gr,b})); Object.assign(S,{kind:'canyon',shore:null,units:[],cur:'home'}); stash(); }
     S.ph=d.ph||{}; ensureEco();
+    Object.assign(S,{crowns:d.crowns||null,prov:d.prov||null,levy:d.levy||null,royalMsg:d.royalMsg||null,royalRaid:d.royalRaid||null,newsLog:d.newsLog||[],marched:d.marched||0,tourneys:d.tourneys||0,highKing:!!d.highKing});
     Object.assign(S,{renown:d.renown||0,tax:d.tax??1,council:d.council||{},petition:d.petition||null,lastPet:d.lastPet||null,debt:d.debt||null,keepLvl:d.keepLvl||1});
     Object.assign(S,{edicts:d.edicts||[],fac:d.fac||{},gear:d.gear||{},lootPending:d.lootPending||0,demand:d.demand||null});
     Object.assign(S,{req:d.req||null,lastReq:d.lastReq||null,trader:d.trader||null,seedDays:d.seedDays||0,oilNights:d.oilNights||0,banner:d.banner||0,spy:!!d.spy,feastSeason:d.feastSeason??null,feastDay:d.feastDay||0,sapperWarned:!!d.sapperWarned});
@@ -3989,6 +4120,9 @@ const ACH=[
   {id:'hero5',icon:'★',name:'Legend',desc:'Raise your hero to level 5',test:()=>S.hl>=5},
   {id:'blood',icon:'●',name:'Red night',desc:'Survive a blood moon',test:()=>!!S.survivedBlood},
   {id:'prosper',icon:'⚱',name:'Land of plenty',desc:'Reach a prosperous living standard',test:()=>(S.stdTier||0)>=3},
+  {id:'highking',icon:'♚',name:'High King',desc:'Finish 20 nights as the foremost crown',test:()=>!!S.highKing},
+  {id:'conqueror',icon:'⚑',name:'Conqueror',desc:'Hold four contested lands',test:()=>S.prov&&landsOf('me').length>=4},
+  {id:'champion',icon:'⚔',name:'Champion of the lists',desc:'Win a grand tournament',test:()=>(S.tourneys||0)>=1},
   {id:'capital',icon:'♛',name:'Capital of the desert',desc:'Raise your realm to a capital',test:()=>rankIdx()>=4},
   {id:'council',icon:'⚖',name:'Full council',desc:'Fill every council seat',test:()=>SEATS.every(st=>cm(st.id))},
   {id:'daily',icon:'☀',name:'Daily devotion',desc:'Survive 5 nights of a daily challenge',test:()=>!!S.daily&&S.day>=6}];
@@ -4265,6 +4399,149 @@ function renderThrone(){
   $('throne').querySelectorAll('[data-dismiss]').forEach(b=>b.addEventListener('click',()=>dismiss(b.dataset.dismiss)));
   $('raiseKeep')?.addEventListener('click',raiseKeep);
 }
+// ================= RIVAL CROWNS =================
+const KINGS={
+  harun:{name:'King Harun of Qadir',short:'Harun',style:'warlike',color:'#C0392B',desc:'A warlord crowned by his own hand. Respects strength, takes what he can.'},
+  ysolde:{name:'Queen Ysolde of Merrow',short:'Ysolde',style:'cunning',color:'#6A8AD8',desc:'A merchant queen. Grows rich on trade and plays every crown against the others.'},
+  osric:{name:'King Osric of Hallowmere',short:'Osric',style:'pious',color:'#8FCB7E',desc:'A devout old king. Builds temples, values honor, slow to anger and slow to forgive.'}};
+const PROV={
+  oasis:{name:'Tamra Oasis',yield:{food:4},x:62,y:112},
+  copper:{name:'Copper Hills',yield:{stone:3,gold:2},x:112,y:30},
+  saltroad:{name:'The Salt Road',yield:{gold:4},x:352,y:104},
+  groves:{name:'Date Groves',yield:{food:3,ale:1},x:118,y:150},
+  tower:{name:'Old Sun Tower',yield:{renown:1},x:36,y:46},
+  pastures:{name:'Highland Pastures',yield:{wool:3},x:372,y:52}};
+const ordinal=n=>lang==='es'?`${n}.º`:n+(['th','st','nd','rd'][(n%100>10&&n%100<14)?0:Math.min(n%10,4)%4]||'th');
+function crowns(){
+  if(!S.crowns) S.crowns={harun:{gold:80,army:30,pop:30,renown:20,rel:-10,war:false,pact:false,wed:false,ws:0,last:0},ysolde:{gold:140,army:18,pop:26,renown:25,rel:10,war:false,pact:false,wed:false,ws:0,last:0},osric:{gold:90,army:20,pop:28,renown:30,rel:20,war:false,pact:false,wed:false,ws:0,last:0}};
+  if(!S.prov) S.prov={oasis:{owner:null,gar:8},copper:{owner:'harun',gar:10},saltroad:{owner:'ysolde',gar:9},groves:{owner:'osric',gar:8},tower:{owner:null,gar:10},pastures:{owner:null,gar:7}};
+  return S.crowns;
+}
+const K=id=>crowns()[id];
+const landsOf=o=>Object.keys(PROV).filter(p=>S.prov&&S.prov[p].owner===o);
+function allUnits(){ let n=S.units.length; for(const id in S.R) if(id!==S.cur&&S.R[id].units) n+=S.R[id].units.length; return n; }
+function armyPower(){ const lv=S.levy&&S.levy.until>=S.day?S.levy.p:0; return Math.round(allUnits()*(unitDmg()+unitMax()/3)+heroDmg()*2+S.hl*2+(S.warships||0)*4+lv); }
+function myPrestige(){ let regions=1+(S.coastUnlocked?1:0)+(S.mtnUnlocked?1:0); return Math.round((S.renown||0)+S.res.gold/10+armyPower()/2+S.pop/2+landsOf('me').length*15+regions*10+(keepLvl()-1)*10); }
+function kPrestige(id){ const k=K(id); return Math.round(k.renown+k.gold/10+k.army/2+k.pop/2+landsOf(id).length*15+20); }
+function standings(){ crowns(); const rows=[{id:'me',p:myPrestige()}].concat(Object.keys(KINGS).map(id=>({id,p:kPrestige(id)}))); rows.sort((a,b)=>b.p-a.p); return rows; }
+const myPlace=()=>standings().findIndex(r=>r.id==='me')+1;
+function relWord(r){ return r>=60?'Devoted':r>=30?'Friendly':r>=0?'Cordial':r>=-30?'Cool':r>=-60?'Hostile':'Hateful'; }
+function relShift(id,d){ const k=K(id); k.rel=Math.max(-100,Math.min(100,k.rel+d)); }
+function news(t){ S.newsLog=S.newsLog||[]; S.newsLog.unshift({d:S.day,t}); if(S.newsLog.length>12) S.newsLog.length=12; }
+// diplomacy
+function envoy(id){ const k=K(id), c=15+Math.max(0,Math.round(-k.rel/5)); if(S.phase!=='day'||k.last===S.day) return;
+  if(S.res.gold<c){ say(`An envoy with gifts costs ${c} gold.`); sfx('no'); return; }
+  S.res.gold-=c; k.last=S.day; relShift(id,KINGS[id].style==='cunning'?8:12); sfx('order'); say(`<b>Envoy sent to ${T(KINGS[id].short)}.</b> Relations are now ${T(relWord(k.rel)).toLowerCase()}.`); afterDiplo(); }
+function proposePact(id){ const k=K(id); if(k.pact||k.war||k.rel<20) return; k.pact=true; relShift(id,5); toast(T('Trade agreement'),T(KINGS[id].short),'⚖'); say(`<b>Trade agreement with ${T(KINGS[id].short)}.</b> +3 gold each dawn while it lasts.`); afterDiplo(); }
+function proposeMarriage(id){ const k=K(id); if(k.wed||k.war||k.rel<50) return; if(Object.values(crowns()).some(x=>x.wed)){ say('Your house is already allied by marriage.'); return; }
+  k.wed=true; relShift(id,15); addRenown(10); party('win'); toast(T('Royal wedding'),T(KINGS[id].short),'♥'); say(`<b>A royal wedding binds your house to ${T(KINGS[id].name)}.</b> They will never march on you, and they send soldiers when you are at war.`); afterDiplo(); }
+function denounce(id){ const k=K(id); if(k.last===S.day) return; k.last=S.day; relShift(id,-20); addRenown(3); for(const o of Object.keys(KINGS)) if(o!==id) relShift(o,K(o).rel>0&&K(id).rel<0?4:0); say(`<b>You denounce ${T(KINGS[id].short)}</b> before every court in the desert.`); afterDiplo(); }
+function declareWar(id){ const k=K(id); if(k.war||S.phase!=='day') return; if(k.wed){ say('You cannot march on your own family.'); return; }
+  k.war=true; k.pact=false; k.ws=0; relShift(id,-40); for(const o of Object.keys(KINGS)) if(o!==id&&K(o).wed) relShift(o,5); sfx('horn'); toast(T('War'),T(KINGS[id].short),'⚔'); news(`You declared war on ${KINGS[id].short}`);
+  say(`<b>War with ${T(KINGS[id].name)}.</b> Their knights will join the raids on your lands, and you may march on their provinces.`); afterDiplo(); }
+function offerPeace(id){ const k=K(id); if(!k.war) return; const c=k.ws>=3?0:30+Math.max(0,-k.ws)*10;
+  if(c&&S.res.gold<c){ say(`${T(KINGS[id].short)} wants ${c} gold for peace.`); sfx('no'); return; }
+  S.res.gold-=c; k.war=false; relShift(id,10); news(`Peace between you and ${KINGS[id].short}`); toast(T('Peace'),T(KINGS[id].short),'☮'); say(c?`<b>Peace bought</b> from ${T(KINGS[id].short)} for ${c} gold.`:`<b>${T(KINGS[id].short)} accepts peace.</b> Your victories spoke for you.`); afterDiplo(); }
+function raiseLevy(){ if(S.phase!=='day'||(S.levy&&S.levy.until>=S.day)) return; if(S.res.gold<20||S.res.food<10){ say('Raising levies takes 20 gold and 10 food.'); sfx('no'); return; } S.res.gold-=20; S.res.food-=10; S.levy={p:12,until:S.day+2}; sfx('horn'); say('<b>Levies raised.</b> Your army is 12 stronger for three days.'); afterDiplo(); }
+function afterDiplo(){ save(); ui(); if(!$('realm').hidden) renderRealm(); }
+// lands
+function settle(p){ const P=S.prov[p]; if(P.owner||S.phase!=='day') return; const c={gold:20,food:15};
+  if(!canPay(c)||S.pop<4){ say('Settling a land takes 20 gold, 15 food and 2 villagers.'); sfx('no'); return; }
+  if(armyPower()<P.gar){ say(`Bandits hold ${T(PROV[p].name)} with a strength of ${P.gar}. Your army of ${armyPower()} is not enough. Raise levies or train more soldiers.`); sfx('no'); return; }
+  spend(c); S.pop-=2; P.owner='me'; P.gar=6; addRenown(6); party('small'); sfx('up'); toast(T('New land'),T(PROV[p].name),'⚑'); news(`You settled ${PROV[p].name}`);
+  say(`<b>${T(PROV[p].name)} is yours.</b> Two families settle there. It yields ${yieldStr(p)} each dawn.`); afterDiplo(); }
+const yieldStr=p=>[costStr(PROV[p].yield),PROV[p].yield.renown?`${PROV[p].yield.renown} ${T('renown')}`:''].filter(Boolean).join(', ');
+function battleOdds(p){ const P=S.prov[p], o=P.owner, def=(o&&o!=='me'?K(o).army*.4:0)+P.gar; return {me:armyPower(),def:Math.round(def),pct:Math.round(100/(1+Math.pow(def/Math.max(1,armyPower()),2.2)))}; }
+function march(p){ const P=S.prov[p], o=P.owner; if(!o||o==='me'||!K(o).war||S.phase!=='day'||S.marched===S.day) return;
+  const c={gold:10,food:10}; if(!canPay(c)){ say('A campaign needs 10 gold and 10 food in supplies.'); sfx('no'); return; }
+  spend(c); S.marched=S.day; const od=battleOdds(p), win=Math.random()*100<od.pct; const k=K(o);
+  if(win){ P.owner='me'; P.gar=6; k.army=Math.max(5,Math.round(k.army*.8)); k.ws+=2; addRenown(12); party('win'); sfx('up'); news(`You took ${PROV[p].name} from ${KINGS[o].short}`);
+    showOver(T('Victory at {{p}}',{p:T(PROV[p].name)}),T('Your army of {{a}} broke a garrison of {{d}}. The land is yours, and {{k}} loses a fifth of the army.',{a:od.me,d:od.def,k:T(KINGS[o].short)}),[{label:T('Onward'),primary:true,fn:()=>{ hideOver(); afterDiplo(); }}]); }
+  else{ k.ws-=1; addRenown(-4); S.levy=null; S.mood=Math.max(0,S.mood-5); sfx('hurt'); news(`${KINGS[o].short} threw back your army at ${PROV[p].name}`);
+    showOver(T('Defeat at {{p}}',{p:T(PROV[p].name)}),T('The garrison of {{d}} held against your army of {{a}}. The levies scatter home. Mood −5.',{a:od.me,d:od.def}),[{label:T('Fall back'),primary:true,fn:()=>{ hideOver(); afterDiplo(); }}]); } }
+function reinforce(p){ const P=S.prov[p]; if(P.owner!=='me'||S.phase!=='day') return; if(S.res.gold<12){ say('Reinforcing a garrison costs 12 gold.'); sfx('no'); return; } S.res.gold-=12; P.gar+=4; sfx('build'); say(`<b>${T(PROV[p].name)}</b> garrison strengthened to ${P.gar}.`); afterDiplo(); }
+// the other crowns act each dawn
+function crownsDawn(notes){
+  crowns(); const ids=Object.keys(KINGS);
+  for(const id of ids){ const k=K(id), st=KINGS[id].style, lands=landsOf(id).length;
+    k.pop=Math.min(80,k.pop+1); k.gold+=Math.round(k.pop*.5+lands*3+(st==='cunning'?5:0)); k.army+=st==='warlike'?3:1.5; k.renown+=1+lands+(st==='pious'?2:0);
+    if(st==='warlike'&&k.gold>70){ k.gold-=30; k.army+=6; } if(st==='pious'&&k.gold>120){ k.gold-=60; k.renown+=8; news(`${KINGS[id].short} raised a great temple`); }
+    if(st==='cunning'&&k.gold>200){ k.gold-=50; k.renown+=6; news(`${KINGS[id].short} held a grand fair in Merrow`); }
+    k.army=Math.round(k.army); k.rel+=k.rel<(st==='pious'?10:st==='cunning'?0:-15)?1:-1;
+    if(k.pact) S.res.gold+=0; }
+  // claim, quarrel, conquer
+  const neutral=Object.keys(PROV).filter(p=>!S.prov[p].owner);
+  for(const id of ids){ const k=K(id); if(Math.random()>.35) continue;
+    if(neutral.length&&k.army>S.prov[neutral[0]].gar*2&&Math.random()<.5){ const p=neutral.splice((Math.random()*neutral.length)|0,1)[0]; S.prov[p].owner=id; S.prov[p].gar=8; k.army-=4; news(`${KINGS[id].short} claimed ${PROV[p].name}`); notes.push(`<b>${T(KINGS[id].short)}</b> claimed ${T(PROV[p].name)}`); continue; }
+    const foes=ids.filter(o=>o!==id&&landsOf(o).length&&K(o).army<k.army*.85);
+    if(KINGS[id].style!=='pious'&&foes.length&&Math.random()<.4){ const o=foes[(Math.random()*foes.length)|0], p=landsOf(o)[0]; S.prov[p].owner=id; K(o).army=Math.round(K(o).army*.85); k.army=Math.round(k.army*.9); news(`${KINGS[id].short} seized ${PROV[p].name} from ${KINGS[o].short}`); notes.push(`<b>${T(KINGS[id].short)}</b> seized ${T(PROV[p].name)} from ${T(KINGS[o].short)}`); } }
+  // war with you
+  for(const id of ids){ const k=K(id);
+    if(!k.war&&!k.wed&&k.rel<=-45&&k.army>armyPower()*.9&&S.day>=6&&Math.random()<(KINGS[id].style==='warlike'?.5:.2)){ k.war=true; k.pact=false; k.ws=0; news(`${KINGS[id].short} declared war on you`); notes.push(`<b>${T(KINGS[id].name)} has declared war on you</b>`); toast(T('War'),T(KINGS[id].short),'⚔'); }
+    if(k.war){ const mine=landsOf('me');
+      if(mine.length&&Math.random()<.35){ const p=mine[(Math.random()*mine.length)|0], P=S.prov[p], def=P.gar+armyPower()*.3, att=k.army*.5*(.8+Math.random()*.4);
+        if(att>def){ P.owner=id; P.gar=8; news(`${KINGS[id].short} took ${PROV[p].name} from you`); notes.push(`<b>${T(KINGS[id].short)} took ${T(PROV[p].name)}</b> from you`); addRenown(-5); }
+        else { k.army=Math.max(5,Math.round(k.army*.92)); k.ws--; notes.push(`<b>Your garrison at ${T(PROV[p].name)}</b> threw back ${T(KINGS[id].short)}`); addRenown(3); } }
+      S.royalRaid=S.royalRaid||{}; S.royalRaid[id]=Math.min(8,2+Math.floor(k.army/15));
+      if(k.ws<=-4&&Math.random()<.4){ S.royalMsg={kind:'terms',k:id}; }
+      if(k.ws>=4&&Math.random()<.5){ S.royalMsg={kind:'sue',k:id}; } }
+    else if(S.royalRaid) delete S.royalRaid[id]; }
+  // letters
+  if(!S.royalMsg&&S.day>=3&&Math.random()<.3){ const id=ids[(Math.random()*ids.length)|0], k=K(id), st=KINGS[id].style;
+    if(!k.war&&!k.wed&&k.rel>=45&&!Object.values(crowns()).some(x=>x.wed)) S.royalMsg={kind:'marry',k:id};
+    else if(st==='warlike'&&!k.war&&k.rel<0) S.royalMsg={kind:'demand',k:id,c:{gold:15+S.day*2}};
+    else if(st==='cunning'&&!k.pact&&!k.war&&k.rel>=0) S.royalMsg={kind:'trade',k:id};
+    else if(S.day>=6&&S.day%5===1) S.royalMsg={kind:'tourney',k:id}; }
+  // your lands
+  for(const p of landsOf('me')){ if(PROV[p].yield.renown) addRenown(PROV[p].yield.renown); }
+  if(S.levy&&S.levy.until<S.day) S.levy=null;
+}
+function offerRoyal(){
+  const m=S.royalMsg, KG=KINGS[m.k], k=K(m.k), done=()=>{ S.royalMsg=null; hideOver(); afterDiplo(); };
+  if(m.kind==='marry') showOver(T('A proposal from {{k}}',{k:T(KG.name)}),T('{{k}} offers the hand of a royal child to your house. A marriage would bind your crowns: they would never march on you and would send knights when you are at war.',{k:T(KG.short)}),[
+    {label:T('Accept the marriage'),sub:T('An alliance, +10 renown'),primary:true,fn:()=>{ S.royalMsg=null; proposeMarriage(m.k); hideOver(); }},{label:T('Decline politely'),sub:T('Relations cool a little'),fn:()=>{ relShift(m.k,-8); done(); }}]);
+  else if(m.kind==='demand') showOver(T('{{k}} makes a demand',{k:T(KG.name)}),T('“Pay me {{c}}, little crown, and my riders will look elsewhere this season.”',{c:costStr(m.c)}),[
+    {label:`${T('Pay')} ${costStr(m.c)}`,sub:T('Relations improve'),fn:()=>{ if(!canPay(m.c)){ say('You cannot pay that.'); return; } spend(m.c); relShift(m.k,20); done(); }},{label:T('Refuse'),sub:T('Relations sour, and war grows likelier'),primary:true,fn:()=>{ relShift(m.k,-20); addRenown(2); done(); }}]);
+  else if(m.kind==='trade') showOver(T('{{k}} proposes trade',{k:T(KG.name)}),T('Merrow’s caravans would stop in your markets. Both crowns grow richer.'),[
+    {label:T('Sign the agreement'),sub:T('+3 gold each dawn'),primary:true,fn:()=>{ k.rel=Math.max(k.rel,20); S.royalMsg=null; proposePact(m.k); hideOver(); }},{label:T('Not now'),sub:'',fn:()=>done()}]);
+  else if(m.kind==='terms') showOver(T('{{k}} offers terms',{k:T(KG.name)}),T('The war goes badly for you. {{k}} will make peace for {{g}} gold.',{k:T(KG.short),g:40}),[
+    {label:T('Pay {{g}} gold for peace',{g:40}),sub:'',fn:()=>{ if(S.res.gold<40){ say('Not enough gold.'); return; } S.res.gold-=40; k.war=false; relShift(m.k,10); done(); }},{label:T('Fight on'),sub:'',primary:true,fn:()=>done()}]);
+  else if(m.kind==='sue') showOver(T('{{k}} sues for peace',{k:T(KG.name)}),T('Your victories have shaken {{k}}, who offers {{g}} gold and peace.',{k:T(KG.short),g:30}),[
+    {label:T('Accept peace and gold'),sub:T('+30 gold, +8 renown'),primary:true,fn:()=>{ S.res.gold+=30; k.war=false; addRenown(8); news(`${KG.short} sued for peace`); done(); }},{label:T('Fight on'),sub:'',fn:()=>done()}]);
+  else if(m.kind==='tourney') showOver(T('A grand tournament in the lands of {{k}}',{k:T(KG.short)}),T('Champions of every crown will ride. Will your hero enter? The entry fee is 10 gold.'),[
+    {label:T('Enter the lists'),sub:T('Win renown and gold'),primary:true,fn:()=>{ if(S.res.gold<10){ say('Not enough gold.'); return; } S.res.gold-=10;
+      const me=heroDmg()*3+heroMax()/2+S.hl*2+Math.random()*12, best=Math.max(...Object.keys(KINGS).map(id=>K(id).army/3+6+Math.random()*12)); S.royalMsg=null;
+      if(me>=best){ S.res.gold+=40; addRenown(14); relShift(m.k,5); S.tourneys=(S.tourneys||0)+1; party('win'); news('Your hero won the grand tournament');
+        showOver(T('Your hero wins the tournament!'),T('Unhorsed every champion of the desert. +40 gold, +14 renown.'),[{label:T('Glory'),primary:true,fn:()=>{ hideOver(); afterDiplo(); }}]); }
+      else { addRenown(3); showOver(T('Your hero rode well'),T('…but a rival champion took the crown of the lists. +3 renown for a fine showing.'),[{label:T('Next year'),primary:true,fn:()=>{ hideOver(); afterDiplo(); }}]); } }},
+    {label:T('Stay home'),sub:'',fn:()=>done()}]);
+  else done();
+}
+function provNodes(){ crowns(); return Object.keys(PROV).map(p=>{ const P=PROV[p], o=S.prov[p].owner, col=o==='me'?'#F0BE4E':o?KINGS[o].color:'#8A7A6A';
+  return `<g><path d="M${P.x} ${P.y-8}l8 8-8 8-8-8z" fill="${col}" stroke="#1C1714" stroke-width="1.5"/><text x="${P.x}" y="${P.y+19}" text-anchor="middle" font-size="9" font-family="Inter,system-ui,sans-serif" fill="#E8DCC8">${T(P.name)}</text></g>`; }).join(''); }
+const landsTxt=n=>lang==='es'?`${n} tierra${n===1?'':'s'}`:`${n} land${n===1?'':'s'}`;
+function crownsHtml(){
+  crowns(); const st=standings(), night=S.phase!=='day';
+  const rows=st.map((r,i)=>{ const me=r.id==='me';
+    if(me) return `<div class="crown me"><span class="pl">${i+1}</span><span class="kn"><span class="sw" style="background:var(--gold)"></span>${T('Your realm')} · ${T(rankName())}</span><span class="ks">${T('Prestige {{p}} · army {{a}} · {{l}}',{p:r.p,a:armyPower(),l:landsTxt(landsOf('me').length)})}</span><span class="tags">${S.levy&&S.levy.until>=S.day?`<span class="tag">${T('Levies raised')}</span>`:''}</span><span class="ka"><button type="button" class="hot" id="levyBtn" ${night||(S.levy&&S.levy.until>=S.day)?'disabled':''}>${T('Raise levies')} <span class="c">20g 10f</span></button></span></div>`;
+    const k=K(r.id), KG=KINGS[r.id], gc=15+Math.max(0,Math.round(-k.rel/5));
+    return `<div class="crown"><span class="pl">${i+1}</span><span class="kn"><span class="sw" style="background:${KG.color}"></span>${T(KG.name)}</span>
+      <span class="ks">${T(KG.desc)} ${T('Prestige {{p}} · army {{a}} · {{l}} · {{r}} toward you',{p:r.p,a:k.army,l:landsTxt(landsOf(r.id).length),r:T(relWord(k.rel)).toLowerCase()})}</span>
+      <span class="tags">${k.war?`<span class="tag war">${T('At war')}</span>`:''}${k.wed?`<span class="tag ally">${T('Allied by marriage')}</span>`:''}${k.pact?`<span class="tag ally">${T('Trade agreement')}</span>`:''}</span>
+      <span class="ka">${k.war?`<button type="button" class="hot" data-peace="${r.id}" ${night?'disabled':''}>${T('Offer peace')}</button>`:`<button type="button" class="hot" data-envoy="${r.id}" ${night||k.last===S.day||S.res.gold<gc?'disabled':''}>${T('Send envoy')} <span class="c">${gc}g</span></button>
+        ${!k.pact&&k.rel>=20?`<button type="button" data-pact2="${r.id}" ${night?'disabled':''}>${T('Trade agreement')}</button>`:''}${!k.wed&&k.rel>=50?`<button type="button" data-wed="${r.id}" ${night?'disabled':''}>${T('Propose marriage')}</button>`:''}
+        <button type="button" data-den="${r.id}" ${night||k.last===S.day?'disabled':''}>${T('Denounce')}</button>${k.wed?'':`<button type="button" class="red" data-war="${r.id}" ${night?'disabled':''}>${T('Declare war')}</button>`}`}</span></div>`; }).join('');
+  const provs=Object.keys(PROV).map(p=>{ const P=S.prov[p], o=P.owner, col=o==='me'?'var(--gold)':o?KINGS[o].color:'var(--line)', od=battleOdds(p);
+    const owner=o==='me'?T('Yours'):o?T(KINGS[o].short):T('Unclaimed, held by bandits');
+    let act='';
+    if(!o) act=`<button type="button" class="hot" data-settle="${p}" ${night?'disabled':''}>${T('Settle')} <span class="c">20g 15f, 2 ${T('villagers')}</span></button>`;
+    else if(o==='me') act=`<button type="button" data-reinf="${p}" ${night?'disabled':''}>${T('Reinforce')} <span class="c">12g</span></button>`;
+    else if(K(o).war) act=`<button type="button" class="hot" data-march="${p}" ${night||S.marched===S.day?'disabled':''}>${T('March')} · ${od.pct}% <span class="c">10g 10f</span></button>`;
+    return `<div class="prov" style="border-left-color:${col}"><b>${T(PROV[p].name)}</b><span class="pd">${owner} · ${T('yields {{y}} each dawn',{y:yieldStr(p)})} · ${T('garrison {{g}}',{g:o&&o!=='me'?od.def:P.gar})}</span><span class="pa">${act}</span></div>`; }).join('');
+  const nw=(S.newsLog||[]).slice(0,5).map(n=>`<div class="pd">${T('Day {{n}}',{n:n.d})}: ${n.t}</div>`).join('');
+  return `<h3>${T('Rival crowns')}</h3><div class="bar2">${T('You are the {{n}} crown of the desert.',{n:ordinal(myPlace())})} ${T('Prestige counts renown, gold, army, people and lands.')}</div><div class="crowns">${rows}</div>
+    <h3>${T('Contested lands')}</h3><div class="provs">${provs}</div>${nw?`<h3>${T('News from the courts')}</h3><div class="prov">${nw}</div>`:''}`;
+}
 function showReport(r){
   const box=$('board'); box.querySelectorAll('.report').forEach(e=>e.remove());
   const by=r.by, parts=[['hero',T('Your hero'),'#F2EADD'],['tower',T('Towers and keep'),'#F0BE4E'],['soldier',T('Soldiers'),'#5E8DFF'],['cata',T('Catapults'),'#E0904A'],['trap',T('Traps'),'#B9C6D8']].filter(p=>by[p[0]]);
@@ -4392,9 +4669,10 @@ function ui(){
   if(S.phase==='day'&&!S.modal&&!S.over&&S.perkPending>0) offerPerk();
   if(S.phase==='day'&&!S.modal&&!S.over&&S.lootPending>0) offerLoot();
   if(S.phase==='day'&&!S.modal&&!S.over&&S.demand) offerDemand();
+  if(S.phase==='day'&&!S.modal&&!S.over&&S.royalMsg) offerRoyal();
   renderEdicts(); renderHeroPanel();
   if(S.phase==='day') checkAch(); else renderAch();
-  $('best').textContent=[T(rankName()),T(DIFF[S.diff].label),T('score {{n}}',{n:score().toLocaleString()}),bestScore?T('best {{n}}',{n:bestScore.toLocaleString()}):''].filter(Boolean).join(' · ');
+  $('best').textContent=[S.crowns?T('{{n}} crown',{n:ordinal(myPlace())}):'',T(rankName()),T(DIFF[S.diff].label),T('score {{n}}',{n:score().toLocaleString()}),bestScore?T('best {{n}}',{n:bestScore.toLocaleString()}):''].filter(Boolean).join(' · ');
   renderInsp();
 }
 function renderQuest(){
@@ -4634,17 +4912,20 @@ function renderRealm(){
     <path d="M176 104c18 12 36 18 56 22" fill="none" stroke="#EDE3CE" stroke-width="2" stroke-dasharray="3 5" opacity="${S.coastUnlocked?.8:.3}"/>
     ${[[30,70],[90,135],[360,125],[50,30],[110,20],[236,22]].map(([x,y])=>`<path d="M${x} ${y}l10-16 10 16z" fill="#8A5238"/><path d="M${x+6} ${y-9}l4-7 4 7z" fill="#EDE6D4"/>`).join('')}
     <text x="200" y="232" text-anchor="middle" font-size="10" fill="#9CC6D2" font-family="Inter,system-ui,sans-serif" letter-spacing="2">${T('THE OPEN SEA')}</text>
-    ${node('home',170,82)}${node('coast',250,140)}${node('mountain',310,40)}${sea}</svg>`;
+    ${node('home',170,82)}${node('coast',250,140)}${node('mountain',310,40)}${provNodes()}${sea}</svg>`;
   const card=id=>{ const st=regionStatus(id), open=!!S.R[id];
     if(!open) return `<div class="rcard"><b>${T('Unknown lands')}</b><div class="rd">${T(id==='mountain'?'Your scouts are crossing the northern mountains. They should find a way by day 7.':'Your scouts are searching the coast to the south. They should find a way by day 3.')}</div></div>`;
     const here=S.cur===id&&S.heroAt===id, raid=S.raid===id;
     return `<div class="rcard"><b>${T(regionName(id))}</b><div class="rd">${T(REGIONS[id].desc)}</div>
       <div class="tags">${S.heroAt===id?`<span class="tag hero">${T('Your hero is here')}</span>`:''}${raid?`<span class="tag raid">${T(night?'Under attack':'Tonight’s raid')}</span>`:''}<span class="tag">${T(REGIONS[id].fort)} ${st.keep}/${st.keepMax}</span><span class="tag">${TP(st.buildings,'building')}</span>${id==='coast'?`<span class="tag">${T('{{a}} of {{b}} ships in port',{a:shipsFree(),b:shipsTotal()})}</span>`:''}${id==='mountain'?`<span class="tag">${T('{{n}} iron',{n:S.res.iron})}</span>`:''}</div>
       <button type="button" data-go="${id}" ${here||night?'disabled':''}>${T(here?'You are here':night?'Travel by day':'Ride here')}</button></div>`; };
-  const facH=factionsHtml();
+  const facH=factionsHtml()+crownsHtml();
   $('realm').innerHTML=`<div class="rh"><h2>${T('The realm')}</h2><span style="display:flex;gap:6px"><button class="x" type="button" id="realmSlots">${T('Save slots')}</button><button class="x" type="button" id="realmClose">${T('Close')}</button></span></div>${svg}<div class="rcards">${ids.map(card).join('')}</div>${facH}${S.voyages.length?`<div class="rd" style="font-size:13px;color:var(--muted)">${T('At sea:')} ${S.voyages.map(v=>{ const p=PORTS.find(x=>x.id===v.port); return T('{{p}}, home on day {{d}}',{p:p?T(p.name):'',d:v.back}); }).join(' · ')}</div>`:''}`;
   $('realmClose').addEventListener('click',closeRealm);
   $('realmSlots').addEventListener('click',()=>{ closeRealm(); save(); slotMenu(false); });
+  const RQ=(sel,fn)=>$('realm').querySelectorAll(sel).forEach(b=>b.addEventListener('click',()=>fn(Object.values(b.dataset)[0])));
+  RQ('[data-envoy]',envoy); RQ('[data-pact2]',proposePact); RQ('[data-wed]',proposeMarriage); RQ('[data-den]',denounce); RQ('[data-war]',declareWar); RQ('[data-peace]',offerPeace);
+  RQ('[data-settle]',settle); RQ('[data-reinf]',reinforce); RQ('[data-march]',march); $('levyBtn')?.addEventListener('click',raiseLevy);
   $('realm').querySelectorAll('[data-gift]').forEach(b=>b.addEventListener('click',()=>sendGift(b.dataset.gift)));
   $('realm').querySelectorAll('[data-pact]').forEach(b=>b.addEventListener('click',()=>makePact(b.dataset.pact)));
   $('realm').querySelectorAll('[data-go]').forEach(el=>{ const go=()=>{ if(S.R[el.dataset.go]) travelTo(el.dataset.go); }; el.addEventListener('click',go); el.addEventListener('keydown',e=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); go(); } }); });
