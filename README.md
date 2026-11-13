@@ -1,6 +1,8 @@
-# EmperorFall
+# Small Crown
 
-A minimalist kingdom build-and-defend game in a low-poly desert canyon (working title in-game: *Small Crown*). Ride your hero out to build by day, grow a village economy, then hold the keep against raiders through the night.
+A minimalist kingdom build-and-defend game in a low-poly desert canyon. Ride your hero out to build by day, grow a village economy, then hold the keep against raiders through the night.
+
+**Play it:** https://smallcrown.netlify.app/
 
 Runs in any modern browser. No build step.
 
@@ -15,7 +17,7 @@ python3 -m http.server 8000
 
 ## Deploy
 
-Any static host works. On Netlify, connect this repository with no build command and the publish directory set to the repository root.
+The live site deploys from this repository on Netlify, with no build command and the publish directory set to the repository root. Any other static host works the same way.
 
 ## Layout
 
