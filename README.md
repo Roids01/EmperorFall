@@ -52,6 +52,7 @@ three.js r128 and every library load from the jsDelivr and cdnjs CDNs, pinned to
 - **Naval defense:** a lighthouse weakens pirates as they land, and warships built at the harbor sail out to sink pirate boats before they reach the shore.
 - **Story and goals:** five chapters across the 20 nights, 16 achievements, and a daily challenge where everyone gets the same valley and the same twist for the day.
 - **Look:** a tilt-shift, color-graded finish on High graphics, golden-hour dusks and dawns, drifting cloud shadows, swaying palms and pines, surf along the cove, and buildings that rise out of scaffolding.
+- **Townsfolk:** villagers with names, jobs and opinions go about their day. Farmers hoe, woodcutters chop, miners dig, fishers fish, smiths hammer and merchants call out their wares, then carry the goods home. Children play, elders pray at the shrine, water carriers fetch from the well, friends stop to chat, and when the mood is high people dance by the keep. Chickens, dogs, goats and crabs wander about, chimneys smoke, laundry flaps, and road lamps light up at dusk. When the bell rings, everyone runs for home. In Ride mode, tap a villager to hear what they think.
 - **Save slots and language:** three kingdoms can be saved side by side, and the EN/ES button switches the interface to Spanish.
 
 - **Phones and tablets:** steer the hero with the on-screen joystick; a full-screen button appears where the browser supports it.
