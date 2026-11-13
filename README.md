@@ -35,6 +35,10 @@ three.js r128 and its glTF loader and bloom passes load from the jsDelivr and cd
 - **Economy:** villagers live in the keep and houses, pay 1 gold in taxes and eat 1 food each dawn, and work farms, lumber camps, mines and the market.
 - **Night:** ring the bell. Raiders follow the red dotted routes and smash anything in the way. Watchtowers, catapults, soldiers and your hero fight back.
 - **Damage:** hurt buildings smoke and burn; tap one and choose Repair, or let dawn patch it slowly.
+- **Goal:** hold the keep through 20 nights, then keep going in endless mode. Pick Easy, Normal or Hard at the start; your score counts nights, kills, villagers, buildings and upgrades.
+- **Hero abilities:** Charge (Q) dashes through raiders; Rally (E) pulls every soldier to the hero and makes them fight harder.
+- **Growth:** quests teach the basics and pay out goods, and twelve kingdom upgrades improve your economy, defenses, army and hero.
+- **Raiders:** bandits, runners, brutes, archers who shoot from range, battering rams that smash buildings, and a warlord every fifth night.
 
 The full rules and key bindings are in the "How to rule" panel in the game.
 

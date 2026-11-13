@@ -117,6 +117,27 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
 .over .opt.primary{background:var(--sand);color:#2A1A10;border-color:var(--sand);text-align:center}
 .over .opt.primary span{color:inherit;opacity:.75}
 .over .opt:hover{border-color:var(--sand)}
+.quest{display:flex;align-items:center;gap:10px;background:var(--surface);border-radius:8px;padding:8px 12px;font-size:13.5px;flex-wrap:wrap}
+.quest .ql{font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.quest .qt{flex:1;min-width:0}
+.quest .qp{font-family:var(--f-num);font-size:12px;color:var(--muted)}
+.quest .qr{font-size:12px;color:var(--muted);white-space:nowrap}
+.quest .qr b{color:var(--good);font-weight:500}
+.upg{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:6px;margin-top:8px}
+.uc{background:var(--surface);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.uc .un{font-weight:600;color:var(--ink);font-size:13px;display:flex;justify-content:space-between;gap:6px}
+.uc .un small{font-weight:500;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.uc .ud{font-size:12px;color:var(--muted);line-height:1.4;flex:1}
+.uc button{font:inherit;font-size:12.5px;font-weight:500;border:1px solid var(--line);background:var(--raise);color:var(--ink);border-radius:6px;padding:5px 8px;cursor:pointer;align-self:flex-start}
+.uc button .c{font-family:var(--f-num)}
+.uc button:disabled{opacity:.45;cursor:default}
+.uc.done{opacity:.6} .uc.done .un::after{content:"Owned";font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--good)}
+.abil{position:absolute;left:10px;bottom:10px;display:flex;gap:8px}
+.ab{--cd:0;position:relative;width:50px;height:50px;border-radius:50%;border:0;background:rgba(28,23,20,.82);color:var(--ink);cursor:pointer;display:grid;place-items:center;padding:0}
+.ab svg{width:22px;height:22px;color:var(--gold)}
+.ab .kk{position:absolute;right:2px;bottom:1px;font-family:var(--f-num);font-size:9.5px;color:var(--muted)}
+.ab::after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(rgba(10,8,6,.72) calc(var(--cd)*1turn),transparent 0);pointer-events:none}
+.ab:disabled{cursor:default}
 .nogl{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:24px;color:var(--ink);background:var(--bg)}
 </style>
 
@@ -139,8 +160,14 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
       <div class="chip" id="cDay"><i><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="2.6" fill="#D99A60"/><path d="M6 .8v1.6M6 9.6v1.6M.8 6h1.6M9.6 6h1.6M2.3 2.3l1.1 1.1M8.6 8.6l1.1 1.1M2.3 9.7l1.1-1.1M8.6 3.4l1.1-1.1" stroke="#D99A60" stroke-width="1.1"/></svg></i><span id="day">Day 1</span></div>
       <div class="chip" id="cLoad"><i><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="none" stroke="#B5A795" stroke-width="1.4" stroke-dasharray="6 4"/></svg></i><span>Loading models</span></div>
     </div>
+    <div class="abil" id="abil">
+      <button class="ab" id="aCharge" type="button" aria-label="Charge (Q)" title="Charge (Q): your hero dashes forward, cutting down raiders in his path"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M3 15l7-4-2-2 9-6-5 8 2 2-11 2z" fill="currentColor"/></svg><span class="kk">Q</span></button>
+      <button class="ab" id="aRally" type="button" aria-label="Rally (E)" title="Rally (E): every soldier rushes to your hero and fights harder for 8 seconds"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M3 9h3l8-5v14l-8-5H3z" fill="currentColor"/><path d="M16.5 8a4 4 0 0 1 0 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="kk">E</span></button>
+    </div>
     <div class="over" id="over" hidden></div>
   </div>
+
+  <div class="quest" id="quest" aria-live="polite"></div>
 
   <div class="insp" id="insp" aria-live="polite"></div>
   <p id="msg"></p>
@@ -164,14 +191,21 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <div id="ledger"></div>
   </details>
 
+  <details class="ledger" open>
+    <summary>Kingdom upgrades</summary>
+    <div class="upg" id="upg"></div>
+  </details>
+
   <details>
     <summary>How to rule</summary>
+    <p><b>The goal</b> is to hold the keep through 20 nights. Your score counts nights held, raiders felled, villagers and buildings, and Hard raises it. After night 20 you can keep ruling in endless mode. Quests along the way teach the basics and pay out goods.</p>
+    <p><b>Hero abilities.</b> <b>Charge</b> (<kbd>Q</kbd>) sends your hero dashing ahead, cutting down every raider in his path. <b>Rally</b> (<kbd>E</kbd>) blows a horn: every soldier rushes to his side and fights harder for 8 seconds.</p>
     <p><b>Your hero</b> rides a white horse. Pick a build tool and tap tiles to give him orders: he rides to each spot and builds it there, up to 8 orders in a row. Tap an order again to cancel it. With <b>Ride</b>, or at any time at night, tapping the ground sends him there. He fights any raider within reach, and if he falls he returns to the keep a few seconds later.</p>
     <p><b>Your village</b> runs on gold, food, wood and stone. Villagers live in the keep (room for 4) and in houses (3 each). Every dawn each villager pays 1 gold in taxes and eats 1 food, and each soldier eats 1 food too. With food to spare and room in your houses, new villagers move in. If food runs out, some of them leave.</p>
     <p><b>Producers need a villager to work them.</b> Farms grow 4 food, lumber camps in a palm grove cut 4 wood, mines on ore dig 3 stone, and a market (day 3) earns 3 gold and lets you buy and sell goods. Workers fill farms first, then mines, lumber camps and the market. Pause a producer from its panel to move its worker elsewhere. Catapults and barracks cost 1 gold upkeep each dawn, and if the treasury can't pay, they sit out the night.</p>
     <p><b>Market prices</b> rise as you buy and fall as you sell, then drift back toward normal each dawn. Caravans, droughts, festivals and migrants can turn up at dawn and shake things up.</p>
     <p><b>Defenses.</b> Red dots trace the road each war band will take through the canyon. Palisades are cheap and stubborn. Traps wound and slow whoever crosses and reset each dawn. Watchtowers shoot whoever is closest to your keep. Catapults (day 4) hit everyone near where the stone lands but can't fire up close. Barracks (day 2) field soldiers who hold the ground around them. Runners slip past soldiers. Anything built today refunds in full.</p>
-    <p><b>By night</b> raiders take the easiest road and smash anything blocking it. Runners appear from night 3, brutes from night 6, and a warlord every fifth night. Beat a warlord and you choose a boon. Progress saves after every build and each dawn.</p>
+    <p><b>By night</b> raiders take the easiest road and smash anything blocking it. Runners appear from night 3, brutes from night 6, and a warlord every fifth night. Archers appear from night 4 and shoot from range at your hero, soldiers and buildings. Battering rams roll in from night 8, ignore soldiers and smash buildings fast. Beat a warlord and you choose a boon. Kingdom upgrades are permanent improvements you buy with your goods at any time. Progress saves after every build and each dawn.</p>
     <p><b>The view</b> follows your hero. Drag the board to look around, scroll or pinch to zoom, tap the minimap to jump anywhere, and use the frame button (<kbd>V</kbd>) to see the whole valley at once.</p>
     <p><b>Moving and building.</b> Your hero rides around buildings and cliffs on his own. Right-click anywhere to send him there. With the palisade or trap tool, drag across the ground to lay a whole line of orders at once. Right-click an order to cancel it.</p>
     <p>Keys: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> ride the hero, arrow keys pan the view, <kbd>H</kbd> back to the hero, <kbd>+</kbd> <kbd>−</kbd> zoom, <kbd>1</kbd>–<kbd>0</kbd> build tools, <kbd>X</kbd> clear, <kbd>R</kbd> ride, <kbd>Space</kbd> ring the bell, <kbd>U</kbd> upgrade, <kbd>P</kbd> pause, <kbd>F</kbd> speed, <kbd>Esc</kbd> deselect. Speed, zoom, sound and graphics quality are remembered.</p>
@@ -222,7 +256,72 @@ function canPay(c){ return RES.every(r=>S.res[r]>=(c[r]||0)); }
 function spend(c){ RES.forEach(r=>S.res[r]-=(c[r]||0)); }
 function addC(a,b){ const o={...a}; RES.forEach(r=>{ if(b&&b[r]) o[r]=(o[r]||0)+b[r]; }); return o; }
 const count=t=>S.grid.filter(g=>g.b&&g.b.type===t).length;
-const housing=()=>4+3*count('house');
+const housing=()=>4+(3+S.mods.housing)*count('house');
+const WIN_NIGHTS=20;
+const DIFF={easy:{label:'Easy',sub:'Smaller raids and a fuller treasury. Score ×0.7',wave:.75,hp:.85,res:1.35,mult:.7},
+  normal:{label:'Normal',sub:'The intended challenge',wave:1,hp:1,res:1,mult:1},
+  hard:{label:'Hard',sub:'Bigger, tougher raids and a lean start. Score ×1.5',wave:1.3,hp:1.2,res:.8,mult:1.5}};
+const UPGS=[
+  {id:'irrigation',branch:'Economy',name:'Irrigation',desc:'Farms grow +1 food each dawn.',cost:{gold:10,wood:6},apply:()=>{S.mods.harvest++}},
+  {id:'tools',branch:'Economy',name:'Iron tools',desc:'Lumber camps cut +1 wood and mines dig +1 stone.',cost:{gold:12,stone:4},apply:()=>{S.mods.wood++;S.mods.stone++}},
+  {id:'granary',branch:'Economy',name:'Granary',desc:'Every house holds 1 more villager.',cost:{wood:10,stone:4},day:3,apply:()=>{S.mods.housing++}},
+  {id:'collectors',branch:'Economy',name:'Tax collectors',desc:'An extra gold for every 3 villagers each dawn.',cost:{gold:16},req:'granary',apply:()=>{S.mods.taxes++}},
+  {id:'fletching',branch:'Defense',name:'Fletching',desc:'Watchtowers and the keep deal +1 damage.',cost:{gold:12,wood:6},apply:()=>{S.mods.dmg++}},
+  {id:'masonry',branch:'Defense',name:'Masonry',desc:'Palisades and walls gain +5 health, including ones already built.',cost:{gold:6,stone:6},apply:()=>{S.mods.wall++;each(b=>{if(b.type==='wall'){b.max+=5;b.hp+=5}})}},
+  {id:'spikes',branch:'Defense',name:'Barbed spikes',desc:'Traps deal +1 damage and hold 3 more charges.',cost:{wood:6,stone:3},apply:()=>{S.mods.trap++}},
+  {id:'counterweights',branch:'Defense',name:'Counterweights',desc:'Catapults fire a third faster.',cost:{gold:12,stone:8},day:4,req:'fletching',apply:()=>{S.mods.cataRate=.67}},
+  {id:'drill',branch:'Army',name:'Drill yard',desc:'Soldiers deal +1 damage and have +2 health.',cost:{gold:14,wood:6},day:2,apply:()=>{S.mods.drill++;S.units.forEach(u=>{u.max=unitMax();u.hp=u.max})}},
+  {id:'muster',branch:'Army',name:'Muster roll',desc:'Every barracks fields one more soldier.',cost:{gold:18,stone:6},req:'drill',apply:()=>{S.mods.muster++;S.grid.forEach((t,i)=>{ if(t.b&&t.b.type==='barr') spawnUnits(i); })}},
+  {id:'warhorse',branch:'Hero',name:'Warhorse',desc:'Your hero gains +6 health and +2 damage.',cost:{gold:16},apply:()=>{S.mods.hero++;S.hero.max=heroMax();S.hero.hp=S.hero.max}},
+  {id:'horn',branch:'Hero',name:'Great horn',desc:'Rally recharges twice as fast and Charge hits 2 harder.',cost:{gold:14,stone:4},req:'warhorse',apply:()=>{S.mods.horn=1}}
+];
+const hasUpg=id=>S.upg.includes(id);
+function upgState(u){
+  if(hasUpg(u.id)) return 'done';
+  if(u.req&&!hasUpg(u.req)) return 'req';
+  if(u.day&&S.day<u.day) return 'day';
+  return canPay(u.cost)?'buy':'poor';
+}
+function buyUpg(id){
+  const u=UPGS.find(x=>x.id===id); if(!u||upgState(u)!=='buy'||S.over) return;
+  spend(u.cost); S.upg.push(id); u.apply(); S.ver++;
+  floatText(C,C,u.name,CSS.gold); sfx('up'); say(`<b>${u.name}</b> is yours. ${u.desc}`); save(); ui();
+}
+const QUESTS=[
+  {text:'Build a farm',goal:()=>[count('farm'),1],reward:{wood:3}},
+  {text:'Build a house so more villagers can move in',goal:()=>[count('house'),1],reward:{wood:4}},
+  {text:'Build a watchtower near a red raider route',goal:()=>[count('tower'),1],reward:{gold:4}},
+  {text:'Survive your first night',goal:()=>[S.day-1,1],reward:{gold:5}},
+  {text:'Build a lumber camp in a palm grove',goal:()=>[count('lumber'),1],reward:{gold:4}},
+  {text:'Grow your village to 7 villagers',goal:()=>[S.pop,7],reward:{food:6}},
+  {text:'Open a mine on ore',goal:()=>[count('mine'),1],reward:{gold:5}},
+  {text:'Buy a kingdom upgrade',goal:()=>[S.upg.length,1],reward:{stone:4}},
+  {text:'Raise a barracks',goal:()=>[count('barr'),1],reward:{wood:6}},
+  {text:'Use Charge or Rally in battle',goal:()=>[S.abilUsed||0,1],reward:{gold:5}},
+  {text:'Upgrade a palisade to stone',goal:()=>[S.grid.filter(t=>t.b&&t.b.type==='wall'&&t.b.lvl>1).length,1],reward:{gold:6}},
+  {text:'Build a market',goal:()=>[count('market'),1],reward:{gold:8}},
+  {text:'Defeat the first warlord',goal:()=>[S.day>5?1:0,1],reward:{gold:12,stone:6}},
+  {text:'Grow your village to 15 villagers',goal:()=>[S.pop,15],reward:{gold:15}},
+  {text:'Build a catapult',goal:()=>[count('cata'),1],reward:{stone:8}},
+  {text:'Own 6 kingdom upgrades',goal:()=>[S.upg.length,6],reward:{gold:15,stone:6}},
+  {text:'Survive night 10',goal:()=>[S.day-1,10],reward:{gold:20}},
+  {text:'Survive night 15',goal:()=>[S.day-1,15],reward:{gold:25,stone:10}}
+];
+function checkQuests(){
+  let guard=0;
+  while(S.quest<QUESTS.length&&guard++<5){
+    const q=QUESTS[S.quest], [have,need]=q.goal(); if(have<need) break;
+    RES.forEach(r=>S.res[r]+=q.reward[r]||0); S.quest++;
+    floatText(C,C,'Quest complete',CSS.gold); sfx('dawn');
+    say(`<b>Quest complete:</b> ${q.text}. Reward: ${costStr(q.reward)}.`); save();
+  }
+}
+function score(){
+  let b=0; each(x=>{ if(x.type!=='keep') b++; });
+  return Math.round(((S.day-1)*100+S.kills*5+S.pop*25+b*10+S.upg.length*20)*DIFF[S.diff].mult);
+}
+let bestScore=0; try{ bestScore=+localStorage.getItem('smallcrown-bestscore')||0 }catch(e){}
+function recordScore(){ const sc=score(); if(sc>bestScore){ bestScore=sc; try{ localStorage.setItem('smallcrown-bestscore',sc) }catch(e){} } return sc; }
 const TRAP_CHARGES=6;
 const BOONS=[
   {name:'Stout keep',desc:'+4 keep health, fully repaired.',apply:()=>{S.keepMax+=4;S.keep=S.keepMax}},
@@ -257,10 +356,16 @@ function joinList(a){ return a.length<2?a.join(''):a.slice(0,-1).join(', ')+' an
 function blank(){
   return {res:{gold:10,food:10,wood:14,stone:2},pop:3,idle:0,price:{...BASEP},day:1,phase:'day',keep:10,keepMax:10,grid:[],enemies:[],shots:[],puffs:[],floats:[],spawns:[],queue:[],
     spawnT:0,kills:0,nightKills:0,dist:[],tool:'farm',over:false,t:0,modal:false,ver:0,
-    mods:{dmg:0,range:0,harvest:0,wall:0,trap:0,tax:0,hero:0,drill:0,wood:0},hero:null,units:[]};
+    mods:{dmg:0,range:0,harvest:0,wall:0,trap:0,tax:0,hero:0,drill:0,wood:0,stone:0,housing:0,taxes:0,cataRate:1,muster:0,horn:0},hero:null,units:[],
+    upg:[],quest:0,diff:'normal',won:false,abilUsed:0};
 }
 function newGame(){
-  S=blank();
+  showOver('Found a new kingdom','Choose how hard the raids will be. Hold the keep through 20 nights to win.',
+    Object.entries(DIFF).map(([k,d])=>({label:d.label,sub:d.sub,primary:k==='normal',fn:()=>startGame(k)})));
+}
+function startGame(diff){
+  S=blank(); S.diff=diff||'normal';
+  RES.forEach(r=>S.res[r]=Math.round(S.res[r]*DIFF[S.diff].res));
   const off=Math.random()*6.28;
   for(let y=0;y<N;y++)for(let x=0;x<N;x++){
     const dx=x-C,dy=y-C,a=Math.atan2(dy,dx),r=Math.hypot(dx,dy);
@@ -303,9 +408,10 @@ function pickSpawns(){
 }
 const isSpawn=(x,y)=>S.spawns.some(p=>p[0]===x&&p[1]===y);
 function planWave(){
-  const d=S.day, n=3+2*(d-1);
-  const run=d>=3?Math.floor(n*.25):0, bru=d>=6?Math.floor(n*.15)+(d>=10?1:0):0;
-  const q=[]; for(let i=0;i<n-run-bru;i++)q.push('raider'); for(let i=0;i<run;i++)q.push('runner'); for(let i=0;i<bru;i++)q.push('brute');
+  const d=S.day, n=Math.max(2,Math.round((3+2*(d-1))*DIFF[S.diff].wave));
+  const run=d>=3?Math.floor(n*.25):0, bru=d>=6?Math.floor(n*.15)+(d>=10?1:0):0, arc=d>=4?Math.max(1,Math.floor(n*.18)):0;
+  const q=[]; for(let i=0;i<Math.max(1,n-run-bru-arc);i++)q.push('raider'); for(let i=0;i<run;i++)q.push('runner'); for(let i=0;i<bru;i++)q.push('brute'); for(let i=0;i<arc;i++)q.push('archer');
+  if(d>=8) for(let i=0;i<1+Math.floor((d-8)/4);i++) q.push('ram');
   for(let i=q.length-1;i>0;i--){const j=(Math.random()*(i+1))|0;[q[i],q[j]]=[q[j],q[i]]}
   if(d%5===0) q.push('warlord');
   S.queue=q;
@@ -318,7 +424,7 @@ function dirName(x,y){
 }
 function waveText(){
   const c={}; S.queue.forEach(t=>c[t]=(c[t]||0)+1);
-  const parts=[]; if(c.raider)parts.push(plural(c.raider,'raider')); if(c.runner)parts.push(plural(c.runner,'runner')); if(c.brute)parts.push(plural(c.brute,'brute')); if(c.warlord)parts.push('a warlord');
+  const parts=[]; if(c.raider)parts.push(plural(c.raider,'raider')); if(c.runner)parts.push(plural(c.runner,'runner')); if(c.archer)parts.push(plural(c.archer,'archer')); if(c.brute)parts.push(plural(c.brute,'brute')); if(c.ram)parts.push(plural(c.ram,'battering ram')); if(c.warlord)parts.push('a warlord');
   const dirs=[...new Set(S.spawns.map(([x,y])=>dirName(x,y)))];
   return `${joinList(parts)} coming through the ${joinList(dirs)} pass${dirs.length>1?'es':''}`;
 }
@@ -366,15 +472,17 @@ function econ(){
   each(b=>{
     if(DEF[b.type].work&&!b.worked&&!b.off) idleP++;
     if(b.worked){ if(b.type==='farm')farms++; if(b.type==='lumber')lum++; if(b.type==='mine')mines++; if(b.type==='market')mk++; }
-    if(b.type==='cata')cata++; if(b.type==='barr'){barr++;soldiers+=b.lvl+1;} if(b.type==='house')houses++;
+    if(b.type==='cata')cata++; if(b.type==='barr'){barr++;soldiers+=b.lvl+1+S.mods.muster;} if(b.type==='house')houses++;
   });
   const fo=4+S.mods.harvest, wo=4+S.mods.wood;
   if(farms) L.food.push([`${plural(farms,'farm')} × ${fo}`,farms*fo]);
   if(S.pop) L.food.push([`${plural(S.pop,'villager')} eat`,-S.pop]);
   if(soldiers) L.food.push([`${plural(soldiers,'soldier')} eat`,-soldiers]);
   if(lum) L.wood.push([`${plural(lum,'lumber camp')} × ${wo}`,lum*wo]);
-  if(mines) L.stone.push([`${plural(mines,'mine')} × 3`,mines*3]);
+  const so=3+S.mods.stone;
+  if(mines) L.stone.push([`${plural(mines,'mine')} × ${so}`,mines*so]);
   if(S.pop) L.gold.push([`Taxes from ${plural(S.pop,'villager')}`,S.pop]);
+  if(S.mods.taxes&&S.pop>=3) L.gold.push([`Tax collectors`,Math.floor(S.pop/3)*S.mods.taxes]);
   if(mk) L.gold.push([`Market trade`,mk*3]);
   if(cata) L.gold.push([`Catapult upkeep`,-cata]);
   if(barr) L.gold.push([`Barracks upkeep`,-barr]);
@@ -431,7 +539,7 @@ const heroMax=()=>12+S.mods.hero*6, heroDmg=()=>2+S.mods.hero*2, unitMax=()=>4+S
 function mkHero(){ return {x:C,y:C+1,tx:C,ty:C+1,hp:12+((S&&S.mods.hero)||0)*6,max:12+((S&&S.mods.hero)||0)*6,dead:false,respawn:0,atk:0,dir:-Math.PI/2,queue:[],moving:false,age:0,hit:0,swing:0}; }
 function spawnUnits(i){
   const b=S.grid[i].b; if(!b||b.type!=='barr'||b.unpaid) return;
-  const want=b.lvl+1, have=S.units.filter(u=>u.home===i);
+  const want=b.lvl+1+S.mods.muster, have=S.units.filter(u=>u.home===i);
   for(let k=0;k<want;k++){ if(have.some(u=>u.slot===k)) continue;
     const x=i%N,y=(i/N)|0, a=k*2.1+.6;
     S.units.push({home:i,slot:k,x:x+Math.cos(a)*.48,y:y+Math.sin(a)*.48,hp:unitMax(),max:unitMax(),atk:0,dir:Math.atan2(C-y,C-x),target:null,age:0,hit:0,swing:0,moving:false}); }
@@ -515,8 +623,32 @@ function rideTo(x,y){
   if(h.queue.length&&S.phase==='day'){ h.queue=[]; say('Build orders cleared.'); }
   h.tx=x; h.ty=y; h.tstop=passHero(x,y)?0:.62; h.pathKey=null; rideMark={x,y,life:.9}; camFree=null; sfx('ride');
 }
+const CHARGE_CD=10, RALLY_CD=24;
+function useCharge(){
+  const h=S.hero; if(!h||h.dead||S.over||S.modal||(h.cdC||0)>0) return;
+  let tx=Math.cos(h.dir), ty=Math.sin(h.dir), best=3.2;
+  for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-h.x,e.y-h.y); if(d<best){ best=d; tx=(e.x-h.x)/d; ty=(e.y-h.y)/d; } }
+  h.dash={t:.38,dx:tx,dy:ty,hit:new Set()}; h.dir=Math.atan2(ty,tx); h.cdC=CHARGE_CD; if(!(h.queue.length&&S.phase==='day')){ h.tx=h.x; h.ty=h.y; }
+  S.abilUsed=(S.abilUsed||0)+(S.phase==='night'?1:0); sfx('charge'); camFree=null; ui();
+}
+function useRally(){
+  const h=S.hero; if(!h||h.dead||S.over||S.modal||(h.cdR||0)>0) return;
+  h.cdR=RALLY_CD*(S.mods.horn?.5:1); h.rallyFx=1;
+  for(const u of S.units){ u.rally=8; u.target=null; u.pathKey=null; }
+  S.abilUsed=(S.abilUsed||0)+(S.phase==='night'?1:0); sfx('horn');
+  say(S.units.length?`<b>Rally!</b> ${plural(S.units.length,'soldier')} rush to your hero.`:'<b>Rally!</b> No soldiers answered. Build a barracks to field some.'); ui();
+}
 function stepHero(dt){
   const h=S.hero; h.age+=dt; h.hit=Math.max(0,h.hit-dt); h.swing=Math.max(0,h.swing-dt);
+  h.cdC=Math.max(0,(h.cdC||0)-dt); h.cdR=Math.max(0,(h.cdR||0)-dt); if(h.rallyFx) h.rallyFx=Math.max(0,h.rallyFx-dt*1.4);
+  if(h.dash&&!h.dead){
+    const v=7*dt; tryStep(h,h.dash.dx*v,h.dash.dy*v); h.moving=true; h.dash.t-=dt;
+    if(!reduce) dust(h.x,h.y,.9);
+    const dmg=3+S.mods.hero*2+(S.mods.horn?2:0);
+    for(const e of S.enemies){ if(e.gone||h.dash.hit.has(e)) continue; if(Math.hypot(e.x-h.x,e.y-h.y)<.5){ h.dash.hit.add(e); hurt(e,dmg); embers(e.x,e.y,6); e.slow=Math.max(e.slow,.8); h.swing=.25; sfx('slash'); } }
+    if(h.dash.t<=0){ h.dash=null; h.tx=h.x; h.ty=h.y; h.pathKey=null; }
+    return;
+  }
   if(h.dead){ h.moving=false; h.respawn-=dt;
     if(h.respawn<=0){ h.dead=false; h.hp=h.max=heroMax(); h.x=C; h.y=C+.8; h.tx=C; h.ty=C+1.1; h.pathKey=null; floatText(C,C,'Hero returns',CSS.ink); } return; }
   let foe=null,fd=9;
@@ -551,13 +683,14 @@ function stepUnits(dt){
   for(const u of S.units){
     u.age+=dt; u.hit=Math.max(0,u.hit-dt); u.swing=Math.max(0,u.swing-dt);
     if(u.hp<=0) continue;
-    const hx=u.home%N, hy=(u.home/N)|0;
+    if(u.rally>0) u.rally-=dt;
+    const rl=u.rally>0&&!S.hero.dead, hx=rl?S.hero.x:u.home%N, hy=rl?S.hero.y:(u.home/N)|0, sp=rl?2.6:1.9;
     if(u.target&&(u.target.gone||Math.hypot(u.target.x-hx,u.target.y-hy)>2.6)) u.target=null;
-    if(!u.target){ let bd=1.8; for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-hx,e.y-hy); if(d<bd){bd=d;u.target=e} } }
+    if(!u.target){ let bd=rl?2.2:1.8; for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-hx,e.y-hy); if(d<bd){bd=d;u.target=e} } }
     if(u.target){
-      const d=navTo(u,u.target.x,u.target.y,.42,1.9,dt);
-      u.atk-=dt; if(d<=.56&&u.atk<=0){ u.atk=.8; u.swing=.25; u.dir=Math.atan2(u.target.y-u.y,u.target.x-u.x); hurt(u.target,unitDmg()); }
-    }else{ const a=u.slot*2.1+.6; navTo(u,hx+Math.cos(a)*.48,hy+Math.sin(a)*.48,0,1.6,dt); if(!u.moving) u.dir=Math.atan2(C-hy,C-hx); }
+      const d=navTo(u,u.target.x,u.target.y,.42,sp,dt);
+      u.atk-=dt; if(d<=.56&&u.atk<=0){ u.atk=rl?.6:.8; u.swing=.25; u.dir=Math.atan2(u.target.y-u.y,u.target.x-u.x); hurt(u.target,unitDmg()+(rl?1:0)); }
+    }else{ const a=u.slot*2.1+.6+(u.home%5), r=rl?.55:.48; navTo(u,hx+Math.cos(a)*r,hy+Math.sin(a)*r,0,rl?2.6:1.6,dt); if(!u.moving&&!rl) u.dir=Math.atan2(C-hy,C-hx); }
   }
   S.units=S.units.filter(u=>u.hp>0);
   for(let i=0;i<S.units.length;i++)for(let j=i+1;j<S.units.length;j++){   // keep soldiers from stacking
@@ -568,17 +701,19 @@ function weapon(b){
   const m=S.mods;
   if(b.type==='keep') return {range:1.8+m.range*.5,rate:1.3,dmg:1+m.dmg,min:0,h:1.3};
   if(b.type==='tower') return {range:2.4+(b.lvl-1)*.35+m.range,rate:Math.max(.36,.75-(b.lvl-1)*.15),dmg:b.lvl+m.dmg,min:0,h:1.15+.18*b.lvl};
-  if(b.type==='cata') return {range:3.6+(b.lvl-1)*.4+m.range,rate:2.4-(b.lvl-1)*.5,dmg:3+(b.lvl-1)*2,min:1,splash:.95,h:.6};
+  if(b.type==='cata') return {range:3.6+(b.lvl-1)*.4+m.range,rate:(2.4-(b.lvl-1)*.5)*(m.cataRate||1),dmg:3+(b.lvl-1)*2,min:1,splash:.95,h:.6};
   return null;
 }
 const trapMax=()=>TRAP_CHARGES+S.mods.trap*3;
 function enemyStats(type){
   const h=2+Math.floor(S.day*.75), s=Math.min(1.7,.95+S.day*.04);
   switch(type){
-    case 'runner': return {hp:Math.max(1,Math.ceil(h*.55)),spd:s*1.55,dmg:1,pay:1};
-    case 'brute': return {hp:Math.ceil(h*2.6),spd:s*.68,dmg:2,pay:2};
-    case 'warlord': return {hp:h*6,spd:.62,dmg:3,pay:8};
-    default: return {hp:h,spd:s,dmg:1,pay:1};
+    case 'runner': return {hp:Math.max(1,Math.ceil(h*.55*DIFF[S.diff].hp)),spd:s*1.55,dmg:1,pay:1};
+    case 'brute': return {hp:Math.ceil(h*2.6*DIFF[S.diff].hp),spd:s*.68,dmg:2,pay:2};
+    case 'warlord': return {hp:Math.ceil(h*6*DIFF[S.diff].hp),spd:.62,dmg:3,pay:8};
+    case 'archer': return {hp:Math.max(1,Math.ceil(h*.75*DIFF[S.diff].hp)),spd:s*.9,dmg:1,pay:2,range:1.9};
+    case 'ram': return {hp:Math.ceil(h*4.5*DIFF[S.diff].hp),spd:s*.42,dmg:3,bdmg:7,pay:5};
+    default: return {hp:Math.ceil(h*DIFF[S.diff].hp),spd:s,dmg:1,pay:1};
   }
 }
 function startNight(){
@@ -604,7 +739,7 @@ function dawn(){
     if(b.worked){
       if(b.type==='farm') floatText(x,y,`+${4+S.mods.harvest} food`,RCOL.food);
       if(b.type==='lumber') floatText(x,y,`+${4+S.mods.wood} wood`,RCOL.wood);
-      if(b.type==='mine') floatText(x,y,'+3 stone',RCOL.stone);
+      if(b.type==='mine') floatText(x,y,`+${3+S.mods.stone} stone`,RCOL.stone);
       if(b.type==='market') floatText(x,y,'+3 gold',RCOL.gold);
     }
     if(b.type==='trap') b.charges=trapMax();
@@ -634,18 +769,26 @@ function dawn(){
   S.day++; S.phase='day'; S.shots=[]; ageRubble();
   if(S.day-1>best){best=S.day-1;try{localStorage.setItem(BEST,best)}catch(e){}}
   pickSpawns(); field(); planWave(); sfx('dawn');
+  const justWon=!S.won&&S.day-1>=WIN_NIGHTS; if(justWon) S.won=true;
   const gains=RES.filter(r=>E.net[r]).map(r=>`${E.net[r]>0?'+':''}${E.net[r]} ${r}`).join(', ');
   say(`<b>Dawn, day ${S.day}.</b> Felled ${plural(felled,'raider')}${lost>0?`, keep took ${lost} damage`:''}. ${gains?`Ledger: ${gains}. `:''}${notes.length?notes.join('. ')+'. ':''}Tonight: ${waveText()}.`);
   save(); ui(); RES.forEach(r=>{ if(E.net[r]) bump('r-'+r,E.net[r]>0?'bump':'hurt'); });
   if(E.popD) bump('r-people',E.popD>0?'bump':'hurt');
-  if(wasBoss) offerBoons();
+  if(justWon) offerVictory(wasBoss); else if(wasBoss) offerBoons();
+}
+function offerVictory(thenBoon){
+  const sc=recordScore();
+  showOver('The crown holds',`You held the keep through ${WIN_NIGHTS} nights on ${DIFF[S.diff].label}. Score ${sc.toLocaleString()}${sc>=bestScore?', your best yet':''}.`,[
+    {label:'Keep ruling',sub:'Endless mode: the raids keep growing',primary:true,fn:()=>{ hideOver(); if(thenBoon) offerBoons(); ui(); }},
+    {label:'Found a new kingdom',sub:'Start a fresh valley',fn:newGame}]);
 }
 function lose(){
   S.over=true; S.phase='over'; sel=null;
   const held=S.day-1;
   if(held>best){best=held;try{localStorage.setItem(BEST,best)}catch(e){}}
   try{localStorage.removeItem(KEY)}catch(e){}
-  showOver('The keep has fallen',`It fell on night ${S.day}. You held ${plural(held,'night')} and felled ${plural(S.kills,'raider')}.`,
+  const sc=recordScore();
+  showOver('The keep has fallen',`It fell on night ${S.day}. You held ${plural(held,'night')} and felled ${plural(S.kills,'raider')}. Score ${sc.toLocaleString()}${sc>=bestScore&&sc>0?', your best yet':''}.`,
     [{label:'Found a new kingdom',sub:'A fresh valley',primary:true,fn:newGame}]);
   ui();
 }
@@ -760,6 +903,14 @@ function step(dt){
     for(const e of S.enemies) moveEnemy(e,dt);
     fire(dt);
     for(const s of S.shots){
+      if(s.kind==='earrow'){
+        const dx=s.tx-s.x,dy=s.ty-s.y,d=Math.hypot(dx,dy),v=9*dt;
+        if(d<=v){ s.done=true; const t=s.t;
+          if(t.kind==='ally'){ if(!(t.o.hp<=0||t.o.dead)&&Math.hypot(t.o.x-s.tx,t.o.y-s.ty)<.6) damageAlly(t.o,s.dmg); }
+          else damageBuilding(t.x,t.y,s.dmg); }
+        else{ s.x+=dx/d*v; s.y+=dy/d*v; s.h=.25+Math.sin(Math.min(1,d/2)*Math.PI)*.25; }
+        continue;
+      }
       if(s.kind==='arrow'){
         const e=s.e; if(e.gone){s.done=true;continue}
         const dx=e.x-s.x,dy=e.y-s.y,d=Math.hypot(dx,dy),v=11*dt;
@@ -791,41 +942,62 @@ function hurt(e,d){
     sfx('kill'); ui();
   }
 }
+function keepHit(d,fromX,fromY){
+  S.keep-=d;
+  puff((fromX+C)/2,(fromY+C)/2,COL.stone,12); embers((fromX+C)/2,(fromY+C)/2,16); floatText(C,C,'−'+d,CSS.foe);
+  shake=.35; flash=.35; sfx('hurt'); bump('cHp','hurt');
+  try{navigator.vibrate&&navigator.vibrate(60)}catch(err){}
+  ui();
+}
+function damageBuilding(x,y,d){
+  const b=G(x,y).b; if(!b) return;
+  if(b.type==='keep'){ keepHit(d,x,y); return; }
+  b.hp-=d; b.hitT=S.t; puff(x,y,b.type==='wall'?COL.wood:COL.stone,4); sfx('chip');
+  if(b.hp<=0){ puff(x,y,COL.woodLight,16); embers(x,y,14); addRubble(x,y,b.type); removeBuilding(x,y); field(); renderInsp(); }
+}
+function archerTarget(e){
+  const R=e.range; let best=null,bd=R;
+  const h=S.hero; if(!h.dead){ const d=Math.hypot(h.x-e.x,h.y-e.y); if(d<bd){bd=d;best={kind:'ally',o:h,x:h.x,y:h.y};} }
+  for(const u of S.units){ if(u.hp<=0) continue; const d=Math.hypot(u.x-e.x,u.y-e.y); if(d<bd){bd=d;best={kind:'ally',o:u,x:u.x,y:u.y};} }
+  if(best) return best;
+  for(let y=Math.max(0,Math.floor(e.y-R));y<=Math.min(N-1,Math.ceil(e.y+R));y++)for(let x=Math.max(0,Math.floor(e.x-R));x<=Math.min(N-1,Math.ceil(e.x+R));x++){
+    const b=G(x,y).b; if(!b||b.type==='trap'||b.type==='farm') continue; const d=Math.hypot(x-e.x,y-e.y); if(d<bd){bd=d;best={kind:'bld',x,y};} }
+  return best;
+}
 function moveEnemy(e,dt){
   e.age+=dt; e.hit=Math.max(0,e.hit-dt); e.slow=Math.max(0,e.slow-dt);
   let foe=e.foe;
   if(foe&&(foe.hp<=0||foe.dead||Math.hypot(foe.x-e.x,foe.y-e.y)>.8)) foe=e.foe=null;
-  if(!foe&&e.age>.3){
+  if(!foe&&e.age>.3&&e.type!=='ram'){
     if(e.type!=='runner') for(const u of S.units) if(u.hp>0&&Math.hypot(u.x-e.x,u.y-e.y)<.5){ foe=u; break; }
     if(!foe&&!S.hero.dead&&Math.hypot(S.hero.x-e.x,S.hero.y-e.y)<.5) foe=S.hero;
     e.foe=foe;
   }
   if(foe){ e.dir=Math.atan2(foe.y-e.y,foe.x-e.x); e.atk-=dt; e.swing=Math.max(0,1-e.atk);
     if(e.atk<=0){ e.atk=1; damageAlly(foe,e.dmg); sfx('chip'); } return; }
+  if(e.type==='archer'&&!e.moving&&e.age>.6){
+    const t=archerTarget(e);
+    if(t){ e.dir=Math.atan2(t.y-e.y,t.x-e.x); e.shotT=(e.shotT??.5)-dt; e.swing=Math.min(1,Math.max(0,1-e.shotT/1.5));
+      if(e.shotT<=0){ e.shotT=1.6; e.swing=0; S.shots.push({kind:'earrow',x:e.x,y:e.y,tx:t.x,ty:t.y,t,dmg:e.dmg,h:.4,dir:e.dir}); sfx('shot'); }
+      return; }
+  }
   if(e.moving){
     const dx=e.tx-e.x,dy=e.ty-e.y,d=Math.hypot(dx,dy),v=e.spd*(e.slow>0?.5:1)*dt;
     if(d>1e-4) e.dir=Math.atan2(dy,dx);
     if(d<=v){
       e.x=e.tx;e.y=e.ty;e.cx=e.tx;e.cy=e.ty;e.moving=false;
       const b=G(e.cx,e.cy).b;
-      if(b&&b.type==='trap'&&b.charges>0){ b.charges--; S.ver++; e.slow=1.3; puff(e.cx,e.cy,COL.steel,5); hurt(e,1+S.mods.trap); }
-    }else{e.x+=dx/d*v;e.y+=dy/d*v; if(!reduce&&Math.random()<dt*2.2) dust(e.x,e.y,.45);}
+      if(b&&b.type==='trap'&&b.charges>0&&e.type!=='ram'){ b.charges--; S.ver++; e.slow=1.3; puff(e.cx,e.cy,COL.steel,5); hurt(e,1+S.mods.trap); }
+    }else{e.x+=dx/d*v;e.y+=dy/d*v; if(!reduce&&Math.random()<dt*(e.type==='ram'?6:2.2)) dust(e.x,e.y,e.type==='ram'?.8:.45);}
     return;
   }
   const n=nextStep(e.cx,e.cy); if(!n) return;
   e.dir=Math.atan2(n[1]-e.cy,n[0]-e.cx);
   const b=G(n[0],n[1]).b;
-  if(b&&b.type==='keep'){
-    S.keep-=e.dmg; e.gone=true;
-    puff((e.cx+C)/2,(e.cy+C)/2,COL.stone,12); embers((e.cx+C)/2,(e.cy+C)/2,16); floatText(C,C,'−'+e.dmg,CSS.foe);
-    shake=.35; flash=.35; sfx('hurt'); bump('cHp','hurt');
-    try{navigator.vibrate&&navigator.vibrate(60)}catch(err){}
-    ui(); return;
-  }
+  if(b&&b.type==='keep'){ e.gone=true; keepHit(e.dmg,e.cx,e.cy); return; }
   if(b&&b.type!=='trap'){
     e.atk-=dt; e.swing=Math.max(0,1-e.atk);
-    if(e.atk<=0){ e.atk=1; b.hp-=e.dmg; b.hitT=S.t; puff(n[0],n[1],b.type==='wall'?COL.wood:COL.stone,4); sfx('chip');
-      if(b.hp<=0){ puff(n[0],n[1],COL.woodLight,16); embers(n[0],n[1],14); addRubble(n[0],n[1],b.type); removeBuilding(n[0],n[1]); field(); renderInsp(); } }
+    if(e.atk<=0){ e.atk=e.type==='ram'?1.4:1; if(e.type==='ram'){ shake=Math.max(shake,.12); embers(n[0],n[1],5); } damageBuilding(n[0],n[1],e.bdmg||e.dmg); }
     return;
   }
   e.swing=0; e.tx=n[0];e.ty=n[1];e.moving=true;
@@ -1337,14 +1509,33 @@ function animPerson(m,ph,moving,swing,tt){
   aR.rotation.z=u.carry?2.85:swing>0?swing*2.5:s*.55;
   if(u.torch&&!reduce) u.torch.userData.f.forEach((f,i)=>f.scale.set(1,1+Math.sin(tt*22+i*2+(u.seed||0))*.22,1));
 }
+function ramModel(){
+  const g=new THREE.Group(), body=new THREE.Group(); g.add(body); g.userData.body=body; g.userData.ram=true;
+  add(body,BX(.62,.08,.34),COL.wood,0,.13,0);
+  for(const [a,c] of [[-.2,.19],[.2,.19],[-.2,-.19],[.2,-.19]]) add(body,CY(.09,.09,.05,8),COL.dark,a,.09,c,Math.PI/2,0,0);
+  for(const a of [-.24,.24]) for(const c of [-.15,.15]) add(body,BX(.04,.3,.04),COL.wood,a,.3,c);
+  const prism=geo('prism',()=>{ const p=new THREE.CylinderGeometry(.34,.34,.86,3,1); p.rotateZ(Math.PI/2); p.rotateX(-Math.PI/2); p.scale(1,.62,1); return p; });
+  add(body,prism,0x6A4A30,0,.5,0).scale.set(.8,.75,.62);
+  const log=new THREE.Group(); log.position.set(0,.3,0); body.add(log);
+  add(log,CY(.06,.06,.74,8),COL.woodLight,.05,0,0,0,0,Math.PI/2); add(log,CY(.075,.07,.1,8),COL.steel,.43,0,0,0,0,Math.PI/2);
+  g.userData.log=log; g.scale.setScalar(1.05); scene.add(g); return g;
+}
+function bow(arm){
+  const h=new THREE.Group(); h.position.set(.02,-.17,0); arm.add(h);
+  const b=new THREE.Mesh(geo('bowG',()=>new THREE.TorusGeometry(.14,.012,4,10,Math.PI)),M(COL.wood)); b.rotation.set(0,Math.PI/2,Math.PI/2); b.castShadow=true; h.add(b);
+  add(h,BX(.004,.28,.004),COL.plank,0,0,0); return h;
+}
 function enemyModel(e){
+  if(e.type==='ram') return ramModel();
   let g;
   if(e.type==='brute') g=person({body:COL.brute,legs:0x3A2418,arms:COL.skin,wide:1.35,belt:COL.dark});
   else if(e.type==='runner') g=person({body:COL.foeLight,legs:0x4A2A20,hat:'band',hatCol:COL.foe});
   else if(e.type==='warlord') g=person({body:0x3A3036,legs:COL.dark,hat:'horns',cape:COL.foe,belt:COL.gold});
+  else if(e.type==='archer') g=person({body:0x5E4A2E,legs:0x3A2A1E,hat:'hood',hatCol:0x2E3A26,cape:0x4A3A22});
   else g=person({body:COL.foe,legs:0x4A2A20,hat:'hood',hatCol:0x5A1A22});
   const [armL,armR]=g.userData.arms;
-  hold(armR,e.type==='brute'?'club':e.type==='runner'?'dagger':e.type==='warlord'?'sword':'axe');
+  if(e.type==='archer'){ bow(armL); add(g.userData.hips,CY(.03,.03,.18,6),COL.wood,-.07,.14,.04,0,0,.3); }
+  else hold(armR,e.type==='brute'?'club':e.type==='runner'?'dagger':e.type==='warlord'?'sword':'axe');
   if(e.type==='raider'||e.type==='brute'){ g.userData.torch=torch(armL); g.userData.glow=groundGlow(g,.06,.16,1.2); }
   else if(e.type==='warlord'){ shield(armL,true); g.userData.glow=groundGlow(g,0,0,.9); }
   g.userData.seed=Math.random()*9;
@@ -1371,7 +1562,8 @@ function syncEnemies(){
     const yaw=turnTo(m,-e.dir,10), dir=-yaw, l=e.lane||0;
     e.px=e.x-Math.sin(dir)*l; e.py=e.y+Math.cos(dir)*l;
     m.position.set(W2(e.px),0,W2(e.py));
-    animPerson(m,e.age*e.spd*(e.type==='runner'?13:10),e.moving,e.swing||0,S.t);
+    if(m.userData.ram){ const b=m.userData.body; b.position.y=e.moving&&!reduce?Math.abs(Math.sin(e.age*8))*.012:0; m.userData.log.position.x=e.swing>0?-.12*e.swing:0; }
+    else{ if(e.type==='archer'){ m.userData.arms[0].rotation.z=(e.swing>0||!e.moving)?1.5:0; m.userData.arms[0].rotation.x=0; } animPerson(m,e.age*e.spd*(e.type==='runner'?13:10),e.moving,e.type==='archer'?0:(e.swing||0),S.t); if(e.type==='archer'&&!e.moving){ m.userData.arms[0].rotation.z=1.5; m.userData.arms[1].rotation.z=1.2+(e.swing||0)*.3; } }
     flashMat(m,e.hit>0);
   }
 }
@@ -1380,8 +1572,8 @@ function syncShots(){
   for(const [s,m] of sMeshes) if(!live.has(s)){ scene.remove(m); sMeshes.delete(s); }
   for(const s of S.shots){
     let m=sMeshes.get(s);
-    if(!m){ m=s.kind==='arrow'?new THREE.Mesh(BX(.28,.025,.025),M(COL.plank)):new THREE.Mesh(DO(.11),M(COL.stoneDark)); m.castShadow=true; scene.add(m); sMeshes.set(s,m); }
-    if(s.kind==='arrow'){ m.position.set(W2(s.x),s.h,W2(s.y)); m.rotation.set(0,-s.dir,0); }
+    if(!m){ m=(s.kind==='arrow'||s.kind==='earrow')?new THREE.Mesh(BX(.28,.025,.025),M(COL.plank)):new THREE.Mesh(DO(.11),M(COL.stoneDark)); m.castShadow=true; scene.add(m); sMeshes.set(s,m); }
+    if(s.kind==='arrow'||s.kind==='earrow'){ m.position.set(W2(s.x),s.h,W2(s.y)); m.rotation.set(0,-s.dir,0); }
     else{ const x=s.sx+(s.tx-s.sx)*s.p, y=s.sy+(s.ty-s.sy)*s.p; m.position.set(W2(x),.5+Math.sin(s.p*Math.PI)*1.8,W2(y)); m.rotation.set(s.p*6,s.p*4,0); }
   }
 }
@@ -1411,6 +1603,8 @@ function unitModel(){
 }
 let heroMesh=null; const uMeshes=new Map();
 let rideMark=null;
+const rallyRing=new THREE.Mesh(new THREE.RingGeometry(.4,.5,48),new THREE.MeshBasicMaterial({color:COL.gold,transparent:true,opacity:0,side:THREE.DoubleSide,depthWrite:false}));
+rallyRing.rotation.x=-Math.PI/2; rallyRing.visible=false; scene.add(rallyRing);
 const markRing=new THREE.Mesh(new THREE.RingGeometry(.18,.24,24),new THREE.MeshBasicMaterial({color:0xFFFFFF,transparent:true,opacity:.8,side:THREE.DoubleSide,depthWrite:false}));
 markRing.rotation.x=-Math.PI/2; markRing.visible=false; scene.add(markRing);
 const orderPool=[]; for(let i=0;i<12;i++){ const m=new THREE.Mesh(geo('ordP',()=>new THREE.PlaneGeometry(.86,.86)),new THREE.MeshBasicMaterial({color:COL.gold,transparent:true,opacity:.35,depthWrite:false})); m.rotation.x=-Math.PI/2; m.position.y=.028; m.visible=false; scene.add(m); orderPool.push(m); }
@@ -1432,6 +1626,7 @@ function syncHero(t,raw){
   flashMat(heroMesh,h.hit>0);
   // orders
   orderPool.forEach((m,i)=>{ const q=h.queue[i]; m.visible=!!q&&S.phase==='day'; if(q){ m.position.x=W2(q.x); m.position.z=W2(q.y); m.material.opacity=i===0?.5+(reduce?0:Math.sin(t*6)*.12):.3; } });
+  if(h.rallyFx>0){ rallyRing.visible=true; rallyRing.position.set(W2(h.x),.04,W2(h.y)); const k=1-h.rallyFx; rallyRing.scale.setScalar(.5+k*4); rallyRing.material.opacity=h.rallyFx*.8; } else rallyRing.visible=false;
   if(rideMark){ rideMark.life-=raw; markRing.visible=rideMark.life>0; markRing.position.set(W2(rideMark.x),.03,W2(rideMark.y)); const k=1-rideMark.life/.9; markRing.scale.setScalar(1+k*1.2); markRing.material.opacity=.8*(1-k); if(rideMark.life<=0) rideMark=null; }
   // soldiers
   const live=new Set(S.units);
@@ -1677,8 +1872,8 @@ function drawHud(){
   const u=Math.max(26,BW/16)*(farHH/Math.max(curHH,1))*.75;
   if(nightA>.03){ hctx.fillStyle='#FFFFFF'; for(const p of SPECKS){ hctx.globalAlpha=nightA*(.35+.45*(Math.sin(clock*2+p.ph)+1)/2); hctx.fillRect(p.x*BW,p.y*BH,p.s,p.s); } hctx.globalAlpha=1; }
   hctx.lineCap='round';
-  for(const s of S.shots){ if(s.kind!=='arrow') continue; const [ax,ay]=scr(W2(s.x),s.h,W2(s.y)); const [bx,by]=scr(W2(s.x-Math.cos(s.dir)*.7),s.h+.12,W2(s.y-Math.sin(s.dir)*.7));
-    const g=hctx.createLinearGradient(ax,ay,bx,by); g.addColorStop(0,'rgba(255,250,235,.95)'); g.addColorStop(1,'rgba(255,250,235,0)'); hctx.strokeStyle=g; hctx.lineWidth=1.6; hctx.beginPath(); hctx.moveTo(ax,ay); hctx.lineTo(bx,by); hctx.stroke(); }
+  for(const s of S.shots){ if(s.kind!=='arrow'&&s.kind!=='earrow') continue; const red=s.kind==='earrow'; const [ax,ay]=scr(W2(s.x),s.h,W2(s.y)); const [bx,by]=scr(W2(s.x-Math.cos(s.dir)*.7),s.h+.12,W2(s.y-Math.sin(s.dir)*.7));
+    const g=hctx.createLinearGradient(ax,ay,bx,by); g.addColorStop(0,red?'rgba(255,120,100,.95)':'rgba(255,250,235,.95)'); g.addColorStop(1,red?'rgba(255,120,100,0)':'rgba(255,250,235,0)'); hctx.strokeStyle=g; hctx.lineWidth=1.6; hctx.beginPath(); hctx.moveTo(ax,ay); hctx.lineTo(bx,by); hctx.stroke(); }
   if(FX.length){ hctx.globalCompositeOperation='lighter';
     for(const f of FX){ const [px,py]=scr(W2(f.x),f.h,W2(f.y)); const r=Math.max(1.2,(1.4+f.life*2.6)*(u/40));
       hctx.globalAlpha=Math.min(1,f.life*1.6); hctx.fillStyle=`hsl(${f.hue},100%,62%)`; hctx.beginPath(); hctx.arc(px,py,r,0,6.29); hctx.fill();
@@ -1738,6 +1933,14 @@ function applyQuality(){
   const ms=hi?(isSmall?1024:2048):1024; sun.shadow.mapSize.set(ms,ms); if(sun.shadow.map){ sun.shadow.map.dispose(); sun.shadow.map=null; }
   resize(); $('qual').textContent=hi?'High':'Low'; $('qual').setAttribute('aria-label',`Graphics quality: ${hi?'high':'low'}`);
 }
+let abilKey='';
+function syncAbil(){
+  const h=S.hero; if(!h) return;
+  const c=h.cdC/CHARGE_CD, r=h.cdR/(RALLY_CD*(S.mods.horn?.5:1)), key=c.toFixed(2)+r.toFixed(2)+h.dead+S.over;
+  if(key===abilKey) return; abilKey=key;
+  $('aCharge').style.setProperty('--cd',c); $('aRally').style.setProperty('--cd',r);
+  $('aCharge').disabled=h.dead||S.over||c>0; $('aRally').disabled=h.dead||S.over||r>0;
+}
 function render(raw,t){
   FR=raw;
   const target=(S.phase==='night'||S.phase==='over')?1:0;
@@ -1755,7 +1958,7 @@ function render(raw,t){
   else renderer.render(scene,camera);
   if(!paused) stepFx(raw);
   const go=(Math.pow(nightA,1.6)*.72).toFixed(2); if(gradeEl.style.opacity!==go) gradeEl.style.opacity=go;
-  drawHud(); drawMini();
+  drawHud(); drawMini(); syncAbil();
 }
 
 // =============== SOUND ===============
@@ -1776,6 +1979,8 @@ function sfx(k){
     case 'build': tone(330,.08,'triangle',.06,440); break;
     case 'up': tone(440,.1,'triangle',.06); tone(660,.14,'triangle',.06,null,.08); break;
     case 'no': tone(200,.12,'square',.03,150); break;
+    case 'horn': tone(196,.5,'sawtooth',.05,220); tone(294,.6,'sawtooth',.04,294,.15); break;
+    case 'charge': tone(180,.25,'sawtooth',.05,520); break;
     case 'slash': tone(900,.07,'sawtooth',.025,300); break;
     case 'ride': tone(520,.06,'triangle',.04,660); break;
     case 'order': tone(600,.05,'triangle',.04,800); break;
@@ -1787,7 +1992,7 @@ function sfx(k){
 // =============== SAVE ===============
 function save(){
   if(!S||S.over) return;
-  try{ localStorage.setItem(KEY,JSON.stringify({res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
+  try{ localStorage.setItem(KEY,JSON.stringify({diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
     grid:S.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...t.b,aim:undefined,born:undefined,hitT:undefined,worked:undefined}:null,t.grove?1:0]),spawns:S.spawns,queue:S.queue})); }catch(e){}
 }
 function load(){
@@ -1797,6 +2002,7 @@ function load(){
     Object.assign(S,{res:d.res||{gold:d.gold??10,food:10,wood:12,stone:2},pop:d.pop??3,price:d.price||{...BASEP},day:d.day,keep:d.keep,keepMax:d.keepMax,
       mods:{...S.mods,...d.mods},kills:d.kills||0,spawns:d.spawns,queue:d.queue,seed:d.seed||Math.random()*1000});
     S.grid=d.grid.map(([l,o,b,gr])=>({land:!!l,ore:!!o,grove:!!gr,b}));
+    S.diff=DIFF[d.diff]?d.diff:'normal'; S.quest=d.quest||0; S.upg=d.upg||[]; S.won=!!d.won; S.abilUsed=d.abilUsed||0;
     if(!S.grid.some(t=>t.grove)) addGroves();
     S.hero=mkHero(); S.hero.hp=S.hero.max=heroMax();
     S.grid.forEach((t,i)=>{ if(t.b&&t.b.type==='barr') spawnUnits(i); });
@@ -1808,16 +2014,32 @@ function load(){
 function say(h){ $('msg').innerHTML=h; }
 function bump(id,cls){ const el=$(id); el.classList.remove('bump','hurt'); void el.offsetWidth; el.classList.add(cls); setTimeout(()=>el.classList.remove(cls),700); }
 function ui(){
-  assignWorkers();
-  $('hp').textContent=`${Math.max(0,S.keep)}/${S.keepMax}`; $('day').textContent=S.phase==='night'?`Night ${S.day}`:`Day ${S.day}`;
+  assignWorkers(); checkQuests();
+  $('hp').textContent=`${Math.max(0,S.keep)}/${S.keepMax}`; $('day').textContent=(S.phase==='night'?`Night ${S.day}`:`Day ${S.day}`)+(S.won?'':` of ${WIN_NIGHTS}`);
   const night=S.phase!=='day', bell=$('bell');
   bell.disabled=night||S.modal;
   bell.innerHTML=S.phase==='night'?`Night ${S.day}<small>${S.enemies.length+S.queue.length} raiders still out there</small>`
     :S.phase==='over'?`The keep has fallen<small>Start again from the board</small>`
     :`Ring the bell<small>Begin night ${S.day} · ${S.queue.length} coming${S.hero.queue.length?` · ${S.hero.queue.length} unbuilt order${S.hero.queue.length>1?'s':''} will be dropped`:''}</small>`;
-  renderTools(); renderRes(); renderLedger();
-  $('best').textContent=best?`Longest reign: ${plural(best,'night')}`:'';
+  renderTools(); renderRes(); renderLedger(); renderQuest(); renderUpgrades();
+  $('best').textContent=[DIFF[S.diff].label,`score ${score().toLocaleString()}`,bestScore?`best ${bestScore.toLocaleString()}`:''].filter(Boolean).join(' · ');
   renderInsp();
+}
+function renderQuest(){
+  const box=$('quest');
+  if(S.quest>=QUESTS.length){ box.innerHTML=`<span class="ql">Quest</span><span class="qt"></span>`; box.querySelector('.qt').textContent=S.won?'Every quest done and the crown secure. Endless mode: see how long you can last.':`Every quest done. Hold the keep until night ${WIN_NIGHTS}.`; return; }
+  const q=QUESTS[S.quest], [have,need]=q.goal();
+  box.innerHTML=`<span class="ql">Quest ${S.quest+1}/${QUESTS.length}</span><span class="qt"></span>${need>1?`<span class="qp">${Math.min(have,need)}/${need}</span>`:''}<span class="qr">Reward <b></b></span>`;
+  box.querySelector('.qt').textContent=q.text; box.querySelector('.qr b').textContent=costStr(q.reward);
+}
+let upgKey='';
+function renderUpgrades(){
+  const box=$('upg'), key=UPGS.map(u=>upgState(u)).join()+S.day+S.over;
+  if(key===upgKey) return; upgKey=key;
+  box.innerHTML=UPGS.map(u=>{ const st=upgState(u);
+    const why=st==='req'?`Needs ${UPGS.find(x=>x.id===u.req).name}`:st==='day'?`Opens on day ${u.day}`:'';
+    return `<div class="uc${st==='done'?' done':''}"><div class="un">${u.name}<small>${u.branch}</small></div><div class="ud">${u.desc}</div>${st==='done'?'':why?`<div class="ud">${why}</div>`:`<button type="button" data-upg="${u.id}" ${st!=='buy'?'disabled':''}>Buy <span class="c">${costShort(u.cost)}</span></button>`}</div>`; }).join('');
+  box.querySelectorAll('[data-upg]').forEach(b=>b.addEventListener('click',()=>buyUpg(b.dataset.upg)));
 }
 function renderTools(){
   const box=$('tools');
@@ -1881,11 +2103,11 @@ function renderInsp(){
   switch(b.type){
     case 'keep': det=`Health ${S.keep}/${S.keepMax} · houses 4 villagers · shoots raiders close by`; break;
     case 'trap': det=`${b.charges}/${trapMax()} charges · ${1+S.mods.trap} damage and slows`; break;
-    case 'barr': det=`${hp} · ${S.units.filter(u=>u.home===i).length}/${b.lvl+1} soldiers · ${unitDmg()} damage each · 1 gold upkeep, soldiers eat 1 food each`+(b.unpaid?' · unpaid, idle tonight':''); break;
+    case 'barr': det=`${hp} · ${S.units.filter(u=>u.home===i).length}/${b.lvl+1+S.mods.muster} soldiers · ${unitDmg()} damage each · 1 gold upkeep, soldiers eat 1 food each`+(b.unpaid?' · unpaid, idle tonight':''); break;
     case 'house': det=`${hp} · room for 3 villagers · ${S.pop}/${housing()} housed`; break;
     case 'farm': det=`${hp} · ${work} · +${4+S.mods.harvest} food at dawn`; break;
     case 'lumber': det=`${hp} · ${work} · +${4+S.mods.wood} wood at dawn`; break;
-    case 'mine': det=`${hp} · ${work} · +3 stone at dawn`; break;
+    case 'mine': det=`${hp} · ${work} · +${3+S.mods.stone} stone at dawn`; break;
     case 'market': det=`${hp} · ${work} · +3 gold at dawn`; break;
     case 'wall': det=b.lvl>1?`${hp} · crenellated stone`:`${hp} · upgrade to stone for 10 more health`; break;
     default: det=hp;
@@ -2003,6 +2225,8 @@ mc.addEventListener('pointerdown',ev=>{
   if(!viewNear) toggleView(); camFree={x:tx-C,y:ty-C}; camVel=null;
 });
 $('view').addEventListener('click',toggleView);
+$('aCharge').addEventListener('click',useCharge);
+$('aRally').addEventListener('click',useRally);
 const HELD=new Set(['w','a','s','d','arrowup','arrowdown','arrowleft','arrowright']);
 addEventListener('keydown',ev=>{
   if(!S||S.modal) return;
@@ -2016,6 +2240,8 @@ addEventListener('keydown',ev=>{
   else if(k==='u') upgradeSel();
   else if(k==='escape'){ sel=null; renderInsp(); }
   else if(k==='v') toggleView();
+  else if(k==='q') useCharge();
+  else if(k==='e') useRally();
   else if(k==='h'){ if(!viewNear) toggleView(); camFree=null; camVel=null; }
   else if(k==='+'||k==='=') setZoom((viewNear?zoomHH:farHH)/1.2);
   else if(k==='-'||k==='_') setZoom((viewNear?zoomHH:farHH)*1.2);
@@ -2043,11 +2269,11 @@ loadPrefs();
 applyQuality();
 if(load()){
   ui(); forecast();
-  showOver('Your kingdom awaits',`Day ${S.day}. ${S.res.gold} gold, ${S.res.food} food and ${S.pop} villagers, keep at ${S.keep}/${S.keepMax}.`,[
+  showOver('Your kingdom awaits',`Day ${S.day} on ${DIFF[S.diff].label}. ${S.res.gold} gold, ${S.res.food} food and ${S.pop} villagers, keep at ${S.keep}/${S.keepMax}.`,[
     {label:'Continue',sub:`Pick up at day ${S.day}`,primary:true,fn:()=>{hideOver();ui()}},
     {label:'Found a new kingdom',sub:'Your saved valley will be lost',fn:newGame}
   ]);
-}else newGame();
+}else{ startGame('normal'); newGame(); }
 loadAssets();
 requestAnimationFrame(loop);
 })();
