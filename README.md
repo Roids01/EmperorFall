@@ -56,6 +56,9 @@ three.js r128 and every library load from the jsDelivr and cdnjs CDNs, pinned to
 - **Requests, traders and feasts:** villagers ask for things (a well, roads, a manor, a full granary) with a three-day deadline; a wandering trader sometimes sells rare goods by the keep; and once a season you can hold a feast from the keep.
 - **More raiders:** wolf packs in Ironpeak Pass raids, sappers from night 10 that blow up what they reach, and pirate captains who lead some cove raids and carry a sea chest of gold.
 - **Reports and tools:** a night report at each dawn shows who felled what, a Chronicle keeps every message, Repair all fixes the whole region in one tap, and houses can be raised into manors for two more villagers.
+- **Edicts:** proclaim up to two laws (three from day 10), such as Conscription, Rationing, Long shifts or Night watch. Each one helps somewhere and costs somewhere else.
+- **Neighbors:** the Sand Wolves, the Red Brotherhood and the Iron Clans each raid their own region. Their hostility sets how big and how frequent their raids are. Send gifts, win cleanly or kill their champions to calm them, sign trade pacts once they're calm, and decide whether to pay when they demand tribute.
+- **Hero gear and tower paths:** warlords and pirate captains drop a choice of weapons, armor and charms for your hero. Watchtowers at level 3 become either ballistas or fire-arrow towers.
 - **Save slots and language:** three kingdoms can be saved side by side, and the EN/ES button switches the interface to Spanish.
 
 - **Phones and tablets:** steer the hero with the on-screen joystick; a full-screen button appears where the browser supports it.
