@@ -40,7 +40,10 @@ three.js r128 and its glTF loader and bloom passes load from the jsDelivr and cd
 - **Growth:** quests teach the basics and pay out goods, and twelve kingdom upgrades improve your economy, defenses, army and hero.
 - **Raiders:** bandits, runners, brutes, archers who shoot from range, battering rams that smash buildings, and a warlord every fifth night.
 
-The full rules and key bindings are in the "How to rule" panel in the game.
+- **Phones and tablets:** steer the hero with the on-screen joystick; a full-screen button appears where the browser supports it.
+- **Music:** tap the sound button once for effects, twice for a generated day and night soundtrack.
+
+The full rules and key bindings are in the "How to rule" panel in the game, which also restarts the guided tour.
 
 ## Credits
 

@@ -17,6 +17,11 @@
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<!-- Open-source from GitHub: nipplejs (MIT, touch joystick), Tone.js (MIT, music), driver.js (MIT, guided tour), canvas-confetti (ISC) -->
+<script defer src="https://cdn.jsdelivr.net/npm/nipplejs@0.10.2/dist/nipplejs.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.js"></script>
 <style>
 /* Layout: one column — title row, 3D canyon board with HUD chips, inspector strip, tool tray, bell row.
    Deliberately single-theme: a warm dusk-brown frame around a sunlit desert board. */
@@ -57,6 +62,8 @@ h1 span{color:var(--sand)}
 .rc .d{font-family:var(--f-num);font-size:11.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .rc .d.up{color:var(--good)} .rc .d.dn{color:var(--foe)}
 .rc.bump{background:#2F3A26} .rc.hurt{background:#4A2420}
+@media (max-width:480px){.rc .ad{display:none}.rc .sh{display:inline}}
+.rc .sh{display:none}
 @media (max-width:420px){.rc{padding:5px 6px}.rc .v{font-size:15px}.rc .lab{font-size:9px;letter-spacing:.04em}}
 .cg{color:var(--gold)} .cf{color:#C9E07A} .cw{color:#E0A86A} .cs{color:#C9CFD8}
 .ledger table{width:100%;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums;margin-top:8px}
@@ -132,7 +139,23 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
 .uc button .c{font-family:var(--f-num)}
 .uc button:disabled{opacity:.45;cursor:default}
 .uc.done{opacity:.6} .uc.done .un::after{content:"Owned";font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--good)}
-.abil{position:absolute;left:10px;bottom:10px;display:flex;gap:8px}
+.abil{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px}
+.joy{position:absolute;left:8px;bottom:8px;width:132px;height:132px;border-radius:50%;touch-action:none;background:radial-gradient(circle,rgba(28,23,20,.35) 0 60%,transparent 61%)}
+.joy .lab{position:absolute;left:0;right:0;bottom:4px;text-align:center;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(242,234,221,.7);pointer-events:none}
+.fs{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:0;background:rgba(28,23,20,.78);color:var(--ink);display:grid;place-items:center;cursor:pointer;padding:0}
+.fs svg{width:16px;height:16px}
+.linkbtn{font:inherit;font-weight:600;color:var(--gold);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;text-underline-offset:3px}
+#sound .note{position:absolute;right:5px;top:3px;font-size:10px;color:var(--gold)}
+#sound{position:relative}
+/* driver.js (MIT) tour styles, recolored to the game's palette */
+.driver-active .driver-overlay,.driver-active *{pointer-events:none}.driver-active .driver-active-element,.driver-active .driver-active-element *,.driver-popover,.driver-popover *{pointer-events:auto}@keyframes animate-fade-in{0%{opacity:0}to{opacity:1}}.driver-fade .driver-overlay{animation:animate-fade-in .2s ease-in-out}.driver-fade .driver-popover{animation:animate-fade-in .2s}.driver-popover{all:unset;box-sizing:border-box;color:#F2EADD;margin:0;padding:15px;border-radius:5px;min-width:250px;max-width:300px;box-shadow:0 1px 10px #0006;z-index:1000000000;position:fixed;top:0;right:0;background-color:#28201C}.driver-popover *{font-family:Helvetica Neue,Inter,ui-sans-serif,"Apple Color Emoji",Helvetica,Arial,sans-serif}.driver-popover-title{font:19px/normal sans-serif;font-weight:700;display:block;position:relative;line-height:1.5;zoom:1;margin:0}.driver-popover-close-btn{all:unset;position:absolute;top:0;right:0;width:32px;height:28px;cursor:pointer;font-size:18px;font-weight:500;color:#B5A795;z-index:1;text-align:center;transition:color;transition-duration:.2s}.driver-popover-close-btn:hover,.driver-popover-close-btn:focus{color:#F2EADD}.driver-popover-title[style*=block]+.driver-popover-description{margin-top:5px}.driver-popover-description{margin-bottom:0;font:14px/normal sans-serif;line-height:1.5;font-weight:400;zoom:1}.driver-popover-footer{margin-top:15px;text-align:right;zoom:1;display:flex;align-items:center;justify-content:space-between}.driver-popover-progress-text{font-size:13px;font-weight:400;color:#B5A795;zoom:1}.driver-popover-footer button{all:unset;display:inline-block;box-sizing:border-box;padding:3px 7px;text-decoration:none;background-color:#28201C;color:#F2EADD;font:12px/normal sans-serif;cursor:pointer;outline:0;zoom:1;line-height:1.3;border:1px solid #43362F;border-radius:3px}.driver-popover-footer .driver-popover-btn-disabled{opacity:.5;pointer-events:none}:not(body):has(>.driver-active-element){overflow:hidden!important}.driver-no-interaction,.driver-no-interaction *{pointer-events:none!important}.driver-popover-footer button:hover,.driver-popover-footer button:focus{background-color:#332924}.driver-popover-navigation-btns{display:flex;flex-grow:1;justify-content:flex-end}.driver-popover-navigation-btns button+button{margin-left:4px}.driver-popover-arrow{content:"";position:absolute;border:5px solid #28201C}.driver-popover-arrow-side-over{display:none}.driver-popover-arrow-side-left{left:100%;border-right-color:transparent;border-bottom-color:transparent;border-top-color:transparent}.driver-popover-arrow-side-right{right:100%;border-left-color:transparent;border-bottom-color:transparent;border-top-color:transparent}.driver-popover-arrow-side-top{top:100%;border-right-color:transparent;border-bottom-color:transparent;border-left-color:transparent}.driver-popover-arrow-side-bottom{bottom:100%;border-left-color:transparent;border-top-color:transparent;border-right-color:transparent}.driver-popover-arrow-side-center{display:none}.driver-popover-arrow-side-left.driver-popover-arrow-align-start,.driver-popover-arrow-side-right.driver-popover-arrow-align-start{top:15px}.driver-popover-arrow-side-top.driver-popover-arrow-align-start,.driver-popover-arrow-side-bottom.driver-popover-arrow-align-start{left:15px}.driver-popover-arrow-align-end.driver-popover-arrow-side-left,.driver-popover-arrow-align-end.driver-popover-arrow-side-right{bottom:15px}.driver-popover-arrow-side-top.driver-popover-arrow-align-end,.driver-popover-arrow-side-bottom.driver-popover-arrow-align-end{right:15px}.driver-popover-arrow-side-left.driver-popover-arrow-align-center,.driver-popover-arrow-side-right.driver-popover-arrow-align-center{top:50%;margin-top:-5px}.driver-popover-arrow-side-top.driver-popover-arrow-align-center,.driver-popover-arrow-side-bottom.driver-popover-arrow-align-center{left:50%;margin-left:-5px}.driver-popover-arrow-none{display:none}
+
+.driver-popover{border:1px solid #43362F}
+.driver-popover *{font-family:"Inter",system-ui,sans-serif}
+.driver-popover-title{font-family:"Bricolage Grotesque",system-ui,sans-serif!important;font-weight:800;font-size:18px}
+.driver-popover-description{color:#D8CCBA}
+.driver-popover-footer button{font-size:13px;padding:6px 12px;border-radius:6px}
+.driver-popover-footer .driver-popover-next-btn{background:#D99A60;color:#2A1A10;border-color:#D99A60}
 .ab{--cd:0;position:relative;width:50px;height:50px;border-radius:50%;border:0;background:rgba(28,23,20,.82);color:var(--ink);cursor:pointer;display:grid;place-items:center;padding:0}
 .ab svg{width:22px;height:22px;color:var(--gold)}
 .ab .kk{position:absolute;right:2px;bottom:1px;font-family:var(--f-num);font-size:9.5px;color:var(--muted)}
@@ -155,6 +178,8 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <div class="grade" id="grade"></div>
     <canvas id="hud" aria-hidden="true"></canvas>
     <canvas id="mini" aria-label="Minimap. Tap to look at that part of the valley."></canvas>
+    <div class="joy" id="joy" hidden><span class="lab">Ride</span></div>
+    <button class="fs" id="fs" type="button" hidden aria-label="Full screen" title="Full screen"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
     <div class="chips" aria-live="polite">
       <div class="chip" id="cHp"><i><svg viewBox="0 0 12 12"><path d="M2 11V5l1.5-1.5L5 5V3l1-1 1 1v2l1.5-1.5L10 5v6z" fill="#F2EADD"/></svg></i><span id="hp">10</span></div>
       <div class="chip" id="cDay"><i><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="2.6" fill="#D99A60"/><path d="M6 .8v1.6M6 9.6v1.6M.8 6h1.6M9.6 6h1.6M2.3 2.3l1.1 1.1M8.6 8.6l1.1 1.1M2.3 9.7l1.1-1.1M8.6 3.4l1.1-1.1" stroke="#D99A60" stroke-width="1.1"/></svg></i><span id="day">Day 1</span></div>
@@ -209,6 +234,8 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <p><b>The view</b> follows your hero. Drag the board to look around, scroll or pinch to zoom, tap the minimap to jump anywhere, and use the frame button (<kbd>V</kbd>) to see the whole valley at once.</p>
     <p><b>Moving and building.</b> Your hero rides around buildings and cliffs on his own. Right-click anywhere to send him there. With the palisade or trap tool, drag across the ground to lay a whole line of orders at once. Right-click an order to cancel it.</p>
     <p>Keys: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> ride the hero, arrow keys pan the view, <kbd>H</kbd> back to the hero, <kbd>+</kbd> <kbd>−</kbd> zoom, <kbd>1</kbd>–<kbd>0</kbd> build tools, <kbd>X</kbd> clear, <kbd>R</kbd> ride, <kbd>Space</kbd> ring the bell, <kbd>U</kbd> upgrade, <kbd>P</kbd> pause, <kbd>F</kbd> speed, <kbd>Esc</kbd> deselect. Speed, zoom, sound and graphics quality are remembered.</p>
+    <p><b>On a phone or tablet</b>, steer your hero with the joystick in the bottom-left corner of the valley. Tapping tiles still builds and selects.</p>
+    <p><b>Sound</b> button: tap once for sound effects, twice to add music, a third time for silence. <button class="linkbtn" id="tourBtn" type="button">Take the guided tour</button></p>
     <p><b>Damage</b> shows: buildings smoke when hurt and burn when badly hurt. Tap one and use <b>Repair</b> during the day, or wait for dawn to patch them slowly. Destroyed buildings leave rubble that clears after two days.</p>
   </details>
 </main>
@@ -284,7 +311,7 @@ function upgState(u){
 }
 function buyUpg(id){
   const u=UPGS.find(x=>x.id===id); if(!u||upgState(u)!=='buy'||S.over) return;
-  spend(u.cost); S.upg.push(id); u.apply(); S.ver++;
+  spend(u.cost); S.upg.push(id); u.apply(); S.ver++; party('small');
   floatText(C,C,u.name,CSS.gold); sfx('up'); say(`<b>${u.name}</b> is yours. ${u.desc}`); save(); ui();
 }
 const QUESTS=[
@@ -307,13 +334,24 @@ const QUESTS=[
   {text:'Survive night 10',goal:()=>[S.day-1,10],reward:{gold:20}},
   {text:'Survive night 15',goal:()=>[S.day-1,15],reward:{gold:25,stone:10}}
 ];
+const CONF_COL=['#F0BE4E','#D99A60','#E8604F','#8FCB7E','#F2EADD'];
+function party(kind){
+  const cf=window.confetti; if(!cf||reduce) return;
+  const o={colors:CONF_COL,disableForReducedMotion:true,zIndex:50};
+  try{
+    if(kind==='quest'){ const r=$('quest').getBoundingClientRect(); cf({...o,particleCount:45,spread:60,startVelocity:28,origin:{x:(r.left+r.width*.15)/innerWidth,y:Math.max(.05,r.top/innerHeight)}}); }
+    else if(kind==='small'){ cf({...o,particleCount:35,spread:50,origin:{x:.5,y:.45}}); }
+    else if(kind==='big'){ cf({...o,particleCount:110,spread:90,origin:{x:.5,y:.4}}); }
+    else if(kind==='win'){ let n=0; const t=setInterval(()=>{ cf({...o,particleCount:60,angle:60,spread:60,origin:{x:0,y:.6}}); cf({...o,particleCount:60,angle:120,spread:60,origin:{x:1,y:.6}}); if(++n>=5) clearInterval(t); },350); }
+  }catch(e){}
+}
 function checkQuests(){
   let guard=0;
   while(S.quest<QUESTS.length&&guard++<5){
     const q=QUESTS[S.quest], [have,need]=q.goal(); if(have<need) break;
     RES.forEach(r=>S.res[r]+=q.reward[r]||0); S.quest++;
     floatText(C,C,'Quest complete',CSS.gold); sfx('dawn');
-    say(`<b>Quest complete:</b> ${q.text}. Reward: ${costStr(q.reward)}.`); save();
+    say(`<b>Quest complete:</b> ${q.text}. Reward: ${costStr(q.reward)}.`); save(); party('quest');
   }
 }
 function score(){
@@ -361,7 +399,7 @@ function blank(){
 }
 function newGame(){
   showOver('Found a new kingdom','Choose how hard the raids will be. Hold the keep through 20 nights to win.',
-    Object.entries(DIFF).map(([k,d])=>({label:d.label,sub:d.sub,primary:k==='normal',fn:()=>startGame(k)})));
+    Object.entries(DIFF).map(([k,d])=>({label:d.label,sub:d.sub,primary:k==='normal',fn:()=>{ startGame(k); maybeTour(); }})));
 }
 function startGame(diff){
   S=blank(); S.diff=diff||'normal';
@@ -600,6 +638,7 @@ function navTo(o,tx,ty,stop,spd,dt,pass=passHero){
   return Math.hypot(tx-o.x,ty-o.y);
 }
 const KD={};   // keys held
+const JOY={x:0,y:0};   // touch joystick, -1..1 on each axis
 function tryStep(o,dx,dy){
   const cx=Math.round(o.x),cy=Math.round(o.y);
   const ok=(x,y)=>PROBE.every(([ox,oy])=>{ const tx=Math.round(x+ox*.9),ty=Math.round(y+oy*.9); return (tx===cx&&ty===cy)||passHero(tx,ty); });
@@ -654,9 +693,9 @@ function stepHero(dt){
   let foe=null,fd=9;
   for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-h.x,e.y-h.y); if(d<fd){fd=d;foe=e} }
   const SPD=3;
-  const mx=(KD.d?1:0)-(KD.a?1:0), my=(KD.s?1:0)-(KD.w?1:0);
-  if(mx||my){
-    const l=Math.hypot(mx,my); tryStep(h,mx/l*SPD*dt,my/l*SPD*dt); h.dir=Math.atan2(my,mx); h.moving=true;
+  const mx=(KD.d?1:0)-(KD.a?1:0)+JOY.x, my=(KD.s?1:0)-(KD.w?1:0)+JOY.y, ml=Math.hypot(mx,my);
+  if(ml>.12){
+    const k=Math.min(1,ml); tryStep(h,mx/ml*SPD*k*dt,my/ml*SPD*k*dt); h.dir=Math.atan2(my,mx); h.moving=true;
     h.tx=h.x; h.ty=h.y; h.tstop=0; h.pathKey=null; camFree=null;
   }else{
     const job=S.phase==='day'?h.queue[0]:null;
@@ -777,7 +816,7 @@ function dawn(){
   if(justWon) offerVictory(wasBoss); else if(wasBoss) offerBoons();
 }
 function offerVictory(thenBoon){
-  const sc=recordScore();
+  const sc=recordScore(); party('win');
   showOver('The crown holds',`You held the keep through ${WIN_NIGHTS} nights on ${DIFF[S.diff].label}. Score ${sc.toLocaleString()}${sc>=bestScore?', your best yet':''}.`,[
     {label:'Keep ruling',sub:'Endless mode: the raids keep growing',primary:true,fn:()=>{ hideOver(); if(thenBoon) offerBoons(); ui(); }},
     {label:'Found a new kingdom',sub:'Start a fresh valley',fn:newGame}]);
@@ -793,6 +832,7 @@ function lose(){
   ui();
 }
 function offerBoons(){
+  party('big');
   const pool=[...BOONS], pick=[];
   while(pick.length<3&&pool.length) pick.push(pool.splice((Math.random()*pool.length)|0,1)[0]);
   showOver('The warlord is dead','Your people offer a boon. Choose one.',
@@ -1958,7 +1998,7 @@ function render(raw,t){
   else renderer.render(scene,camera);
   if(!paused) stepFx(raw);
   const go=(Math.pow(nightA,1.6)*.72).toFixed(2); if(gradeEl.style.opacity!==go) gradeEl.style.opacity=go;
-  drawHud(); drawMini(); syncAbil();
+  drawHud(); drawMini(); syncAbil(); syncMusicTempo();
 }
 
 // =============== SOUND ===============
@@ -2065,10 +2105,10 @@ function renderRes(){
   }
   RES.forEach(r=>{ const c=$('r-'+r), n=E.net[r], d=c.querySelector('.d');
     c.querySelector('.v').textContent=S.res[r];
-    d.textContent=n?`${n>0?'+':''}${n} at dawn`:'steady'; d.className='d'+(n>0?' up':n<0?' dn':''); c.title=`${cap1(r)}: ${S.res[r]}, ${n>=0?'+':''}${n} at dawn`; });
+    d.innerHTML=n?`${n>0?'+':''}${n}<span class="ad"> at dawn</span>`:'steady'; d.className='d'+(n>0?' up':n<0?' dn':''); c.title=`${cap1(r)}: ${S.res[r]}, ${n>=0?'+':''}${n} at dawn`; });
   const c=$('r-people'), d=c.querySelector('.d');
   c.querySelector('.v').textContent=`${S.pop}/${E.cap}`;
-  d.textContent=E.popD<0?`${E.popD} famine`:S.idle?`${S.idle} unemployed`:E.popD>0?`+${E.popD} at dawn`:'all working';
+  d.innerHTML=E.popD<0?`${E.popD} famine`:S.idle?`${S.idle} <span class="ad">un</span>employed`.replace('<span class="ad">un</span>employed',`<span class="ad">unemployed</span><span class="sh">idle</span>`):E.popD>0?`+${E.popD}<span class="ad"> at dawn</span>`:'all working';
   d.className='d'+(E.popD<0?' dn':E.popD>0?' up':'');
 }
 function renderLedger(){
@@ -2092,7 +2132,7 @@ function renderInsp(){
   if(sel&&!G(...sel).b) sel=null;
   if(!sel){
     const q=S.hero.queue.length, d=DEF[S.tool];
-    const tip=S.phase==='day'?(S.tool==='ride'?'Tap the ground to send your hero. Tap a building to inspect it.':S.tool==='clear'?'Tap a building to clear it for a refund.':`Ordering: ${d.name.toLowerCase()} for ${costStr(d.cost)}. Tap tiles for your hero to build${q?` · ${q} order${q>1?'s':''} queued`:''}.`)
+    const tip=S.phase==='day'?(S.tool==='ride'?(COARSE?'Use the joystick to ride, or tap the ground to send your hero. Tap a building to inspect it.':'Tap the ground to send your hero. Tap a building to inspect it.'):S.tool==='clear'?'Tap a building to clear it for a refund.':`Ordering: ${d.name.toLowerCase()} for ${costStr(d.cost)}. Tap tiles for your hero to build${q?` · ${q} order${q>1?'s':''} queued`:''}.`)
       :'Tap the ground to send your hero into the fight. Tap a building to upgrade it or trade.';
     box.innerHTML=`<span class="hint"></span>`; box.querySelector('.hint').textContent=tip; return;
   }
@@ -2149,24 +2189,87 @@ function togglePause(){ paused=!paused; $('pause').setAttribute('aria-pressed',p
 $('pause').addEventListener('click',togglePause);
 function toggleSpeed(){ speed=speed===1?2:speed===2?3:1; $('speed').textContent=speed+'×'; savePrefs(); }
 const PREF='smallcrown-prefs';
-function savePrefs(){ try{ localStorage.setItem(PREF,JSON.stringify({speed,zoom:+zoomHH.toFixed(2),sound,quality,qualityChosen})); }catch(e){} }
+function savePrefs(){ try{ localStorage.setItem(PREF,JSON.stringify({speed,zoom:+zoomHH.toFixed(2),sound,music:musicOn,quality,qualityChosen})); }catch(e){} }
 function loadPrefs(){ try{ const p=JSON.parse(localStorage.getItem(PREF)||'{}');
   if([1,2,3].includes(p.speed)){ speed=p.speed; $('speed').textContent=speed+'×'; }
   if(p.zoom>=ZMIN&&p.zoom<20) zoomHH=p.zoom;
   if(p.quality==='low'||p.quality==='high'){ quality=p.quality; qualityChosen=!!p.qualityChosen; }
-  if(p.sound){ sound=true; $('sound').setAttribute('aria-pressed',true); $('sndwave').setAttribute('opacity','1'); }
+  if(p.sound){ sound=true; musicOn=!!p.music; $('sound').setAttribute('aria-pressed',true); $('sndwave').setAttribute('opacity','1'); if(musicOn) setTimeout(()=>setAudio(2,true),0); }
 }catch(e){} }
 addEventListener('pointerdown',()=>{ if(sound&&!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } },true);
 $('speed').addEventListener('click',toggleSpeed);
 $('qual').addEventListener('click',()=>{ quality=quality==='high'?'low':'high'; qualityChosen=true; applyQuality(); savePrefs(); say(quality==='high'?'Graphics set to High: night glow and sharper shadows.':'Graphics set to Low: smoother on older phones.'); });
-$('sound').addEventListener('click',()=>{
-  sound=!sound;
+let musicOn=false, music=null;
+// A generative score with Tone.js: a wandering pentatonic pluck and warm pads by day, a minor key and war drums by night.
+function startMusic(){
+  const T=window.Tone; if(!T) return false;
+  try{
+    T.start();
+    if(!music){
+      const out=new T.Volume(-16).toDestination(), rev=new T.Reverb({decay:5,wet:.35}).connect(out);
+      const pluck=new T.PolySynth(T.Synth,{oscillator:{type:'triangle'},envelope:{attack:.01,decay:.35,sustain:.08,release:1.4}}).connect(rev);
+      const pad=new T.PolySynth(T.Synth,{oscillator:{type:'sine'},envelope:{attack:1.8,decay:1,sustain:.6,release:3}}).connect(rev); pad.volume.value=-12;
+      const drum=new T.MembraneSynth({pitchDecay:.06,octaves:4,envelope:{attack:.001,decay:.45,sustain:0}}).connect(out); drum.volume.value=-4;
+      const DAY=['D4','E4','F#4','A4','B4','D5','E5','F#5'], NIGHT=['D4','F4','G4','A4','C5','D5','F5'];
+      let i=3;
+      new T.Loop(t=>{ const sc=S&&S.phase==='night'?NIGHT:DAY; if(Math.random()<.68){ i=Math.max(0,Math.min(sc.length-1,i+Math.floor(Math.random()*3)-1)); pluck.triggerAttackRelease(sc[i],'8n',t,.35+Math.random()*.3); } },'8n').start(0);
+      new T.Loop(t=>{ const n=S&&S.phase==='night'; pad.triggerAttackRelease(n?(Math.random()<.5?['D3','F3','A3']:['A#2','D3','F3']):(Math.random()<.5?['D3','F#3','A3']:['G2','B2','D3']),'1m',t,.35); },'1m').start(0);
+      new T.Loop(t=>{ if(S&&S.phase==='night'){ drum.triggerAttackRelease('D1','8n',t,.8); if(Math.random()<.45) drum.triggerAttackRelease('A1','16n',t+T.Time('8n').toSeconds(),.5); } },'4n').start(0);
+      T.Transport.bpm.value=78; music={out};
+    }
+    T.Transport.start(); return true;
+  }catch(e){ return false; }
+}
+function stopMusic(){ try{ if(window.Tone&&music) Tone.Transport.pause(); }catch(e){} }
+function syncMusicTempo(){ if(!music||!musicOn||!window.Tone) return; const want=S.phase==='night'?(S.queue.length+S.enemies.length>8?104:94):78; if(Math.abs(Tone.Transport.bpm.value-want)>1) Tone.Transport.bpm.rampTo(want,3); }
+function setAudio(level,quiet){
+  sound=level>0; musicOn=level>1;
   if(sound&&!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){ sound=false; } }
   if(sound&&actx) actx.resume?.();
-  $('sound').setAttribute('aria-pressed',sound); $('sndwave').setAttribute('opacity',sound?'1':'.3');
-  if(sound) sfx('build');
+  if(musicOn){ if(!startMusic()&&!quiet) say('The music is still loading. Tap the sound button again in a moment.'); } else stopMusic();
+  const b=$('sound'); b.setAttribute('aria-pressed',sound); $('sndwave').setAttribute('opacity',sound?'1':'.3');
+  b.setAttribute('aria-label',musicOn?'Sound and music on':sound?'Sound effects on':'Sound off');
+  let n=b.querySelector('.note'); if(musicOn&&!n){ n=document.createElement('span'); n.className='note'; n.textContent='♪'; n.setAttribute('aria-hidden','true'); b.appendChild(n); } else if(!musicOn&&n) n.remove();
+  if(!quiet){ say(musicOn?'Sound effects and music on.':sound?'Sound effects on. Tap again for music.':'Sound off.'); if(sound) sfx('build'); }
   savePrefs();
-});
+}
+$('sound').addEventListener('click',()=>setAudio(sound?(musicOn?0:2):1));
+addEventListener('pointerdown',()=>{ if(musicOn&&window.Tone&&(!music||Tone.Transport.state!=='started')) startMusic(); },true);
+// touch joystick (nipplejs), shown on touch screens
+const COARSE=matchMedia('(pointer: coarse)').matches;
+let joyMgr=null;
+function initJoy(){
+  if(joyMgr||!COARSE||!window.nipplejs) return;
+  const z=$('joy'); z.hidden=false;
+  try{
+    joyMgr=nipplejs.create({zone:z,mode:'static',position:{left:'50%',top:'50%'},color:'#F0BE4E',size:100,restOpacity:.6});
+    joyMgr.on('move',(e,d)=>{ if(!d||!d.vector) return; const f=Math.min(1,d.force||0); JOY.x=d.vector.x*f; JOY.y=-d.vector.y*f; camFree=null; });
+    joyMgr.on('end',()=>{ JOY.x=0; JOY.y=0; });
+  }catch(e){ z.hidden=true; }
+}
+// guided tour (driver.js)
+function startTour(){
+  const D=window.driver&&window.driver.js&&window.driver.js.driver;
+  if(!D){ say('The tour is still loading. Try again in a moment.'); return; }
+  const steps=[
+    {element:'#res',popover:{title:'Your goods',description:'Gold, food, wood and stone, plus your villagers. The small line under each number is what the next dawn will bring.'}},
+    {element:'#board',popover:{title:'The valley',description:COARSE?'Tap a tile to send your hero to build there. Steer him with the joystick in the corner, drag to look around and pinch to zoom.':'Tap a tile to send your hero to build there. Right-click to ride somewhere or steer with W A S D. Drag to look around and scroll to zoom.'}},
+    {element:'#quest',popover:{title:'Quests',description:'Your next goal and what it pays. The first few walk you through the basics.'}},
+    {element:'#tools',popover:{title:'Build tools',description:'Farms feed your villagers, houses bring more of them, and every villager pays taxes. Palisades, traps and towers stop raiders.'}},
+    {element:'#abil',popover:{title:'Hero abilities',description:'Charge cuts through raiders in a line. Rally pulls every soldier to your hero.'}},
+    {element:'#bell',popover:{title:'Ring the bell',description:`When you are ready, start the night. Red dots on the ground show where raiders will walk. Hold the keep for ${WIN_NIGHTS} nights.`}},
+    {element:'#upg',popover:{title:'Kingdom upgrades',description:'Spend spare goods on permanent improvements to your economy, defenses, army and hero.'}}
+  ];
+  try{ D({showProgress:true,nextBtnText:'Next',prevBtnText:'Back',doneBtnText:'Start ruling',progressText:'{{current}} of {{total}}',steps}).drive(); }catch(e){}
+  try{ localStorage.setItem('smallcrown-toured','1'); }catch(e){}
+}
+function maybeTour(){ let seen=false; try{ seen=!!localStorage.getItem('smallcrown-toured'); }catch(e){} if(!seen) setTimeout(startTour,700); }
+$('tourBtn').addEventListener('click',startTour);
+// full screen where the browser allows it
+const fsEl=document.documentElement;
+if(document.fullscreenEnabled&&fsEl.requestFullscreen){ $('fs').hidden=false;
+  $('fs').addEventListener('click',()=>{ (document.fullscreenElement?document.exitFullscreen():fsEl.requestFullscreen()).catch(()=>{}); }); }
+addEventListener('load',initJoy); setTimeout(initJoy,1500);
 const ptrs=new Map(); let paint=null, pinch=null;
 const LINE_TOOLS=new Set(['wall','trap']);
 function setZoom(z){ if(!viewNear) toggleView(); zoomHH=Math.max(ZMIN,Math.min(farHH,z)); savePrefs(); }
