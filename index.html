@@ -133,6 +133,11 @@ h1 .crest{width:26px;height:26px;vertical-align:-3px;margin-right:6px}
 .seg button:disabled{opacity:.5;cursor:default}
 .seat{display:grid;grid-template-columns:1fr auto;gap:2px 8px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
 .seat:first-of-type{border-top:0}
+.tc.wonders{grid-column:1/-1}
+.tc.wonders .seat{grid-template-columns:1fr}
+.tc.wonders .seat button{justify-self:start}
+.mkt td.rt{white-space:normal;min-width:120px}
+.mkt select{max-width:110px}
 .seat .sn{font-size:12.5px;color:var(--ink);font-weight:600}
 .seat .sd{font-size:11.5px;color:var(--muted);grid-column:1;line-height:1.35}
 .seat button,.tc>button{font:inherit;font-size:12px;font-weight:600;border:1px solid var(--line);border-radius:6px;padding:5px 9px;background:var(--raise);color:var(--ink);cursor:pointer;grid-row:1/3;grid-column:2;white-space:nowrap}
@@ -154,6 +159,9 @@ h1 .crest{width:26px;height:26px;vertical-align:-3px;margin-right:6px}
 .mkt button{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--raise);color:var(--ink);border-radius:5px;padding:3px 7px;cursor:pointer}
 .mkt button:disabled{opacity:.4;cursor:default}
 .mktwrap{overflow-x:auto}
+.mkt select{font:inherit;font-size:12px;background:var(--raise);color:var(--ink);border:1px solid var(--line);border-radius:5px;padding:2px 4px}
+.gbtn{font:inherit;font-size:12px;border:1px solid var(--line);background:var(--raise);color:var(--ink);border-radius:6px;padding:4px 9px;cursor:pointer}
+.gbtn:disabled{opacity:.45;cursor:default}
 .std{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:8px;font-size:12.5px}
 .std .tier{font-family:var(--f-display);font-weight:800;font-size:17px;color:var(--ink)}
 .std .need{background:var(--surface);border-radius:6px;padding:4px 8px}
@@ -482,6 +490,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <p data-th="help26"><b>The throne.</b> Your realm grows in rank from hamlet to village, town, city and capital as it earns renown. Renown comes from defending without losses, slaying warlords and pirate captains, feasts, fulfilled requests and some petitions. Each rank opens a council seat; a town can raise the keep into a castle and a city into a citadel. Set taxes from low to crushing: more gold, unhappier villagers. Appoint a steward, marshal, treasurer, chaplain and spymaster from three candidates each, and watch their loyalty, since disloyal councillors may flee with your gold. Most days a petition reaches the throne: choose one of two answers and live with it.</p>
     <p data-th="help27"><b>Goods and living standards.</b> Beyond the basics, your villagers want cloth, ale and salt. Goat pastures (<kbd>J</kbd>) give wool, weavers (<kbd>O</kbd>) turn it into cloth, breweries (<kbd>I</kbd>) turn food into ale, and salt pans (<kbd>,</kbd>) on the cove's shore make salt. Meeting those wants lifts their living standard from poor to modest, comfortable and prosperous, which raises mood and multiplies taxes. Workshops (<kbd>.</kbd>) turn iron and wood into tools; with enough tools every producer yields 1 more. Food spoils a little each dawn (less in winter, half with salt), every store holds up to 80 of each good, and storehouses (<kbd>K</kbd>) add 60 more. Idle villagers pay half taxes. Market prices follow the seasons and drop when your stores are full; trade everything from the Market and stores panel. Vellmar buys cloth and Kharum buys salt by sea.</p>
     <p data-th="help28"><b>Ashkara and its crowns.</b> Your realm sits in the south of Ashkara, a continent of deserts, steppes, forests and mountains divided into some two dozen lands. Open the map with the globe button. Three rival crowns hold their own capitals and lands: King Harun of Qadir (warlike), Queen Ysolde of Merrow (cunning) and King Osric of Hallowmere (pious). Every dawn they grow, claim free land on their borders, feud and go to war with each other, and may form a coalition if you grow too strong. Prestige counts renown, gold, army, people and lands. You can settle, buy or conquer only lands that border yours. In each crown's court you can send envoys, sign trade agreements, pacts of peace and military alliances, marry into their house, request aid from allies, demand tribute, impose an embargo, sabotage them through your spymaster, denounce them or declare war; at war you can offer peace, demand surrender or call your allies in. Take a rival's capital and their crown falls. Finish 20 nights at the top to be named High King.</p>
+    <p data-th="help29"><b>Placement, caravans and wonders.</b> Where you build matters: a farm beside two other farms or near a well grows more, mines and workshops near the smith work faster, lumber camps crowd each other, markets and taverns earn more among houses, and houses like wells, markets and shrines nearby but hate mines and breweries next door. The bonus shows while you place a building. With a trade agreement, send a daily caravan of goods to another crown from the Market and stores panel; each crown pays well for what it lacks, but prices fall the more you send. The Merchant Guild lends gold with interest and takes investments. From the throne, begin one of five wonders; each needs several dawns of work and a daily delivery of goods, and gives a lasting bonus.</p>
     <p data-th="help4"><b>Seasons</b> turn every 5 days. Spring rains add 1 food per farm, summer heat costs 1, harvest adds 2 and lifts markets, and winter costs 2 while every house burns 1 wood a dawn to stay warm. Weather is rolled each dawn: rain stops fires, sandstorms slow raiders but shorten your towers' sight, snow slows everyone.</p>
     <p data-th="help5"><b>Mood.</b> Villagers are happier with wells and shrines nearby, full granaries and a good harvest, and unhappier after hunger, cold houses and buildings lost to raiders. Content villagers pay extra taxes; unhappy ones pay less, stop moving in, and below 20 they start to leave. Wells also keep fire off the buildings around them.</p>
     <p data-th="help6"><b>Hero levels.</b> Raiders your hero fells, and every night survived, earn experience. Each level adds health, every second level adds damage, and each one lets you pick a perk.</p>
@@ -524,6 +533,11 @@ const DEF={
   smith:{name:'Blacksmith',cost:{wood:6,stone:6},hp:6,enter:9,unlock:6},
   tavern:{name:'Tavern',cost:{wood:8,gold:4},hp:5,enter:8,unlock:4},
   road:{name:'Road',cost:{stone:1},hp:3,enter:1},
+  w_granary:{name:'Great Granary',cost:{wood:20,stone:10},hp:20,enter:20,work:true,wonder:true,days:3,daily:{wood:10,stone:6},unlock:6,rank:0,desc:'Food never spoils, and every store holds 40 more.'},
+  w_bazaar:{name:'Grand Bazaar',cost:{wood:20,stone:10,gold:20},hp:20,enter:20,work:true,wonder:true,days:4,daily:{wood:8,cloth:4,gold:10},unlock:6,rank:1,desc:'Market prices 15% better, caravans earn 15% more, and +6 gold each dawn.'},
+  w_academy:{name:'Royal Academy',cost:{stone:20,gold:30},hp:20,enter:20,work:true,wonder:true,days:4,daily:{stone:8,cloth:3,gold:12},unlock:8,rank:2,desc:'Your hero gains half again as much experience, and kingdom upgrades cost a quarter less.'},
+  w_cathedral:{name:'Cathedral of the Sun',cost:{stone:30,gold:30},hp:24,enter:20,work:true,wonder:true,days:5,daily:{stone:12,gold:8,tools:2},unlock:8,rank:2,desc:'Mood +12 and +2 renown each dawn.'},
+  w_colossus:{name:'The Sun Colossus',cost:{stone:30,iron:10,gold:30},hp:30,enter:20,work:true,wonder:true,days:5,daily:{stone:14,iron:3,gold:6},unlock:10,rank:3,desc:'The keep and towers hit 2 harder and see further. +30 renown when finished.'},
   pasture:{name:'Goat pasture',cost:{wood:5},hp:3,enter:5,work:true,unlock:2},
   storehouse:{name:'Storehouse',cost:{wood:8,stone:4},hp:6,enter:9,unlock:3},
   brewery:{name:'Brewery',cost:{wood:6,stone:3},hp:4,enter:7,work:true,unlock:4},
@@ -1354,7 +1368,59 @@ const ES={
 "Hold six lands of Ashkara":"Posee seis tierras de Ashkara","Charting the continent…":"Cartografiando el continente…",
 "Crownbreaker":"Rompecoronas",
 "Take a rival’s capital":"Toma la capital de un rival",
-"Settle a land on your border from the map of Ashkara":"Coloniza una tierra de tu frontera desde el mapa de Ashkara"
+"Settle a land on your border from the map of Ashkara":"Coloniza una tierra de tu frontera desde el mapa de Ashkara",
+"help29":"<b>Ubicación, caravanas y maravillas.</b> Dónde construyes importa: una granja junto a otras dos o cerca de un pozo produce más, las minas y los talleres cerca del herrero rinden más, los aserraderos se estorban entre sí, los mercados y tabernas ganan más entre casas, y las casas aprecian tener cerca pozos, mercados y santuarios pero odian las minas y cervecerías al lado. La bonificación se ve al colocar un edificio. Con un acuerdo comercial, envía cada amanecer una caravana de bienes a otra corona desde el panel de mercado; cada corona paga bien lo que le falta, pero los precios bajan cuanto más envías. El Gremio de Mercaderes presta oro con interés y acepta inversiones. Desde el trono, inicia una de las cinco maravillas; cada una necesita varios amaneceres de trabajo y una entrega diaria de bienes, y da una bonificación duradera.",
+"Something went wrong":"Algo salió mal",
+"The game caught an error and kept running":"El juego detectó un error y siguió funcionando",
+"Merchant Guild":"Gremio de Mercaderes",
+"Owe {{g}} gold by day {{d}}":"Debes {{g}} de oro antes del día {{d}}",
+"Repay now":"Pagar ya",
+"Borrow {{a}}, repay {{b}} in {{d}} days":"Pedir {{a}}, devolver {{b}} en {{d}} días",
+"Investment returns {{g}} on day {{d}}":"La inversión devuelve {{g}} el día {{d}}",
+"Invest 50 for 58 in 6 days":"Invertir 50 por 58 en 6 días",
+"The guild will not lend to you until day {{d}}":"El gremio no te prestará hasta el día {{d}}",
+"Caravans to other crowns":"Caravanas a otras coronas",
+"Each dawn a caravan carries goods to a crown you have a trade agreement with. Every crown wants different goods, and prices fall the more you send.":"Cada amanecer una caravana lleva bienes a una corona con la que tengas acuerdo comercial. Cada corona quiere bienes distintos y los precios bajan cuanto más envías.",
+"wants {{g}}":"quiere {{g}}",
+"No caravan":"Sin caravana",
+"Needs a trade agreement":"Requiere un acuerdo comercial",
+"about {{g}} gold":"unos {{g}} de oro",
+"Local market":"Mercado local",
+"Field cluster":"Campos agrupados",
+"Irrigated from a well":"Regado desde un pozo",
+"Short haul to the forge":"Poco trecho hasta la forja",
+"Crowded grove":"Arboleda saturada",
+"Next to the smith":"Junto al herrero",
+"Locals drink here":"Aquí beben los vecinos",
+"Grazes the stubble":"Pasta en el rastrojo",
+"Well served":"Bien servida",
+"Noisy neighbors":"Vecinos ruidosos",
+"Great Granary":"Gran Granero",
+"Grand Bazaar":"Gran Bazar",
+"Royal Academy":"Academia Real",
+"Cathedral of the Sun":"Catedral del Sol",
+"The Sun Colossus":"El Coloso del Sol",
+"Food never spoils, and every store holds 40 more.":"La comida nunca se estropea y cada almacén guarda 40 más.",
+"Market prices 15% better, caravans earn 15% more, and +6 gold each dawn.":"Precios de mercado un 15% mejores, las caravanas ganan un 15% más y +6 de oro cada amanecer.",
+"Your hero gains half again as much experience, and kingdom upgrades cost a quarter less.":"Tu héroe gana la mitad más de experiencia y las mejoras del reino cuestan una cuarta parte menos.",
+"Mood +12 and +2 renown each dawn.":"Ánimo +12 y +2 de renombre cada amanecer.",
+"The keep and towers hit 2 harder and see further. +30 renown when finished.":"El castillo y las torres golpean 2 más fuerte y ven más lejos. +30 de renombre al terminar.",
+"Wonder complete":"Maravilla completada",
+"Grand projects":"Grandes proyectos",
+"Complete":"Completa",
+"Building: {{p}} of {{d}} dawns":"En obras: {{p}} de {{d}} amaneceres",
+"Needs a {{r}}":"Requiere ser {{r}}",
+"Choose a site":"Elegir un lugar",
+"{{d}} dawns, each needing {{c}}.":"{{d}} amaneceres, cada uno con {{c}}.",
+"Wonder":"Maravilla",
+"Under construction":"En construcción",
+"each dawn":"cada amanecer",
+"Wonder of the world":"Maravilla del mundo",
+"Complete a grand project":"Completa un gran proyecto",
+"Caravan master":"Maestro caravanero",
+"Run caravans to two crowns at once":"Mantén caravanas a dos coronas a la vez",
+"Place a farm next to two other farms":"Coloca una granja junto a otras dos",
+"Begin a grand project from the throne":"Inicia un gran proyecto desde el trono"
 };
 
 let lang='en';
@@ -1392,6 +1458,8 @@ function moodInfo(){
   for(const e of EDICTS) if(hasEdict(e.id)&&e.mood) add(T(e.name),e.mood);
   if(TAXES[taxLvl()].mood) add(`${TAXES[taxLvl()].name} taxes`,TAXES[taxLvl()].mood);
   if(S.stdTier) add(`${STD[S.stdTier].name} living`,STD[S.stdTier].mood);
+  if(S.adjMood) add('Neighborhoods',S.adjMood);
+  if(hasWonder('w_cathedral')) add('Cathedral of the Sun',12);
   if(skill('chaplain')) add('Chaplain',skill('chaplain')*3);
   for(const k in (S.council||{})) if(S.council[k].trait==='pious') add(`${S.council[k].name} is pious`,2);
   if(S.res.food>=15) add('Full granaries',5);
@@ -1414,6 +1482,7 @@ const PERKS=[
 const hasPerk=id=>S.perks.includes(id);
 const xpNeed=l=>10+12*(l-1);
 function gainXP(n){
+  if(hasWonder('w_academy')) n=Math.round(n*1.5);
   S.hx+=n; let up=false;
   while(S.hx>=xpNeed(S.hl)){ S.hx-=xpNeed(S.hl); S.hl++; S.perkPending++; up=true; }
   if(up&&S.hero){ S.hero.max=heroMax(); S.hero.hp=S.hero.max; floatText(S.hero.x,S.hero.y,`Level ${S.hl}!`,CSS.gold); sfx('up'); party('small'); }
@@ -1447,11 +1516,12 @@ function upgState(u){
   if(hasUpg(u.id)) return 'done';
   if(u.req&&!hasUpg(u.req)) return 'req';
   if(u.day&&S.day<u.day) return 'day';
-  return canPay(u.cost)?'buy':'poor';
+  return canPay(upgCost(u))?'buy':'poor';
 }
+function upgCost(u){ if(!hasWonder('w_academy')) return u.cost; const c={}; for(const k in u.cost) c[k]=Math.ceil(u.cost[k]*.75); return c; }
 function buyUpg(id){
   const u=UPGS.find(x=>x.id===id); if(!u||upgState(u)!=='buy'||S.over) return;
-  spend(u.cost); S.upg.push(id); u.apply(); S.ver++; party('small');
+  spend(upgCost(u)); S.upg.push(id); u.apply(); S.ver++; party('small');
   floatText(C,C,u.name,CSS.gold); sfx('up'); say(`<b>${u.name}</b> is yours. ${u.desc}`); save(); ui();
 }
 const QUESTS=[
@@ -1477,6 +1547,8 @@ const QUESTS=[
   {text:'Build a market',goal:()=>[count('market'),1],reward:{gold:8}},
   {text:'Raise goats in a pasture',goal:()=>[count('pasture'),1],reward:{wood:5}},
   {text:'Weave your first cloth',goal:()=>[S.res.cloth>0?1:0,1],reward:{gold:8}},
+  {text:'Place a farm next to two other farms',goal:()=>[S.grid.some((t,i)=>t.b&&t.b.type==='farm'&&nearCount(S.grid,i%N,(i/N)|0,['farm'],1)>=2)?1:0,1],reward:{food:6}},
+  {text:'Begin a grand project from the throne',goal:()=>[WONDERS.some(w=>count(w)>0)?1:0,1],reward:{stone:10}},
   {text:'Give your villagers a comfortable living',goal:()=>[(S.stdTier||0)>=2?1:0,1],reward:{gold:15}},
   {text:'Defeat the first warlord',goal:()=>[S.day>5?1:0,1],reward:{gold:12,stone:6}},
   {text:'Grow your village to 15 villagers',goal:()=>[S.pop,15],reward:{gold:15}},
@@ -1820,7 +1892,7 @@ function addGroves(){
   for(let i=0;i<4&&c.length;i++){ const [x,y]=c.splice((Math.random()*c.length)|0,1)[0]; G(x,y).grove=true; }
 }
 function assignWorkers(){
-  let free=S.pop; const order={farm:0,harbor:1,mine:2,lumber:3,market:4,pasture:5,saltpan:6,workshop:7,weaver:8,brewery:9}, prods=[];
+  let free=S.pop; const order={w_granary:-1,w_bazaar:-1,w_academy:-1,w_cathedral:-1,w_colossus:-1,farm:0,harbor:1,mine:2,lumber:3,market:4,pasture:5,saltpan:6,workshop:7,weaver:8,brewery:9}, prods=[];
   eachAll(b=>{ if(DEF[b.type].work) prods.push(b); else b.worked=false; });
   prods.sort((a,b)=>order[a.type]-order[b.type]||(a.day||0)-(b.day||0));
   for(const b of prods){ b.worked=!b.off&&free>0; if(b.worked) free--; }
@@ -1872,6 +1944,8 @@ function econ(){
   if(cata) L.gold.push([`Catapult upkeep`,-cata]);
   if(barr) L.gold.push([`Barracks upkeep`,-barr]);
   // ---- crafts, needs, tools, spoilage and storage ----
+  { const agg={}; let moodAdj=0; eachAll((b,x,y,t,here,rid,g)=>{ if(b.type!=='house'&&!b.worked&&b.type!=='tavern') return; for(const [txt,r,v] of adjBonus(b.type,g,x,y)){ if(r==='mood'){ moodAdj+=v; continue; } const k2=txt+'|'+r; agg[k2]=(agg[k2]||0)+v; } });
+    for(const k2 in agg){ const [txt,r]=k2.split('|'); if(L[r]&&agg[k2]) L[r].push([`Placement: ${txt.toLowerCase()}`,agg[k2]]); } S.adjMood=Math.max(-6,Math.min(8,moodAdj)); }
   const sum=r=>L[r].reduce((a,l)=>a+l[1],0), avail=r=>Math.max(0,(S.res[r]||0)+sum(r));
   const toolNeed=Math.ceil((farms+lum+mines+imines+pas)/4), toolsOk=toolNeed>0&&S.res.tools>=toolNeed;
   if(toolsOk){ L.tools.push([`Tools worn out by ${plural(farms+lum+mines+imines+pas,'producer')}`,-toolNeed]);
@@ -1886,8 +1960,10 @@ function econ(){
   for(const r in needs){ const c=Math.min(needs[r],avail(r)); met[r]=needs[r]?c/needs[r]:0; if(c) L[r].push([r==='cloth'?'Villagers wear out clothes':r==='ale'?'Villagers drink':'Villagers salt their food',-c]); }
   const avgMet=(met.cloth+met.ale+met.salt)/3, tier=S.pop<3?0:avgMet>=.99?3:avgMet>=.6?2:avgMet>=.3?1:0;
   S.stdTier=tier;
-  const sea2=season().name, sr=(sea2==='Summer'?.05:sea2==='Winter'?.01:.03)*(met.salt>=1?.5:1), spoil=Math.floor(avail('food')*sr);
+  const sea2=season().name, sr=hasWonder('w_granary')?0:(sea2==='Summer'?.05:sea2==='Winter'?.01:.03)*(met.salt>=1?.5:1), spoil=Math.floor(avail('food')*sr);
+  if(hasWonder('w_bazaar')) L.gold.push(['Grand Bazaar',6]);
   if(spoil>0) L.food.push([`Food spoils${met.salt>=1?' (salted, halved)':''}`,-spoil]);
+  const shipped=routesEcon(L,avail);
   const capS=storeCap(); for(const r of ALLR){ if(r==='gold') continue; const after=avail(r); if(after>capS) L[r].push([`No room in the stores (${capS})`,capS-after]); }
   const net={}; ALLR.forEach(r=>net[r]=L[r].reduce((a,l)=>a+l[1],0));
   const cap=housing(), foodAfter=S.res.food+net.food;
@@ -1895,11 +1971,13 @@ function econ(){
   if(foodAfter<0) popD=-Math.min(S.pop,Math.ceil(-foodAfter/3));
   else if(S.pop<cap&&S.mood>=35) popD=Math.min(cap-S.pop,Math.max(1,Math.floor(houses/2)));
   if(S.mood<20&&S.pop>0) popD=Math.min(popD,-1);
-  return {L,net,popD,cap,idleP,foodAfter,goldAfter:S.res.gold+net.gold,needs,met,tier,capS};
+  return {L,net,popD,cap,idleP,foodAfter,goldAfter:S.res.gold+net.gold,needs,met,tier,capS,shipped};
 }
 function clampPrices(){ for(const r in S.price) S.price[r]=Math.min(16,Math.max(.6,S.price[r])); }
 function ensureEco(){ for(const r of ALLR) if(S.res[r]==null) S.res[r]=0; S.price=S.price||{}; for(const r of TRADE) if(!S.price[r]) S.price[r]=BASEP[r]; S.ph=S.ph||{}; }
-const storeCap=()=>80+60*count('storehouse')+20*((S.keepLvl||1)-1);
+const storeCap=()=>80+60*count('storehouse')+20*((S.keepLvl||1)-1)+(hasWonder('w_granary')?40:0);
+const WONDERS=['w_granary','w_bazaar','w_academy','w_cathedral','w_colossus'];
+function hasWonder(id){ let ok=false; if(!S) return false; eachAll(b=>{ if(b.type===id&&b.done) ok=true; }); return ok; }
 const STD=[{name:'Poor',mood:0,tax:1},{name:'Modest',mood:4,tax:1.1},{name:'Comfortable',mood:8,tax:1.25},{name:'Prosperous',mood:12,tax:1.4}];
 const SEASONF={food:{Winter:1.3,Harvest:.75,Summer:1.1},wood:{Winter:1.2},wool:{Spring:.8,Winter:1.25},ale:{Harvest:1.3,Winter:1.1},salt:{Summer:1.15},cloth:{Winter:1.2},tools:{}};
 const REF={food:40,wood:40,stone:30,iron:20,wool:20,cloth:15,ale:15,salt:15,tools:15};
@@ -1907,8 +1985,8 @@ function updatePrices(){ ensureEco(); const sn=season().name;
   for(const r of TRADE){ const sf=(SEASONF[r]||{})[sn]||1, st=Math.max(.7,Math.min(1.3,1.25-(S.res[r]||0)/REF[r]*.3)), tg=BASEP[r]*sf*st;
     S.price[r]+=(tg-S.price[r])*.3; S.price[r]*=.93+Math.random()*.14; }
   clampPrices(); for(const r of TRADE){ const h=S.ph[r]||(S.ph[r]=[]); h.push(buyCost(r)); if(h.length>14) h.shift(); } }
-const buyCost=r=>Math.max(1,Math.round(S.price[r]*LOT));
-const sellGain=r=>Math.max(1,Math.floor(S.price[r]*LOT*.6));
+const buyCost=r=>Math.max(1,Math.round(S.price[r]*LOT*(hasWonder('w_bazaar')?.85:1)));
+const sellGain=r=>Math.max(1,Math.floor(S.price[r]*LOT*.6*(hasWonder('w_bazaar')?1.15:1)));
 const marketOpen=()=>S.grid.some(t=>t.b&&t.b.type==='market'&&t.b.worked);
 function trade(r,buy){
   if(!marketOpen()){ say('A market with a villager working it is needed to trade.'); sfx('no'); return; }
@@ -2246,10 +2324,10 @@ function weapon(b){
   const m=S.mods;
   const wr=wxRange();
   const oil=S.oilNights>0?1:0;
-  const wf=hasEdict('watch')?.75:1;
+  const wf=hasEdict('watch')?.75:1, col=hasWonder('w_colossus')?1:0;
   const kl=S.cur==='home'?(S.keepLvl||1)-1:0;
-  if(b.type==='keep') return {range:1.8+m.range*.5-wr+kl*.3,rate:1.3*wf,dmg:1+m.dmg+oil+kl,min:0,h:1.3};
-  if(b.type==='tower'){ const sp=b.spec, rate=Math.max(.36,.75-(b.lvl-1)*.15)*wf*(sp==='ballista'?1.5:1); return {range:2.4+(b.lvl-1)*.35+m.range-wr+(sp==='ballista'?.7:0),rate,dmg:b.lvl+m.dmg+oil+(sp==='ballista'?3:0),min:0,h:1.15+.18*b.lvl,burn:sp==='fire'}; }
+  if(b.type==='keep') return {range:1.8+m.range*.5-wr+kl*.3,rate:1.3*wf,dmg:1+m.dmg+oil+kl+col*2,min:0,h:1.3};
+  if(b.type==='tower'){ const sp=b.spec, rate=Math.max(.36,.75-(b.lvl-1)*.15)*wf*(sp==='ballista'?1.5:1); return {range:2.4+(b.lvl-1)*.35+m.range-wr+(sp==='ballista'?.7:0)+col*.4,rate,dmg:b.lvl+m.dmg+oil+(sp==='ballista'?3:0)+col*2,min:0,h:1.15+.18*b.lvl,burn:sp==='fire'}; }
   if(b.type==='cata') return {range:3.6+(b.lvl-1)*.4+m.range-wr,rate:(2.4-(b.lvl-1)*.5)*(m.cataRate||1),dmg:3+(b.lvl-1)*2,min:1,splash:.95,h:.6};
   return null;
 }
@@ -2361,8 +2439,8 @@ function dawn(){
   save(); ui(); RES.forEach(r=>{ if(E.net[r]) bump('r-'+r,E.net[r]>0?'bump':'hurt'); });
   if(E.popD) bump('r-people',E.popD>0?'bump':'hurt');
   const ch=CHAPTERS.find(c=>c.day===S.day); if(ch) setTimeout(()=>showChapter(ch),600);
-  factionDawn(REP);
-  { const kn=[]; kingdomDawn(kn,REP); crownsDawn(kn); if(kn.length) $('msg').innerHTML+=' '+kn.join('. ')+'.'; }
+  factionDawn(REP); routesDawn(E.shipped||[]);
+  { const kn=[]; kingdomDawn(kn,REP); crownsDawn(kn); guildDawn(kn); wonderDawn(kn); if(kn.length) $('msg').innerHTML+=' '+kn.join('. ')+'.'; }
   recordDaily(); checkAch(); if(REP.total) setTimeout(()=>showReport(REP),300);
   dawnExtras();
   if(justWon) offerVictory(wasBoss); else if(wasBoss) offerBoons();
@@ -2451,6 +2529,9 @@ function buildError(tool,x,y,planning){
   if(d.need==='shore'&&S.kind!=='coast') return `there is no sea here. Build ${tool==='lighthouse'?'lighthouses':tool==='saltpan'?'salt pans':'harbors'} at Saltreach Cove.`;
   if(d.need==='shore'&&tool==='lighthouse'&&count('lighthouse')>=1) return 'one lighthouse lights the whole cove.';
   if(tool==='smith'&&count('smith')>=1) return 'one blacksmith is enough for the whole realm.';
+  if(d.wonder&&count(tool)>=1) return 'every wonder can be built only once.';
+  if(d.wonder&&S.cur!=='home') return 'wonders rise only in The Valley.';
+  if(d.wonder&&rankIdx()<d.rank) return `the ${d.name} needs your realm to be a ${RANKS[d.rank].name.toLowerCase()}.`;
   if(d.need==='shore'&&!NB.some(([a,c])=>isSea(x+a,y+c))) return `${tool==='lighthouse'?'lighthouses':tool==='saltpan'?'salt pans':'harbors'} go on the shore, right next to the water.`;
   if(t.grove&&d.need!=='grove') return 'that palm grove is for a lumber camp.';
   if(t.ore&&d.need!=='ore') return 'that ore is for a mine.';
@@ -2465,6 +2546,7 @@ function doBuild(tool,x,y){
   spend(d.cost);
   const max=Math.round((d.hp+(tool==='wall'?S.mods.wall*5:0))*(hasPerk('mason')?1.5:1));
   G(x,y).b={type:tool,hp:max,max,lvl:1,cd:0,day:S.day,spent:0,born:S.t};
+  if(d.wonder){ G(x,y).b.prog=0; G(x,y).b.done=false; say(`<b>The ${d.name} is begun.</b> It needs ${d.days} dawns of work, a villager on site and ${costStr(d.daily)} each dawn.`); }
   if(tool==='trap') G(x,y).b.charges=trapMax();
   if(tool==='barr'||tool==='range') spawnUnits(idx(x,y));
   puff(x,y,COL.sand,10); dustRing(x,y);
@@ -2853,7 +2935,53 @@ function decorateWorld(){
     world.add(g); plantMeshes.push([idx(x,y),g]);
   }
 }
-let gridLines=null, ghost=null, ghostKey='', waterMesh=null, waterTex=null;
+let gridLines=null, ghost=null, ghostKey='', waterMesh=null, waterTex=null, groundMesh=null, grassMesh=null, grassTiles=null, grassVer=-1, snowMesh=null;
+const SEASON_TINT={Spring:new THREE.Color(.95,1.03,.9),Summer:new THREE.Color(1.03,1,.95),Harvest:new THREE.Color(1.02,.96,.88),Winter:new THREE.Color(1.04,1.07,1.12)};
+const GRASS_TINT={Spring:new THREE.Color(.5,.72,.3),Summer:new THREE.Color(.72,.7,.36),Harvest:new THREE.Color(.82,.6,.3),Winter:new THREE.Color(.86,.88,.86)};
+const grassU={uTime:{value:0},uWind:{value:1}};
+function grassGeo(){ const g=new THREE.BufferGeometry(), P=[], Cc=[];
+  for(let b=0;b<5;b++){ const a=b/5*Math.PI*2+(b%2)*.4, cx=Math.cos(a)*.02, cz=Math.sin(a)*.02, w=.026, h=.08+((b*37)%7)/100, lo=.05;
+    const pc=Math.cos(a+Math.PI/2)*w, ps=Math.sin(a+Math.PI/2)*w;
+    P.push(cx-pc,0,cz-ps, cx+pc,0,cz+ps, cx+Math.cos(a)*lo,h,cz+Math.sin(a)*lo); Cc.push(.8,.8,.8, .8,.8,.8, 1.2,1.2,1.2); }
+  g.setAttribute('position',new THREE.Float32BufferAttribute(P,3)); g.setAttribute('color',new THREE.Float32BufferAttribute(Cc,3)); g.setAttribute('normal',new THREE.Float32BufferAttribute(new Array(P.length/3).fill(0).flatMap(()=>[0,1,0]),3)); return g; }
+function buildGrass(){
+  if(grassMesh){ scene.remove(grassMesh); grassMesh.geometry.dispose(); grassMesh=null; }
+  const per=quality==='high'?(isSmall?7:10):4, kind=S.kind, density=kind==='mountain'?.5:kind==='coast'?1.1:.9, tiles=[];
+  for(let y=0;y<N;y++)for(let x=0;x<N;x++){ const t=G(x,y); if(!t.land||t.ore||t.grove) continue; tiles.push([x,y]); }
+  const count=Math.floor(tiles.length*per*density); if(!count) return;
+  const mat=new THREE.MeshLambertMaterial({vertexColors:true,side:THREE.DoubleSide});
+  mat.onBeforeCompile=sh=>{ sh.uniforms.uTime=grassU.uTime; sh.uniforms.uWind=grassU.uWind;
+    sh.vertexShader='uniform float uTime; uniform float uWind;\n'+sh.vertexShader.replace('#include <begin_vertex>','#include <begin_vertex>\n  vec4 gp=instanceMatrix*vec4(0.,0.,0.,1.); float hh=position.y*8.; float ph=uTime*1.8+gp.x*1.1+gp.z*.8;\n  transformed.x+=(sin(ph)*.6+sin(ph*2.3)*.25)*hh*.035*uWind; transformed.z+=cos(ph*.9)*hh*.02*uWind;'); };
+  const im=new THREE.InstancedMesh(grassGeo(),mat,count); im.receiveShadow=false; im.castShadow=false; im.frustumCulled=false;
+  const m4=new THREE.Matrix4(), q=new THREE.Quaternion(), e=new THREE.Euler(), pos=new V3(), sc=new V3(), col=new THREE.Color(), seed=S.seed||1;
+  grassTiles=new Map(); let n=0;
+  for(const [x,y] of tiles){ const k=idx(x,y), list=[]; const m=Math.round(per*density*(.6+hash(x,y,seed+5)*.8));
+    for(let i=0;i<m&&n<count;i++){ const px=W2(x)+(hash(x+i*3,y,seed)-.5)*.92, pz=W2(y)+(hash(x,y+i*5,seed+1)-.5)*.92;
+      if(S.kind==='coast'&&isSea(Math.round(px+C),Math.round(pz+C))) continue;
+      const s=.6+hash(i,x+y,seed+2)*.7; q.setFromEuler(e.set(0,hash(x,i,y)*6.28,0)); m4.compose(pos.set(px,0,pz),q,sc.set(s,s*(.8+hash(y,i,x)*.6),s)); im.setMatrixAt(n,m4);
+      col.setScalar(.85+hash(i,y,x)*.3); im.setColorAt(n,col); list.push([n,m4.clone()]); n++; }
+    grassTiles.set(k,list); }
+  im.count=n; im.userData.base=im.instanceColor.array.slice(); grassMesh=im; scene.add(im); grassVer=-1; tintGrass(true);
+}
+const ZERO4=new THREE.Matrix4().makeScale(0,0,0);
+function syncGrass(){
+  if(!grassMesh||grassVer===S.ver) return; grassVer=S.ver;
+  for(const [k,list] of grassTiles){ const t=S.grid[k], hide=!!t.b&&t.b.type!=='farm'; for(const [i,m] of list) grassMesh.setMatrixAt(i,hide?ZERO4:(t.b&&t.b.type==='farm'?m.clone().multiply(new THREE.Matrix4().makeScale(.5,.5,.5)):m)); }
+  grassMesh.instanceMatrix.needsUpdate=true;
+}
+let seasonCol=new THREE.Color(1,1,1), seasonName='';
+function tintGrass(force){ if(!grassMesh) return; const sn=season().name; const gc=S.kind==='mountain'?new THREE.Color(.62,.7,.5):S.kind==='coast'?GRASS_TINT[sn].clone().lerp(new THREE.Color(.5,.74,.36),.4):GRASS_TINT[sn];
+  const base=grassMesh.userData.base, arr=grassMesh.instanceColor.array; for(let i=0;i<arr.length;i+=3){ arr[i]=base[i]*gc.r; arr[i+1]=base[i+1]*gc.g; arr[i+2]=base[i+2]*gc.b; } grassMesh.instanceColor.needsUpdate=true; }
+function syncSeason(raw){
+  const sn=season().name; if(sn!==seasonName){ seasonName=sn; tintGrass(); if(snowMesh) snowMesh.userData.target=sn==='Winter'||S.weather==='snow'?.5:0; }
+  if(groundMesh){ const tg=S.kind==='mountain'?SEASON_TINT.Winter:SEASON_TINT[sn]; seasonCol.lerp(tg,Math.min(1,raw*.8)); groundMesh.material.color.copy(seasonCol); }
+  if(snowMesh){ const tgt=(sn==='Winter'||S.weather==='snow')&&S.kind!=='mountain'?.55:0; snowMesh.material.opacity+=(tgt-snowMesh.material.opacity)*Math.min(1,raw*.6); snowMesh.visible=snowMesh.material.opacity>.01; }
+  grassU.uTime.value=reduce?0:clock; grassU.uWind.value=S.weather==='sandstorm'?2.6:S.weather==='rain'?1.7:S.weather==='snow'?.6:1;
+  syncGrass();
+}
+const snowTex=(()=>{ const c=document.createElement('canvas'); c.width=c.height=128; const x=c.getContext('2d'), im=x.createImageData(128,128); const nz=mkNoise();
+  for(let j=0;j<128;j++)for(let i=0;i<128;i++){ const a=i/128*6.283, b=j/128*6.283; let v=nz?nz.noise2D(Math.cos(a)*1.6+Math.cos(b)*.4,Math.sin(a)*1.6+Math.sin(b)*1.9)*.6+nz.noise2D(Math.cos(a)*5+Math.sin(b)*3,Math.sin(a)*5+Math.cos(b)*3)*.4:.5; v=Math.max(0,Math.min(1,(v+.25)*1.6)); const o=(j*128+i)*4; im.data[o]=im.data[o+1]=im.data[o+2]=255*v; im.data[o+3]=255; }
+  x.putImageData(im,0,0); const t=new THREE.CanvasTexture(c); t.wrapS=t.wrapT=THREE.RepeatWrapping; t.repeat.set(6,6); return t; })();
 let world=null, groveMeshes={}, oreMeshes={}, plantMeshes=[], bMeshes={}, spawnKey='';
 const spawnGroup=new THREE.Group(); scene.add(spawnGroup);
 const eMeshes=new Map(), sMeshes=new Map();
@@ -2872,7 +3000,7 @@ function buildWorld(){
     gc.push(base.r*v,base.g*v,base.b*v); }
   gg.setAttribute('color',new THREE.Float32BufferAttribute(gc,3));
   if(coast) gg.computeVertexNormals();
-  const ground=new THREE.Mesh(gg,new THREE.MeshLambertMaterial({vertexColors:true})); ground.receiveShadow=true; ground.userData.own=true; world.add(ground);
+  const ground=new THREE.Mesh(gg,new THREE.MeshLambertMaterial({vertexColors:true})); groundMesh=ground; ground.material.color.copy(seasonCol); ground.receiveShadow=true; ground.userData.own=true; world.add(ground);
   waterMesh=null;
   if(coast){ const wg=new THREE.PlaneGeometry(60,60); let wm;
     if(THREE.Water&&waterTex&&quality==='high'){ try{ wm=new THREE.Water(wg,{textureWidth:512,textureHeight:512,waterNormals:waterTex,sunDirection:new THREE.Vector3(.5,.8,.3).normalize(),sunColor:0xFFF1DA,waterColor:0x1E6A78,distortionScale:2.4,fog:false,alpha:.9}); wm.material.transparent=true; }catch(e){ wm=null; } }
@@ -2951,7 +3079,8 @@ function buildWorld(){
   if(ghost){ scene.remove(ghost); ghost=null; ghostKey=''; }
   spawnKey=''; routesVer=-1;
   decorateWorld();
-  buildFoam();
+  buildFoam(); buildGrass();
+  snowMesh=new THREE.Mesh(new THREE.PlaneGeometry(60,60),new THREE.MeshLambertMaterial({color:0xF4F7FA,alphaMap:snowTex,transparent:true,opacity:0,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-3})); snowMesh.rotation.x=-Math.PI/2; snowMesh.position.y=.025; snowMesh.renderOrder=1; snowMesh.userData.own=true; world.add(snowMesh); seasonName='';
   rebuildFleet();
 }
 
@@ -3082,6 +3211,21 @@ function modelFor(b,x,y){
     if(ASSET.ready){ put(dock,'props_crate_01',.2,.09,-.12,.3,.33); put(dock,'props_barrel_01',.32,.09,.12,0,.3); put(dock,'props_sack_01',-.02,.09,.14,0,.3); }
     else add(dock,BX(.14,.14,.14),COL.woodLight,.2,.16,-.12);
     break;}
+  case 'w_granary': case 'w_bazaar': case 'w_academy': case 'w_cathedral': case 'w_colossus':{
+    const done=b.done, f=done?1:Math.max(.25,((b.prog||0)+1)/((DEF[b.type].days||3)+1));
+    add(g,BX(.96,.06,.96),COL.stone,0,.03,0);
+    const top=new THREE.Group(); top.scale.set(1,f,1); g.add(top);
+    const prism=geo('prism',()=>{ const p=new THREE.CylinderGeometry(.34,.34,.86,3,1); p.rotateZ(Math.PI/2); p.rotateX(-Math.PI/2); p.scale(1,.62,1); return p; });
+    if(b.type==='w_granary'){ for(const [a,c] of [[-.24,-.2],[.24,-.2],[0,.22]]){ add(top,CY(.17,.19,.5,12),0xE8D8B8,a,.31,c); add(top,CN(.2,.22,12),COL.roof,a,.67,c); } add(top,BX(.5,.18,.18),COL.woodLight,0,.15,.05); }
+    else if(b.type==='w_bazaar'){ [[-.25,-.22,0xA9553E],[.25,-.22,0x6A8AD8],[-.25,.22,0xD8A848],[.25,.22,0x6A8A5A]].forEach(([a,c,col])=>{ for(const [ox,oz] of [[-.15,-.15],[.15,-.15],[-.15,.15],[.15,.15]]) add(top,BX(.02,.3,.02),COL.wood,a+ox,.15,c+oz); add(top,CN(.26,.18,4),col,a,.38,c,0,Math.PI/4,0); add(top,BX(.2,.08,.12),COL.woodLight,a,.06,c); }); }
+    else if(b.type==='w_academy'){ add(top,BX(.8,.32,.5),0xEDE3CE,0,.22,-.1); for(let i=0;i<6;i++) add(top,CY(.03,.03,.32,8),0xF4F1EA,-.33+i*.13,.22,.2); add(top,BX(.86,.05,.6),0xD8CFC0,0,.4,-.05); add(top,DO(.17),0x6A8AD8,0,.5,-.1).scale.set(1,.7,1); add(top,BX(.86,.06,.08),0xD8CFC0,0,.06,.24); }
+    else if(b.type==='w_cathedral'){ add(top,BX(.42,.5,.8),0xEDE3CE,0,.29,0); add(top,prism,COL.roof,0,.68,0).scale.set(.62,.7,.95); add(top,BX(.22,.95,.22),0xE8DCC8,0,.5,.38); add(top,CN(.15,.35,4),COL.gold,0,1.15,.38,0,Math.PI/4,0); add(top,CY(.12,.12,.02,10),0xFFD060,0,.6,.495,Math.PI/2,0,0); }
+    else { add(top,BX(.42,.24,.42),COL.stone,0,.18,0); const st=new THREE.Group(); st.position.y=.3; top.add(st); const br=0xC9963E;
+      add(st,BX(.11,.32,.2),br,0,.16,0); add(st,BX(.13,.3,.24),br,0,.47,0); add(st,DO(.075),br,0,.7,0); add(st,CY(.08,.07,.04,8),COL.gold,0,.78,0);
+      add(st,BX(.05,.3,.05),br,0,.48,.16,0,0,.0); add(st,BX(.02,.9,.02),COL.wood,.02,.65,.2); add(st,CN(.03,.1,4),COL.gold,.02,1.12,.2); add(st,CY(.12,.12,.02,10),br,0,.45,-.17,Math.PI/2,0,0); }
+    if(!done){ for(const [a,c] of [[-1,-1],[1,-1],[1,1],[-1,1]]) add(g,BX(.03,.9,.03),COL.wood,a*.44,.45,c*.44); for(const h of [.3,.6]){ add(g,BX(.9,.02,.02),COL.woodLight,0,h,.44); add(g,BX(.9,.02,.02),COL.woodLight,0,h,-.44); } }
+    else { const fl=new THREE.Group(); fl.position.set(.42,0,.42); g.add(fl); add(fl,BX(.02,.5,.02),COL.wood,0,.25,0); const fg=new THREE.Group(); fg.position.set(0,.45,0); fl.add(fg); add(fg,BX(.12,.08,.01),COL.gold,.06,0,0); g.userData.flag=fg; }
+    break;}
   case 'pasture':{
     add(g,BX(.88,.012,.88),0xA8A05A,0,.006,0);
     for(const [a,c,w,d] of [[0,-.42,.86,.025],[0,.42,.86,.025],[-.42,0,.025,.86],[.42,0,.025,.86]]){ add(g,BX(w,.025,d),COL.wood,a,.1,c); add(g,BX(w,.025,d),COL.wood,a,.18,c); }
@@ -3176,6 +3320,7 @@ function sigOf(b,x,y){
   if(b.type==='wall') return 'w'+b.lvl+NB.map(([a,c])=>inb(x+a,y+c)&&G(x+a,y+c).b&&G(x+a,y+c).b.type==='wall'?1:0).join('');
   if(b.type==='farm') return 'f'+farmStage(b);
   if(b.type==='trap') return 't'+(b.charges>0);
+  if(DEF[b.type]&&DEF[b.type].wonder) return b.type+(b.done?'done':'p'+(b.prog||0));
   return b.type+(b.lvl||0)+(b.spec||'');
 }
 const blobTex=canvasTex(x=>{ const g=x.createRadialGradient(32,32,4,32,32,32); g.addColorStop(0,'rgba(20,10,6,.55)'); g.addColorStop(.6,'rgba(20,10,6,.25)'); g.addColorStop(1,'rgba(20,10,6,0)'); x.fillStyle=g; x.fillRect(0,0,64,64); });
@@ -3615,7 +3760,7 @@ for(let i=0;i<18;i++){ const m=new THREE.Mesh(geo('glowP',()=>new THREE.PlaneGeo
 let scorchI=0;
 function scorch(x,y){ const s=SCORCH[scorchI++%SCORCH.length]; s.life=25; s.m.position.set(W2(x),.014,W2(y)); s.m.rotation.z=Math.random()*6; const k=.7+Math.random()*.4; s.m.scale.set(k,k,1); s.m.visible=true; }
 function emit(pool,x,y,h,life,sz,col){ const p=pool.find(q=>q.life<=0); if(!p) return; p.life=p.max=life; p.x=W2(x); p.z=W2(y); p.h=h; p.sz=sz; p.vx=(Math.random()-.5)*.12+.08; p.sp.visible=true; if(col!==undefined) p.sp.material.color.setHex(col); }
-const TOPH={storehouse:.6,brewery:.6,weaver:.55,workshop:.5,pasture:.2,saltpan:.15,lighthouse:1.1,smith:.6,tavern:.7,harbor:.45,well:.4,shrine:.6,range:.4,keep:1.25,tower:1.1,cata:.45,barr:.55,house:.65,wall:.45,mine:.4,market:.5,lumber:.45};
+const TOPH={w_granary:.7,w_bazaar:.45,w_academy:.6,w_cathedral:1.2,w_colossus:1.2,storehouse:.6,brewery:.6,weaver:.55,workshop:.5,pasture:.2,saltpan:.15,lighthouse:1.1,smith:.6,tavern:.7,harbor:.45,well:.4,shrine:.6,range:.4,keep:1.25,tower:1.1,cata:.45,barr:.55,house:.65,wall:.45,mine:.4,market:.5,lumber:.45};
 function buildingFrac(b){ return b.type==='keep'?S.keep/S.keepMax:b.hp/Math.max(1,b.max); }
 function nearWell(x,y){ for(let j=Math.max(0,y-2);j<=Math.min(N-1,y+2);j++)for(let i=Math.max(0,x-2);i<=Math.min(N-1,x+2);i++){ const b=G(i,j).b; if(b&&b.type==='well'&&Math.hypot(i-x,j-y)<=1.6) return true; } return false; }
 function stepBurn(raw,t){
@@ -3741,6 +3886,7 @@ const cloudTex=(()=>{ const c=document.createElement('canvas'); c.width=c.height
 const clouds=new THREE.Mesh(new THREE.PlaneGeometry(60,60),new THREE.MeshBasicMaterial({color:0x2A160C,alphaMap:cloudTex,transparent:true,opacity:.2,depthWrite:false,polygonOffset:true,polygonOffsetFactor:-4}));
 clouds.rotation.x=-Math.PI/2; clouds.position.y=.03; clouds.renderOrder=2; scene.add(clouds);
 function syncAmbient(raw,t){
+  syncSeason(raw);
   const day=1-nightA;
   clouds.visible=day>.05; clouds.material.opacity=.2*day*(S.weather==='rain'||S.weather==='snow'?.55:1);
   if(!reduce){ cloudTex.offset.x+=raw*.0045; cloudTex.offset.y+=raw*.0022; }
@@ -3858,7 +4004,7 @@ function syncSelection(){
 let BW=0,BH=0,dpr=1,dprCap=2,quality='high',qualityChosen=false,composer=null,bloom=null,finish=null;
 function resize(){
   const r=$('board').getBoundingClientRect(); if(!r.width) return;
-  BW=r.width; BH=r.height; dpr=Math.min(dprCap,window.devicePixelRatio||1);
+  BW=r.width; BH=r.height; dpr=Math.max(.75,Math.min(dprCap,window.devicePixelRatio||1)*renderScale);
   renderer.setPixelRatio(dpr); renderer.setSize(BW,BH,false);
   if(composer){ composer.setPixelRatio(dpr); composer.setSize(BW,BH); if(finish) finish.uniforms.res.value.set(BW*dpr,BH*dpr); }
   hud.width=Math.round(BW*dpr); hud.height=Math.round(BH*dpr);
@@ -4005,7 +4151,7 @@ function drawHud(){
     const [hx,hy]=hover, t=G(hx,hy); let txt='', bad=false;
     if(t.land){
       if(t.b) txt=t.b.type==='wall'?(t.b.lvl>1?'Stone wall':'Palisade'):DEF[t.b.type].name+(t.b.type!=='keep'&&t.b.type!=='trap'?` · ${t.b.hp}/${t.b.max}`:'');
-      else if(S.phase==='day'&&DEF[S.tool]){ const err=buildError(S.tool,hx,hy,true); if(err){ txt=cap1(err); bad=true; } else txt=`${DEF[S.tool].name} · ${costStr(DEF[S.tool].cost)}`; }
+      else if(S.phase==='day'&&DEF[S.tool]){ const err=buildError(S.tool,hx,hy,true); if(err){ txt=cap1(err); bad=true; } else { const bt=bonusText(S.tool,hx,hy); txt=`${T(DEF[S.tool].name)} · ${costStr(DEF[S.tool].cost)}${bt?' · '+bt:''}`; } }
       else if(t.ore) txt='Ore'; else if(t.grove) txt='Grove';
     }
     if(txt){ const [px,py]=scr(W2(hx),.9,W2(hy)); hctx.font=`500 12px Inter, system-ui, sans-serif`; hctx.textAlign='center'; hctx.textBaseline='middle';
@@ -4046,7 +4192,7 @@ function initBloom(){
 function applyQuality(){
   const hi=quality==='high'; dprCap=hi?2:1;
   const ms=hi?(isSmall?1024:2048):1024; sun.shadow.mapSize.set(ms,ms); if(sun.shadow.map){ sun.shadow.map.dispose(); sun.shadow.map=null; }
-  resize(); $('qual').textContent=T(hi?'High':'Low'); $('qual').setAttribute('aria-label',`Graphics quality: ${hi?'high':'low'}`);
+  resize(); if(S&&world) buildGrass(); $('qual').textContent=T(hi?'High':'Low'); $('qual').setAttribute('aria-label',`Graphics quality: ${hi?'high':'low'}`);
 }
 let abilKey='';
 function syncAbil(){
@@ -4186,7 +4332,7 @@ function encRegion(r){ return {grid:r.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...
 function save(){
   if(!S||S.over||!saveOn) return;
   stash();
-  try{ writeSlot(slot,JSON.stringify({R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,mtnUnlocked:S.mtnUnlocked,visitedMtn:S.visitedMtn,daily:S.daily||null,survivedBlood:!!S.survivedBlood,worldSeed:S.worldSeed||0,krel:S.krel||null,kwar:S.kwar||null,coalition:!!S.coalition,hosted:S.hosted??null,kingslayer:!!S.kingslayer,crowns:S.crowns||null,prov:S.prov||null,levy:S.levy||null,royalMsg:S.royalMsg||null,royalRaid:S.royalRaid||null,newsLog:S.newsLog||[],marched:S.marched||0,tourneys:S.tourneys||0,highKing:!!S.highKing,ph:S.ph||{},renown:S.renown||0,tax:taxLvl(),council:S.council||{},petition:S.petition||null,lastPet:S.lastPet||null,debt:S.debt||null,keepLvl:S.keepLvl||1,edicts:S.edicts||[],fac:S.fac||{},gear:S.gear||{},lootPending:S.lootPending||0,demand:S.demand||null,req:S.req||null,lastReq:S.lastReq||null,trader:S.trader||null,seedDays:S.seedDays||0,oilNights:S.oilNights||0,banner:S.banner||0,spy:!!S.spy,feastSeason:S.feastSeason??null,feastDay:S.feastDay||0,sapperWarned:!!S.sapperWarned,warships:S.warships,plate:S.plate,mercs:S.mercs,sunk:S.sunk,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
+  try{ writeSlot(slot,JSON.stringify({R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,mtnUnlocked:S.mtnUnlocked,visitedMtn:S.visitedMtn,daily:S.daily||null,survivedBlood:!!S.survivedBlood,routes:S.routes||{},sat:S.sat||{},loan:S.loan||null,inv:S.inv||null,guildBan:S.guildBan||0,worldSeed:S.worldSeed||0,krel:S.krel||null,kwar:S.kwar||null,coalition:!!S.coalition,hosted:S.hosted??null,kingslayer:!!S.kingslayer,crowns:S.crowns||null,prov:S.prov||null,levy:S.levy||null,royalMsg:S.royalMsg||null,royalRaid:S.royalRaid||null,newsLog:S.newsLog||[],marched:S.marched||0,tourneys:S.tourneys||0,highKing:!!S.highKing,ph:S.ph||{},renown:S.renown||0,tax:taxLvl(),council:S.council||{},petition:S.petition||null,lastPet:S.lastPet||null,debt:S.debt||null,keepLvl:S.keepLvl||1,edicts:S.edicts||[],fac:S.fac||{},gear:S.gear||{},lootPending:S.lootPending||0,demand:S.demand||null,req:S.req||null,lastReq:S.lastReq||null,trader:S.trader||null,seedDays:S.seedDays||0,oilNights:S.oilNights||0,banner:S.banner||0,spy:!!S.spy,feastSeason:S.feastSeason??null,feastDay:S.feastDay||0,sapperWarned:!!S.sapperWarned,warships:S.warships,plate:S.plate,mercs:S.mercs,sunk:S.sunk,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
     grid:S.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...t.b,aim:undefined,born:undefined,hitT:undefined,worked:undefined}:null,t.grove?1:0]),spawns:S.spawns,queue:S.queue})); }catch(e){}
 }
 function load(d){
@@ -4198,6 +4344,7 @@ function load(d){
     if(d.R){ S.R={}; for(const id in d.R){ const r=d.R[id]; S.R[id]={grid:r.grid.map(([l,o,b,gr,w])=>({land:!!l,ore:!!o,grove:!!gr,water:!!w,b})),spawns:r.spawns||[],seed:r.seed,keep:r.keep,keepMax:r.keepMax,kind:r.kind||'canyon',shore:r.shore||null,units:[]}; } unstash(d.cur&&S.R[d.cur]?d.cur:'home'); }
     else{ S.grid=d.grid.map(([l,o,b,gr])=>({land:!!l,ore:!!o,grove:!!gr,b})); Object.assign(S,{kind:'canyon',shore:null,units:[],cur:'home'}); stash(); }
     S.ph=d.ph||{}; ensureEco();
+    Object.assign(S,{routes:d.routes||{},sat:d.sat||{},loan:d.loan||null,inv:d.inv||null,guildBan:d.guildBan||0});
     Object.assign(S,{worldSeed:d.worldSeed||0,krel:d.krel||null,kwar:d.kwar||null,coalition:!!d.coalition,hosted:d.hosted??null,kingslayer:!!d.kingslayer});
     Object.assign(S,{crowns:d.crowns||null,prov:d.prov||null,levy:d.levy||null,royalMsg:d.royalMsg||null,royalRaid:d.royalRaid||null,newsLog:d.newsLog||[],marched:d.marched||0,tourneys:d.tourneys||0,highKing:!!d.highKing});
     Object.assign(S,{renown:d.renown||0,tax:d.tax??1,council:d.council||{},petition:d.petition||null,lastPet:d.lastPet||null,debt:d.debt||null,keepLvl:d.keepLvl||1});
@@ -4255,6 +4402,8 @@ const ACH=[
   {id:'conqueror',icon:'⚑',name:'Conqueror',desc:'Hold six lands of Ashkara',test:()=>S.prov&&landsOf('me').length>=6},
   {id:'kingslayer',icon:'☠',name:'Crownbreaker',desc:'Take a rival’s capital',test:()=>!!S.kingslayer},
   {id:'champion',icon:'⚔',name:'Champion of the lists',desc:'Win a grand tournament',test:()=>(S.tourneys||0)>=1},
+  {id:'wonder',icon:'✦',name:'Wonder of the world',desc:'Complete a grand project',test:()=>WONDERS.some(hasWonder)},
+  {id:'caravans',icon:'🐪',name:'Caravan master',desc:'Run caravans to two crowns at once',test:()=>Object.keys(S.routes||{}).filter(routeOk).length>=2},
   {id:'capital',icon:'♛',name:'Capital of the desert',desc:'Raise your realm to a capital',test:()=>rankIdx()>=4},
   {id:'council',icon:'⚖',name:'Full council',desc:'Fill every council seat',test:()=>SEATS.every(st=>cm(st.id))},
   {id:'daily',icon:'☀',name:'Daily devotion',desc:'Survive 5 nights of a daily challenge',test:()=>!!S.daily&&S.day>=6}];
@@ -4500,6 +4649,24 @@ function raiseKeep(){
   addRenown(15); party('win'); sfx('up'); S.ver++; say(`<b>The keep is now a ${T(up.name).toLowerCase()}.</b> More health, sharper archers and room for 4 more villagers.`); save(); ui();
 }
 // dawn upkeep for the kingdom layer
+function wonderDawn(notes){
+  eachAll((b,x,y,t,here,rid)=>{ const d=DEF[b.type]; if(!d||!d.wonder||b.done) return;
+    if(!b.worked){ notes.push(`<b>Work stalled on the ${d.name}:</b> no villager free to build`); return; }
+    if(!canPay(d.daily)){ notes.push(`<b>Work stalled on the ${d.name}:</b> it needs ${costStr(d.daily)} each dawn`); return; }
+    spend(d.daily); b.prog=(b.prog||0)+1; S.ver++;
+    if(b.prog>=d.days){ b.done=true; b.hp=b.max; addRenown(d===DEF.w_colossus?30:15); party('win'); sfx('dawn'); toast(T('Wonder complete'),T(d.name),'✦'); notes.push(`<b>The ${d.name} is complete!</b> ${d.desc}`); news(`Your realm completed the ${d.name}`); }
+    else notes.push(`<b>${d.name}:</b> ${b.prog} of ${d.days} dawns of work done`); });
+  if(hasWonder('w_cathedral')) addRenown(2);
+}
+function wondersHtml(){ const night=S.phase!=='day', ri=rankIdx();
+  return `<div class="tc wonders"><h4>${T('Grand projects')}</h4>${WONDERS.map(id=>{ const d=DEF[id]; let st='', act='';
+    let b=null; eachAll(x=>{ if(x.type===id) b=x; });
+    if(b&&b.done) st=`<span style="color:var(--good)">${T('Complete')}</span>`;
+    else if(b) st=T('Building: {{p}} of {{d}} dawns',{p:b.prog||0,d:d.days});
+    else if(ri<d.rank) st=T('Needs a {{r}}',{r:T(RANKS[d.rank].name).toLowerCase()});
+    else if(S.day<d.unlock) st=T('Opens on day {{n}}',{n:d.unlock});
+    else act=`<button type="button" data-wonder="${id}" ${night?'disabled':''}>${T('Choose a site')} <span class="c">${costShort(d.cost)}</span></button>`;
+    return `<div class="seat"><span class="sn">${T(d.name)}</span><span class="sd">${T(d.desc)} ${b&&b.done?'':T('{{d}} dawns, each needing {{c}}.',{d:d.days,c:costStr(d.daily)})} ${st}</span>${act}</div>`; }).join('')}</div>`; }
 function kingdomDawn(notes,rep){
   addRenown(rep&&rep.total?(rep.keep===0&&!rep.lost?4:2):0);
   const st=skill('steward'), tr=skill('treasurer');
@@ -4511,7 +4678,7 @@ function kingdomDawn(notes,rep){
 }
 let throneKey='';
 function renderThrone(){
-  const key=[S.renown,taxLvl(),JSON.stringify(council()),keepLvl(),S.phase,lang,S.res.gold,S.res.stone,S.res.wood,S.res.iron,S.day].join('|'); if(key===throneKey) return; throneKey=key;
+  const key=[S.renown,taxLvl(),JSON.stringify(council()),keepLvl(),S.phase,lang,S.res.gold,S.res.stone,S.res.wood,S.res.iron,S.day,S.ver,S.cur].join('|'); if(key===throneKey) return; throneKey=key;
   const ri=rankIdx(), nx=RANKS[ri+1], rn=S.renown||0, pct=nx?Math.round((rn-RANKS[ri].at)/(nx.at-RANKS[ri].at)*100):100, night=S.phase!=='day';
   $('thronesum').textContent=T(rankName());
   const up=KEEP_UP[keepLvl()];
@@ -4525,11 +4692,12 @@ function renderThrone(){
     <div class="tc"><h4>${T('Taxes')}</h4><div class="seg">${TAXES.map((t,i)=>`<button type="button" data-tax="${i}" aria-pressed="${taxLvl()===i}" ${night?'disabled':''}>${T(t.name)}</button>`).join('')}</div><span class="sub">${T('Each villager pays {{g}} gold a dawn',{g:TAXES[taxLvl()].mult})} · ${TAXES[taxLvl()].mood?`${T('mood')} ${TAXES[taxLvl()].mood>0?'+':''}${TAXES[taxLvl()].mood}`:T('no effect on mood')}${taxLvl()===3?' · '+T('families leave when unhappy'):''}</span>
       <h4 style="margin-top:6px">${T('The keep')}</h4><span class="big" style="font-size:16px">${T(['Keep','Castle','Citadel'][keepLvl()-1])}</span>
       ${up?`<span class="sub">${T('Raise it into a {{n}}: +6 health, +1 damage and range for its archers, room for 4 more villagers, +15 renown.',{n:T(up.name).toLowerCase()})}${ri<up.rank?' '+T('Needs a {{r}}.',{r:T(RANKS[up.rank].name).toLowerCase()}):''}</span><button type="button" id="raiseKeep" ${night||ri<up.rank||!canPay(up.cost)?'disabled':''}>${T('Raise the {{n}}',{n:T(up.name).toLowerCase()})} <span class="c">${costShort(up.cost)}</span></button>`:`<span class="sub">${T('Your citadel is complete.')}</span>`}</div>
-    <div class="tc"><h4>${T('Royal council')}</h4>${seats}</div></div>`;
+    <div class="tc"><h4>${T('Royal council')}</h4>${seats}</div>${wondersHtml()}</div>`;
   $('throne').querySelectorAll('[data-tax]').forEach(b=>b.addEventListener('click',()=>setTax(+b.dataset.tax)));
   $('throne').querySelectorAll('[data-appoint]').forEach(b=>b.addEventListener('click',()=>appoint(b.dataset.appoint)));
   $('throne').querySelectorAll('[data-dismiss]').forEach(b=>b.addEventListener('click',()=>dismiss(b.dataset.dismiss)));
   $('raiseKeep')?.addEventListener('click',raiseKeep);
+  $('throne').querySelectorAll('[data-wonder]').forEach(b=>b.addEventListener('click',()=>{ if(S.cur!=='home'){ say('Wonders rise only in The Valley. Ride home first.'); return; } setTool(b.dataset.wonder); say(`<b>Choose a site for the ${DEF[b.dataset.wonder].name}.</b> Tap a free tile and your hero will lay the foundations.`); document.getElementById('board').scrollIntoView({behavior:'smooth',block:'center'}); }));
 }
 // ================= RIVAL CROWNS =================
 const KINGS={
@@ -4794,19 +4962,24 @@ function crownsHtml(){
 // ================= WORLD MAP =================
 let wBase=null, wOver=null, wOverVer=-1, wView={s:1,x:0,y:0}, wSel=null, wMode='legend', wCourt=null, wDrag=null;
 const WMW=840, WMH=560;
-function paintWorld(){
-  if(wBase&&wBase.seed===S.worldSeed) return;
-  const {H,M,n1}=worldFns(S.worldSeed), c=document.createElement('canvas'); c.width=WMW; c.height=WMH; const x=c.getContext('2d'), im=x.createImageData(WMW,WMH), hs=new Float32Array(WMW*WMH);
-  for(let j=0;j<WMH;j++)for(let i=0;i<WMW;i++) hs[j*WMW+i]=H(i/WMW,j/WMH,5);
+function worldPixels(seed,WW,HH){
+  const {H,M,n1}=worldFns(seed), data=new Uint8ClampedArray(WW*HH*4), hs=new Float32Array(WW*HH);
+  for(let j=0;j<HH;j++)for(let i=0;i<WW;i++) hs[j*WW+i]=H(i/WW,j/HH,5);
   const lerp=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*Math.max(0,Math.min(1,t)));
-  for(let j=0;j<WMH;j++)for(let i=0;i<WMW;i++){ const k=j*WMW+i, h=hs[k], ny=j/WMH; let col;
+  for(let j=0;j<HH;j++)for(let i=0;i<WW;i++){ const k=j*WW+i, h=hs[k], ny=j/HH; let col;
     if(h<0){ col=lerp([20,52,70],[48,112,128],1+h/.18); if(h>-.025) col=lerp(col,[120,170,170],.35); }
-    else{ const m=M(i/WMW,ny,3), t=terrOf(h,m,ny);
+    else{ const m=M(i/WW,ny,3), t=terrOf(h,m,ny);
       col=t==='mountains'?(h>.62?[236,238,242]:lerp([132,120,110],[180,172,166],(h-.5)/.12)):t==='hills'?[168,146,108]:t==='forest'?(ny>.42?[98,124,70]:[72,104,62]):t==='desert'?lerp([226,180,112],[214,160,96],fbm(n1,i/30,j/30,2)+.5):t==='grass'?(ny>.42?[150,158,92]:[128,150,90]):[190,172,120];
       if(h<.03) col=lerp(col,[226,206,154],.7);
-      const sh=((hs[k-WMW-1]||h)-(hs[k+WMW+1]||h))*14; col=col.map(v=>v*(1+sh)); }
-    const o=k*4; im.data[o]=col[0]; im.data[o+1]=col[1]; im.data[o+2]=col[2]; im.data[o+3]=255; }
-  x.putImageData(im,0,0);
+      const sh=((hs[k-WW-1]||h)-(hs[k+WW+1]||h))*14; col=col.map(v=>v*(1+sh)); }
+    const o=k*4; data[o]=col[0]; data[o+1]=col[1]; data[o+2]=col[2]; data[o+3]=255; }
+  return data;
+}
+function paintWorld(data){
+  if(wBase&&wBase.seed===S.worldSeed) return;
+  if(!data) data=worldPixels(S.worldSeed,WMW,WMH);
+  const c=document.createElement('canvas'); c.width=WMW; c.height=WMH; const x=c.getContext('2d');
+  x.putImageData(new ImageData(data,WMW,WMH),0,0);
   // rivers: walk downhill from high ground
   const W=WORLD, rr=mulberry32(S.worldSeed+9); x.strokeStyle='rgba(70,140,170,.85)'; x.lineCap='round';
   for(let r=0;r<9;r++){ let i=(rr()*W.GW)|0, j=(rr()*W.GH)|0, g=0; while(W.h[j*W.GW+i]<.38&&g<200){ i=(rr()*W.GW)|0; j=(rr()*W.GH)|0; g++; } if(g>=200) continue;
@@ -4829,9 +5002,22 @@ function paintOwners(){
       x.beginPath(); if(a){ x.moveTo(ii*cw,j*ch); x.lineTo(ii*cw,(j+1)*ch); } else { x.moveTo(i*cw,jj*ch); x.lineTo((i+1)*cw,jj*ch); } x.stroke(); } }
   x.globalAlpha=1; wOver=c;
 }
+function paintWorldAsync(done){
+  if(wBase&&wBase.seed===S.worldSeed){ done(); return; }
+  const seed=S.worldSeed; let fin=false; const finish=d=>{ if(fin) return; fin=true; if(S.worldSeed!==seed) return; paintWorld(d?new Uint8ClampedArray(d):null); done(); };
+  try{
+    const src=`importScripts('https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.js');\n${mulberry32.toString()}\nconst seededNoise=seed=>new SimplexNoise(mulberry32(seed));\n${fbm.toString()}\n${worldFns.toString()}\n${terrOf.toString()}\n${worldPixels.toString()}\nonmessage=e=>{ const d=worldPixels(e.data.seed,e.data.W,e.data.H); postMessage(d.buffer,[d.buffer]); };`;
+    const url=URL.createObjectURL(new Blob([src],{type:'text/javascript'})), w=new Worker(url);
+    const bail=()=>{ try{ w.terminate(); }catch(e){} URL.revokeObjectURL(url); finish(null); };
+    const to=setTimeout(bail,9000);
+    w.onmessage=e=>{ clearTimeout(to); w.terminate(); URL.revokeObjectURL(url); finish(e.data); };
+    w.onerror=e=>{ e.preventDefault&&e.preventDefault(); clearTimeout(to); bail(); };
+    w.postMessage({seed,W:WMW,H:WMH});
+  }catch(e){ finish(null); }
+}
 function openWorld(mode,arg){ crowns(); closeRealm(); $('world').hidden=false; S.modal=false; if(mode==='court'){ wMode='court'; wCourt=arg; } else if(mode==='prov'){ wMode='prov'; wSel=arg; }
   const cv=$('wmap'); renderWorldPanel(); if(!wBase||wBase.seed!==S.worldSeed){ const c=cv.getContext('2d'); fitWorld(); c.setTransform(1,0,0,1,0,0); c.fillStyle='#173A48'; c.fillRect(0,0,cv.width,cv.height); c.fillStyle='#E8DCC8'; c.font=`600 ${16*(devicePixelRatio||1)}px Inter,system-ui,sans-serif`; c.textAlign='center'; c.fillText(T('Charting the continent…'),cv.width/2,cv.height/2); }
-  setTimeout(()=>{ paintWorld(); paintOwners(); wView.fit=false; fitWorld(); drawWorld(); },40); }
+  paintWorldAsync(()=>{ paintOwners(); wView.fit=false; fitWorld(); drawWorld(); }); }
 function closeWorld(){ $('world').hidden=true; }
 function fitWorld(){ const cv=$('wmap'), r=cv.getBoundingClientRect(); const dp=Math.min(2,devicePixelRatio||1); cv.width=Math.round(r.width*dp); cv.height=Math.round(r.height*dp); const s=Math.min(cv.width/WMW,cv.height/WMH); if(!wView.fit){ wView={s,x:(cv.width-WMW*s)/2,y:(cv.height-WMH*s)/2,fit:true,min:s}; } }
 function drawWorld(){
@@ -4909,6 +5095,46 @@ function initWorldUI(){
   new ResizeObserver(()=>{ if($('world').hidden) return; wView.fit=false; fitWorld(); drawWorld(); }).observe(cv);
 }
 
+// ---------- caravans to the other crowns ----------
+const DEMAND={harun:{food:1.6,iron:1.6,tools:1.5,wood:1.2},ysolde:{cloth:1.8,salt:1.6,ale:1.2,iron:1.1},osric:{ale:1.7,wool:1.5,cloth:1.3,food:1.2}};
+const ROUTE_GOODS=['food','wood','stone','iron','wool','cloth','ale','salt','tools'];
+const routeOk=id=>{ const k=S.crowns&&S.crowns[id]; return !!k&&!k.dead&&k.pact&&!k.war&&!((k.emb||0)>=S.day); };
+const satOf=(id,g)=>((S.sat||{})[id+':'+g])||0;
+const unitPrice=(id,g,extra=0)=>{ const d=(DEMAND[id]||{})[g]||.9; return BASEP[g]*d/(1+(satOf(id,g)+extra)/30)*(hasWonder('w_bazaar')?1.15:1); };
+function routeQuote(id,g,amt){ let gold=0; for(let i=0;i<amt;i++) gold+=unitPrice(id,g,i); return Math.round(gold*.85); }
+function routesEcon(L,avail){ const out=[]; for(const id in (S.routes||{})){ const r=S.routes[id]; if(!r||!routeOk(id)) continue; const n=Math.min(r.amt,Math.floor(avail(r.good))); if(n<=0) continue;
+    const g=routeQuote(id,r.good,n); L[r.good].push([`Caravan to ${CAPNAME[id]}`,-n]); L.gold.push([`${n} ${r.good} sold in ${CAPNAME[id]}`,g]); out.push([id,r.good,n]); } return out; }
+function routesDawn(shipped){ S.sat=S.sat||{}; for(const k in S.sat) S.sat[k]*=.75; for(const [id,g,n] of shipped){ S.sat[id+':'+g]=(S.sat[id+':'+g]||0)+n; if(S.crowns[id]) relShift(id,1); } }
+function setRoute(id,g,amt){ S.routes=S.routes||{}; if(!g||!amt){ delete S.routes[id]; } else S.routes[id]={good:g,amt}; mktKey=''; save(); ui(); }
+// ---------- the merchant guild ----------
+const LOANS=[{id:'small',amt:50,back:60,days:6},{id:'large',amt:120,back:150,days:8}];
+function takeLoan(id){ const l=LOANS.find(x=>x.id===id); if(!l||S.loan||(S.guildBan||0)>S.day||S.phase!=='day') return; S.loan={back:l.back,due:S.day+l.days}; S.res.gold+=l.amt; sfx('up'); say(`<b>The Merchant Guild lends you ${l.amt} gold.</b> Repay ${l.back} by day ${S.day+l.days}.`); mktKey=''; save(); ui(); }
+function repayLoan(){ if(!S.loan) return; if(S.res.gold<S.loan.back){ say(`You need ${S.loan.back} gold to repay the guild.`); sfx('no'); return; } S.res.gold-=S.loan.back; S.loan=null; addRenown(1); say('<b>Loan repaid early.</b> The guild thinks well of you.'); mktKey=''; save(); ui(); }
+function invest(){ if(S.inv||S.res.gold<50||S.phase!=='day') return; S.res.gold-=50; S.inv={back:58,due:S.day+6}; say('<b>You invest 50 gold</b> in a guild caravan. It should return 58 by day '+(S.day+6)+'.'); mktKey=''; save(); ui(); }
+function guildDawn(notes){
+  if(S.loan&&S.day>=S.loan.due){ if(S.res.gold>=S.loan.back){ S.res.gold-=S.loan.back; notes.push(`<b>The guild collected</b> ${S.loan.back} gold for your loan`); } else { const p=S.res.gold; S.res.gold=0; S.mood=Math.max(0,S.mood-10); addRenown(-5); S.guildBan=S.day+10; notes.push(`<b>Loan default:</b> the guild seized ${p} gold, mood −10, and refuses to lend for ten days`); } S.loan=null; }
+  if(S.inv&&S.day>=S.inv.due){ if(Math.random()<.07){ notes.push('<b>Bad news:</b> the guild caravan you invested in was lost in the dunes'); } else { S.res.gold+=S.inv.back; notes.push(`<b>Your investment returned</b> ${S.inv.back} gold`); } S.inv=null; }
+}
+function guildHtml(){ const ban=(S.guildBan||0)>S.day, night=S.phase!=='day';
+  return `<h4 style="margin:10px 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)">${T('Merchant Guild')}</h4><div class="std">${S.loan?`<span class="need">${T('Owe {{g}} gold by day {{d}}',{g:S.loan.back,d:S.loan.due})}</span><button type="button" class="gbtn" data-g="repay">${T('Repay now')}</button>`:LOANS.map(l=>`<button type="button" class="gbtn" data-g="${l.id}" ${ban||night?'disabled':''}>${T('Borrow {{a}}, repay {{b}} in {{d}} days',{a:l.amt,b:l.back,d:l.days})}</button>`).join('')}
+    ${S.inv?`<span class="need">${T('Investment returns {{g}} on day {{d}}',{g:S.inv.back,d:S.inv.due})}</span>`:`<button type="button" class="gbtn" data-g="invest" ${night||S.res.gold<50?'disabled':''}>${T('Invest 50 for 58 in 6 days')}</button>`}${ban?`<span style="color:var(--foe)">${T('The guild will not lend to you until day {{d}}',{d:S.guildBan})}</span>`:''}</div>`; }
+function routesHtml(){ if(!S.crowns) return ''; const ids=Object.keys(KINGS).filter(id=>!S.crowns[id].dead);
+  return `<h4 style="margin:10px 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)">${T('Caravans to other crowns')}</h4><p class="info" style="margin:0 0 6px">${T('Each dawn a caravan carries goods to a crown you have a trade agreement with. Every crown wants different goods, and prices fall the more you send.')}</p>
+    <div class="mktwrap"><table class="mkt"><tbody>${ids.map(id=>{ const ok=routeOk(id), r=(S.routes||{})[id], want=Object.entries(DEMAND[id]).sort((a,b)=>b[1]-a[1]).map(([g])=>T(g)).join(', ');
+      return `<tr><td class="rt"><b style="color:${KINGS[id].color}">${T(CAPNAME[id])}</b><br><span style="color:var(--muted)">${T('wants {{g}}',{g:want})}</span></td><td>${ok?`<select data-rg="${id}">${['',...ROUTE_GOODS].map(g=>`<option value="${g}" ${r&&r.good===g?'selected':''}>${g?T(cap1(g)):T('No caravan')}</option>`).join('')}</select> <select data-ra="${id}">${[5,10,20].map(a=>`<option value="${a}" ${r&&r.amt===a?'selected':''}>${a}</option>`).join('')}</select>`:`<span style="color:var(--muted);white-space:normal">${T(S.crowns[id].war?'At war':'Needs a trade agreement')}</span>`}${ok&&r?`<br><span style="color:var(--gold)">${T('about {{g}} gold',{g:routeQuote(id,r.good,r.amt)})}</span>`:''}</td></tr>`; }).join('')}</tbody></table></div>`; }
+// ---------- placement bonuses: neighbors matter ----------
+function nearCount(g,x,y,types,r){ let n=0; for(let j=Math.max(0,y-r);j<=Math.min(N-1,y+r);j++)for(let i=Math.max(0,x-r);i<=Math.min(N-1,x+r);i++){ if(i===x&&j===y) continue; if(Math.max(Math.abs(i-x),Math.abs(j-y))>r) continue; const b=g[j*N+i].b; if(b&&types.includes(b.type)) n++; } return n; }
+function adjBonus(type,g,x,y){ const out=[];
+  if(type==='farm'){ if(nearCount(g,x,y,['farm'],1)>=2) out.push(['Field cluster','food',1]); if(nearCount(g,x,y,['well'],2)) out.push(['Irrigated from a well','food',1]); }
+  if(type==='mine'&&nearCount(g,x,y,['smith','workshop'],2)) out.push(['Short haul to the forge','stone',1]);
+  if(type==='lumber'&&nearCount(g,x,y,['lumber'],1)) out.push(['Crowded grove','wood',-1]);
+  if(type==='workshop'&&nearCount(g,x,y,['smith'],2)) out.push(['Next to the smith','tools',1]);
+  if(type==='market'){ const h=Math.min(3,nearCount(g,x,y,['house'],2)); if(h) out.push([`${h} houses nearby`,'gold',h]); }
+  if(type==='tavern'&&nearCount(g,x,y,['house'],2)>=2) out.push(['Locals drink here','gold',1]);
+  if(type==='pasture'&&nearCount(g,x,y,['farm'],1)) out.push(['Grazes the stubble','wool',1]);
+  if(type==='house'){ const am=nearCount(g,x,y,['well','market','shrine','tavern'],2), ns=nearCount(g,x,y,['mine','smith','workshop','brewery'],1); if(am>=2) out.push(['Well served','mood',1]); if(ns) out.push(['Noisy neighbors','mood',-1]); }
+  return out; }
+function bonusText(type,x,y){ return adjBonus(type,S.grid,x,y).map(([t,r,v])=>`${v>0?'+':''}${v} ${r==='mood'?T('mood'):T(r)} ${T(t).toLowerCase()}`).join(' · '); }
 function showReport(r){
   const box=$('board'); box.querySelectorAll('.report').forEach(e=>e.remove());
   const by=r.by, parts=[['hero',T('Your hero'),'#F2EADD'],['tower',T('Towers and keep'),'#F0BE4E'],['soldier',T('Soldiers'),'#5E8DFF'],['cata',T('Catapults'),'#E0904A'],['trap',T('Traps'),'#B9C6D8']].filter(p=>by[p[0]]);
@@ -5055,7 +5281,7 @@ function renderUpgrades(){
   if(key===upgKey) return; upgKey=key;
   box.innerHTML=UPGS.map(u=>{ const st=upgState(u);
     const why=st==='req'?T('Needs {{n}}',{n:T(UPGS.find(x=>x.id===u.req).name)}):st==='day'?T('Opens on day {{n}}',{n:u.day}):'';
-    return `<div class="uc${st==='done'?' done':''}"><div class="un">${T(u.name)}<small>${T(u.branch)}</small></div><div class="ud">${T(u.desc)}</div>${st==='done'?'':why?`<div class="ud">${why}</div>`:`<button type="button" data-upg="${u.id}" ${st!=='buy'?'disabled':''}>${T('Buy')} <span class="c">${costShort(u.cost)}</span></button>`}</div>`; }).join('');
+    return `<div class="uc${st==='done'?' done':''}"><div class="un">${T(u.name)}<small>${T(u.branch)}</small></div><div class="ud">${T(u.desc)}</div>${st==='done'?'':why?`<div class="ud">${why}</div>`:`<button type="button" data-upg="${u.id}" ${st!=='buy'?'disabled':''}>${T('Buy')} <span class="c">${costShort(upgCost(u))}</span></button>`}</div>`; }).join('');
   box.querySelectorAll('[data-upg]').forEach(b=>b.addEventListener('click',()=>buyUpg(b.dataset.upg)));
 }
 function renderTools(){
@@ -5106,7 +5332,7 @@ function spark(h){ if(!h||h.length<2) return ''; const mn=Math.min(...h), mx=Mat
 let mktKey='';
 function renderMarket(E){
   ensureEco(); const open=marketOpen(), cap=E.capS;
-  const key=JSON.stringify([S.res,S.price,E.net,open,S.day,lang,E.tier]); if(key===mktKey) return; mktKey=key;
+  const key=JSON.stringify([S.res,S.price,E.net,open,S.day,lang,E.tier,S.routes,S.loan,S.inv,S.phase]); if(key===mktKey) return; mktKey=key;
   $('mktsum').textContent=T(STD[E.tier].name);
   const nd=E.needs, pc=r=>nd[r]?Math.round(E.met[r]*100)+'%':'—';
   const rows=TRADE.map(r=>{ const n=E.net[r]||0;
@@ -5114,7 +5340,10 @@ function renderMarket(E){
       <td><button type="button" data-mb="${r}" ${!open||S.res.gold<buyCost(r)?'disabled':''}>${T('Buy')} ${LOT}</button> <button type="button" data-ms="${r}" ${!open||S.res[r]<LOT?'disabled':''}>${T('Sell')} ${LOT}</button></td></tr>`; }).join('');
   $('mkt').innerHTML=`<div class="std"><span>${T('Living standard')}:</span><span class="tier">${T(STD[E.tier].name)}</span><span class="need">${T('Cloth')} ${pc('cloth')}</span><span class="need">${T('Ale')} ${pc('ale')}</span><span class="need">${T('Salt')} ${pc('salt')}</span><span style="color:var(--muted)">${T('Mood +{{m}}, taxes ×{{t}}',{m:STD[E.tier].mood,t:STD[E.tier].tax})}</span></div>
     <p class="info" style="margin:6px 0 0">${T('Villagers want 1 cloth per 6, 1 ale per 5 and 1 salt per 8 people each dawn. Meeting their wants raises their living standard, their mood and the taxes they can pay. Prices follow the seasons and fall when your stores are full.')}${open?'':' <b>'+T('Trading needs a market with a villager working it.')+'</b>'}</p>
-    <div class="mktwrap"><table class="mkt"><thead><tr><th>${T('Good')}</th><th>${T('Stock')}</th><th>${T('At dawn')}</th><th>${T('Buy')}</th><th>${T('Sell')}</th><th>${T('Trend')}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+    ${routesHtml()}${guildHtml()}
+    <h4 style="margin:10px 0 4px;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gold)">${T('Local market')}</h4><div class="mktwrap"><table class="mkt"><thead><tr><th>${T('Good')}</th><th>${T('Stock')}</th><th>${T('At dawn')}</th><th>${T('Buy')}</th><th>${T('Sell')}</th><th>${T('Trend')}</th><th></th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  $('mkt').querySelectorAll('[data-rg],[data-ra]').forEach(el=>el.addEventListener('change',()=>{ const id=el.dataset.rg||el.dataset.ra, g=$('mkt').querySelector(`[data-rg="${id}"]`).value, a=+$('mkt').querySelector(`[data-ra="${id}"]`).value; setRoute(id,g,a); }));
+  $('mkt').querySelectorAll('[data-g]').forEach(b=>b.addEventListener('click',()=>{ const g=b.dataset.g; if(g==='repay') repayLoan(); else if(g==='invest') invest(); else takeLoan(g); }));
   $('mkt').querySelectorAll('[data-mb]').forEach(b=>b.addEventListener('click',()=>trade(b.dataset.mb,true)));
   $('mkt').querySelectorAll('[data-ms]').forEach(b=>b.addEventListener('click',()=>trade(b.dataset.ms,false)));
 }
@@ -5169,6 +5398,7 @@ function renderInsp(){
     case 'weaver': det=`${hp} · ${work} · 2 wool into 2 cloth at dawn`; break;
     case 'saltpan': det=`${hp} · ${work} · +3 salt at dawn`; break;
     case 'workshop': det=`${hp} · ${work} · 1 iron and 1 wood into 2 tools at dawn`; break;
+    case 'w_granary': case 'w_bazaar': case 'w_academy': case 'w_cathedral': case 'w_colossus': det=b.done?`${T('Wonder')} · ${T(d.desc)}`:`${T('Under construction')}: ${b.prog||0}/${d.days} · ${work} · ${costStr(d.daily)} ${T('each dawn')}`; break;
     case 'road': det=`${hp} · your hero rides 40% faster on roads · farms, lumber camps and mines next to a road yield 1 more`; break;
     case 'lighthouse': det=`${hp} · pirates land with a quarter less health · warships are more likely to find pirate boats`; break;
     case 'smith': det=`${hp} · arms ${S.iron||0}/3 (+${S.iron||0} damage for your hero and soldiers) · plate ${S.plate||0}/3 (+${(S.plate||0)*2} soldier health, +${(S.plate||0)*3} hero health)`; break;
@@ -5188,6 +5418,7 @@ function renderInsp(){
     case 'wall': det=b.lvl>1?`${hp} · crenellated stone`:`${hp} · upgrade to stone for 10 more health`; break;
     default: det=hp;
   }
+  { const bt=bonusText(b.type,...sel); if(bt) det+=' · '+bt; }
   if(w&&b.type!=='keep') det+=` · ${w.dmg} damage · range ${w.range.toFixed(1)}`+(w.splash?' · splash':'')+(d.upkeep?' · 1 gold upkeep':'')+(b.unpaid&&b.type==='cata'?' · unpaid, idle tonight':'');
   let acts='';
   if(b.type==='tower'&&b.lvl===3&&!b.spec&&S.phase==='day'){ const sc={stone:8,gold:12}; acts+=`<button class="up" id="iSpecB" type="button" ${!canPay(sc)?'disabled':''} title="${T('+3 damage, longer range, slower shots')}">${T('Ballista')} <span class="c">${costShort(sc)}</span></button><button class="up" id="iSpecF" type="button" ${!canPay(sc)?'disabled':''} title="${T('Arrows set raiders alight for 3 seconds')}">${T('Fire arrows')} <span class="c">${costShort(sc)}</span></button>`; }
@@ -5497,18 +5728,33 @@ addEventListener('blur',()=>{ for(const k in KD) delete KD[k]; });
 document.addEventListener('visibilitychange',()=>{ if(document.hidden&&S&&S.phase==='night'&&!paused) togglePause(); });
 
 let last=performance.now(), uiT=0, clock=0, ftAvg=1/60, slowT=0;
+// ---- engine: fixed-step simulation, adaptive resolution and a crash guard ----
+const FIX=1/60; let simAcc=0, renderScale=1, rsT=0, crashes=0, crashT=0;
+function adaptResolution(real){
+  if(document.hidden||real>.5) return;
+  if(ftAvg>.026&&renderScale>.62){ rsT+=real; if(rsT>1.5){ rsT=0; renderScale=Math.max(.6,renderScale-.1); resize(); } }
+  else if(ftAvg<.018&&renderScale<1){ rsT+=real; if(rsT>4){ rsT=0; renderScale=Math.min(1,renderScale+.1); resize(); } }
+  else rsT=0;
+}
 function loop(now){
-  const raw=Math.min(.05,(now-last)/1000), real=(now-last)/1000; last=now;
-  if(!document.hidden&&real<.5){ ftAvg=ftAvg*.97+real*.03;   // drop to Low once if the game is clearly struggling
-    if(quality==='high'&&!qualityChosen&&ftAvg>.045){ slowT+=real; if(slowT>4){ quality='low'; applyQuality(); savePrefs(); say('Graphics switched to Low to keep the game smooth. Tap the quality button to change it back.'); } } else slowT=0; }
-  if(!S.over&&!paused&&!S.modal){ step(raw*speed); uiT+=raw; if(uiT>.3&&S.phase==='night'){uiT=0;ui()} }
-  else if(!paused){ for(const f of S.floats) f.life-=raw; S.floats=S.floats.filter(f=>f.life>0); }
-  if(!paused) clock+=raw;
-  if(flash>0) flash=Math.max(0,flash-raw*1.5);
-  if(shake>0) shake=Math.max(0,shake-raw);
-  if(!BW) resize();
-  if(BW) render(raw,clock);
   requestAnimationFrame(loop);
+  const real=(now-last)/1000, raw=Math.min(.05,real); last=now;
+  try{
+    if(!document.hidden&&real<.5){ ftAvg=ftAvg*.97+real*.03; adaptResolution(real);   // drop to Low once if even the lowest resolution struggles
+      if(quality==='high'&&!qualityChosen&&ftAvg>.045&&renderScale<=.61){ slowT+=real; if(slowT>4){ quality='low'; applyQuality(); savePrefs(); say('Graphics switched to Low to keep the game smooth. Tap the quality button to change it back.'); } } else slowT=0; }
+    if(!S.over&&!paused&&!S.modal){ simAcc=Math.min(simAcc+raw*speed,FIX*12); let n=0; while(simAcc>=FIX&&n<12){ step(FIX); simAcc-=FIX; n++; if(S.over||S.modal) break; } uiT+=raw; if(uiT>.3&&S.phase==='night'){uiT=0;ui()} }
+    else if(!paused){ for(const f of S.floats) f.life-=raw; S.floats=S.floats.filter(f=>f.life>0); }
+    if(!paused) clock+=raw;
+    if(flash>0) flash=Math.max(0,flash-raw*1.5);
+    if(shake>0) shake=Math.max(0,shake-raw);
+    if(!BW) resize();
+    if(BW) render(raw,clock);
+    if(crashes&&now-crashT>8000) crashes=0;
+  }catch(err){
+    console.error(err); crashes++; crashT=now;
+    if(crashes===1){ try{ toast(T('Something went wrong'),T('The game caught an error and kept running'),'!'); }catch(e){} }
+    if(crashes>30){ paused=true; try{ say('<b>The game hit repeated errors and paused itself.</b> Your progress is saved; reload the page to continue.'); save(); }catch(e){} }
+  }
 }
 
 loadPrefs();
