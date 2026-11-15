@@ -67,6 +67,7 @@ three.js r128 and every library load from the jsDelivr and cdnjs CDNs, pinned to
 - **Wonders:** five grand projects (Great Granary, Grand Bazaar, Royal Academy, Cathedral of the Sun, Sun Colossus), begun from the throne. Each takes several dawns of work and a daily delivery of goods, and gives a lasting bonus.
 - **Seasons on the land:** the ground and thousands of wind-swayed grass tufts turn green in spring, gold at harvest and white under winter snow.
 - **Engine:** the simulation runs at a fixed 60 steps a second, so 2× and 3× speed play out the same as 1×. Resolution scales down automatically to keep the frame rate up, errors show a message instead of freezing the game, and the continent map is painted in a background worker.
+- **Heads-up display:** health bars for the keep and hero, a raider counter and progress bar at night, arrows on the screen edge that point to raiders, your hero and buildings under attack when they are out of view, a red warning when the keep is close to falling, a banner at nightfall, cooldown timers on the ability buttons, pings on the minimap when something is hit, and gains and losses popping up on the resource cards. On phones the top bar folds into two rows.
 - **Save slots and language:** three kingdoms can be saved side by side, and the EN/ES button switches the interface to Spanish.
 
 - **Phones and tablets:** steer the hero with the on-screen joystick; a full-screen button appears where the browser supports it.
