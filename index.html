@@ -14,15 +14,21 @@
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/CopyShader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/shaders/LuminosityHighPassShader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/EffectComposer.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/RenderPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/ShaderPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/postprocessing/UnrealBloomPass.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/objects/Water.js"></script>
+<!-- three.js r162 loads as ES modules; the game boots once they are ready -->
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.162.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.162.0/examples/jsm/","cannon-es":"https://cdn.jsdelivr.net/npm/cannon-es@0.20.0/dist/cannon-es.js"}}</script>
+<script type="module">
+import * as T3 from 'three';
+import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js';
+import {EffectComposer} from 'three/addons/postprocessing/EffectComposer.js';
+import {RenderPass} from 'three/addons/postprocessing/RenderPass.js';
+import {ShaderPass} from 'three/addons/postprocessing/ShaderPass.js';
+import {UnrealBloomPass} from 'three/addons/postprocessing/UnrealBloomPass.js';
+import {Water} from 'three/addons/objects/Water.js';
+T3.ColorManagement.enabled=false;
+window.THREE=Object.assign({},T3,{GLTFLoader,EffectComposer,RenderPass,ShaderPass,UnrealBloomPass,Water});
+try{ window.CANNON=await import('cannon-es'); }catch(e){ console.warn('Physics did not load',e); }
+window.dispatchEvent(new Event('three-ready'));
+</script>
 <script src="https://cdn.jsdelivr.net/npm/simplex-noise@2.4.0/simplex-noise.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/localforage@1.10.0/dist/localforage.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/i18next@23.16.8/dist/umd/i18next.min.js"></script>
@@ -32,6 +38,16 @@
 <script defer src="https://cdn.jsdelivr.net/npm/tone@14.7.77/build/Tone.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/driver.js@1.3.1/dist/driver.js.iife.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.js"></script>
+<!-- More open-source from GitHub: GSAP (motion), uPlot (charts), lz-string (share codes); cannon-es (physics) loads with three.js -->
+<script defer src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/uplot@1.6.32/dist/uPlot.iife.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+<!-- Rough.js (MIT, hand-drawn maps), inkjs (MIT, court stories written in Ink), Tracery (Apache-2.0, generated text) -->
+<script defer src="https://cdn.jsdelivr.net/npm/roughjs@4.6.6/bundled/rough.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/inkjs@2.4.0/dist/ink.js"></script>
+<script>window.module={exports:{}};</script>
+<script src="https://cdn.jsdelivr.net/npm/tracery-grammar@2.8.4/tracery.js"></script>
+<script>window.tracery=window.tracery||module.exports; window.module=undefined;</script>
 <style>
 /* Layout: one column — title row, 3D canyon board with HUD chips, inspector strip, tool tray, bell row.
    Deliberately single-theme: a warm dusk-brown frame around a sunlit desert board. */
@@ -427,12 +443,55 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
 .chip.low{animation:lowp 1s ease-in-out infinite;color:#FFB4A8}
 @keyframes lowp{50%{background:rgba(130,34,26,.9)}}
 .chip.spd{color:var(--gold);font-weight:600}
+.chip.coop{pointer-events:auto;cursor:pointer;color:#E3D6FF}
+.coopbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;background:linear-gradient(90deg,rgba(199,125,255,.12),var(--surface) 45%);border:1px solid rgba(199,125,255,.28);border-radius:8px;padding:7px 10px;font-size:13px}
+.coopbar b{color:#E3D6FF;font-weight:600;margin-right:4px}
+.coopbar button{font:inherit;font-size:12.5px;border:1px solid var(--line);background:var(--raise);color:var(--ink);border-radius:999px;padding:3px 10px;cursor:pointer}
+.coopbar .pingb[aria-pressed="true"]{border-color:#C77DFF;color:#E3D6FF}
+.coopcode{font-family:var(--f-num);font-size:30px;letter-spacing:.2em;color:var(--gold);text-align:center;padding:6px 0}
 .chip.fever .mb.fv>b{background:linear-gradient(90deg,#E8604F,#F0BE4E,#8FCB7E,#6A8AD8,#C77DFF);width:0}
 .chip.fever.on{color:#1A1208;background:linear-gradient(90deg,#FF6A88,#F0BE4E,#8FE07E,#6AC8FF,#C77DFF);background-size:300% 100%;animation:fvb 1.2s linear infinite}
 .chip.fever.on i{background:rgba(255,255,255,.5)}
 @keyframes fvb{to{background-position:300% 0}}
 .ic[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
 @media (prefers-reduced-motion:reduce){ .chip.fever.on{animation:none} }
+/* uPlot 1.6.32 stylesheet (MIT), inlined */
+.uplot, .uplot *, .uplot *::before, .uplot *::after {box-sizing: border-box;}.uplot {font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";line-height: 1.5;width: min-content;}.u-title {text-align: center;font-size: 18px;font-weight: bold;}.u-wrap {position: relative;user-select: none;}.u-over, .u-under {position: absolute;}.u-under {overflow: hidden;}.uplot canvas {display: block;position: relative;width: 100%;height: 100%;}.u-axis {position: absolute;}.u-legend {font-size: 14px;margin: auto;text-align: center;}.u-inline {display: block;}.u-inline * {display: inline-block;}.u-inline tr {margin-right: 16px;}.u-legend th {font-weight: 600;}.u-legend th > * {vertical-align: middle;display: inline-block;}.u-legend .u-marker {width: 1em;height: 1em;margin-right: 4px;background-clip: padding-box !important;}.u-inline.u-live th::after {content: ":";vertical-align: middle;}.u-inline:not(.u-live) .u-value {display: none;}.u-series > * {padding: 4px;}.u-series th {cursor: pointer;}.u-legend .u-off > * {opacity: 0.3;}.u-select {background: rgba(0,0,0,0.07);position: absolute;pointer-events: none;}.u-cursor-x, .u-cursor-y {position: absolute;left: 0;top: 0;pointer-events: none;will-change: transform;}.u-hz .u-cursor-x, .u-vt .u-cursor-y {height: 100%;border-right: 1px dashed #607D8B;}.u-hz .u-cursor-y, .u-vt .u-cursor-x {width: 100%;border-bottom: 1px dashed #607D8B;}.u-cursor-pt {position: absolute;top: 0;left: 0;border-radius: 50%;border: 0 solid;pointer-events: none;will-change: transform;/*this has to be !important since we set inline "background" shorthand */background-clip: padding-box !important;}.u-axis.u-off, .u-select.u-off, .u-cursor-x.u-off, .u-cursor-y.u-off, .u-cursor-pt.u-off {display: none;}
+.charts{display:flex;flex-direction:column;gap:10px;margin:2px 0 12px}
+.chart{background:var(--surface);border-radius:8px;padding:8px 8px 4px;min-width:0;overflow:hidden}
+.chart h4{margin:0 2px 4px;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--gold);font-weight:600}
+.chart .uplot{width:100%;font-family:var(--f-body)}
+.chart .u-legend{font-size:11.5px;color:var(--muted);text-align:left}
+.chart .u-legend th,.chart .u-legend td,.chart .u-legend tr{border:0!important;background:none!important}
+.chart .u-legend .u-series:first-child{display:none}
+.chart .u-legend .u-series>*{padding:1px 4px}
+.chart .u-legend .u-value{color:var(--ink);font-family:var(--f-num)}
+.chart .empty{font-size:12.5px;color:var(--muted);padding:14px 4px}
+.sharebox{display:flex;flex-direction:column;gap:8px;text-align:left;width:100%}
+.sharebox textarea{width:100%;min-height:96px;resize:vertical;font-family:var(--f-num);font-size:11px;line-height:1.35;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:8px;word-break:break-all}
+.sharebox .sb{display:flex;gap:6px;flex-wrap:wrap}
+.sharebox .sb button{font:inherit;font-size:13px;font-weight:600;border:1px solid var(--line);background:var(--raise);color:var(--ink);border-radius:6px;padding:6px 12px;cursor:pointer}
+.sharebox .sb button.pri{background:var(--sand);color:#2A1A10;border-color:transparent}
+.sharebox small{color:var(--muted);font-size:12px;line-height:1.4}
+.over .card.aud{max-width:460px;text-align:left;align-items:stretch}
+.aud .who{display:flex;align-items:center;gap:10px}
+.aud .who .av{width:40px;height:40px;border-radius:50%;flex:none;display:grid;place-items:center;font-family:var(--f-display);font-weight:800;font-size:16px;color:#2A1A10;background:linear-gradient(160deg,#F0BE4E,#C98A2E);box-shadow:inset 0 -2px 0 rgba(0,0,0,.2)}
+.aud .who small{display:block;font-size:10.5px;letter-spacing:.09em;text-transform:uppercase;color:var(--gold)}
+.aud .lines{display:flex;flex-direction:column;gap:8px;font-size:14px;line-height:1.55;color:var(--ink);max-height:42vh;overflow:auto}
+.aud .lines p{margin:0}
+.aud .lines .q{font-style:italic;color:#F5E6CC;border-left:2px solid var(--sand);padding-left:10px}
+.aud .fx{display:flex;flex-wrap:wrap;gap:5px}
+.aud .fx span{font-family:var(--f-num);font-size:11.5px;border-radius:999px;padding:2px 8px;background:var(--raise)}
+.aud .fx .up{color:var(--good)} .aud .fx .dn{color:var(--foe)}
+.aud .opts{align-items:stretch}
+.aud .opts .opt{text-align:left}
+.over .card{box-sizing:border-box;max-width:min(460px,100%)}
+.aud .who>div{min-width:0}
+.aud .who h2{overflow-wrap:anywhere}
+@media (max-width:560px){
+  .over{position:fixed;z-index:60;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+  .aud .who h2{font-size:21px}
+}
 .ab .cdn{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-num);font-size:15px;font-weight:700;color:var(--ink);z-index:1;pointer-events:none;text-shadow:0 1px 2px #000}
 .ab.ready{box-shadow:0 0 0 2px rgba(240,190,78,.9),0 0 14px rgba(240,190,78,.45)}
 .ab.ready.flash{animation:abf .7s ease-out}
@@ -470,7 +529,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <div class="realm" id="realm" hidden></div>
     <button class="fs" id="worldBtn" type="button" style="right:98px" aria-label="Map of Ashkara" title="Map of Ashkara"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M3 6c2 .5 3-1 4.5 0s1 2.5 3 2.5S13 7 13.8 9M5 12.5c.5-1.5 2-1.5 2.5-3" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></button>
     <div class="world" id="world" hidden>
-      <div class="wbar"><h2 data-t>The map of Ashkara</h2><span class="wtools"><button type="button" class="x" id="wOut" aria-label="Zoom out">−</button><button type="button" class="x" id="wIn" aria-label="Zoom in">+</button><button type="button" class="x" id="wClose" data-t>Close</button></span></div>
+      <div class="wbar"><h2 data-t>The map of Ashkara</h2><span class="wtools"><button type="button" class="x" id="wStyle" aria-pressed="true">Terrain</button><button type="button" class="x" id="wOut" aria-label="Zoom out">−</button><button type="button" class="x" id="wIn" aria-label="Zoom in">+</button><button type="button" class="x" id="wClose" data-t>Close</button></span></div>
       <div class="wbody"><canvas id="wmap" aria-label="Map of the continent. Tap a land to see it."></canvas><div class="wpanel" id="wpanel"></div></div>
     </div>
     <button class="fs" id="fs" type="button" hidden aria-label="Full screen" title="Full screen"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
@@ -482,6 +541,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
       <div class="chip" id="cSeason"><i><svg viewBox="0 0 12 12"><circle id="seaDot" cx="6" cy="6" r="3.4" fill="#8FCB7E"/></svg></i><span id="season">Spring</span></div>
       <div class="chip" id="cHero" title="Your hero's level. Felling raiders earns experience."><i><svg viewBox="0 0 12 12"><path d="M6 1l1.5 3.2 3.5.4-2.6 2.4.7 3.5L6 8.8 2.9 10.5l.7-3.5L1 4.6l3.5-.4z" fill="#F0BE4E"/></svg></i><span id="hlv">Lv 1</span><span class="bars"><b class="mb hpb" title="Health"><b id="hhpf"></b></b><b class="mb" title="Experience"><b id="xpf" style="width:0"></b></b></span></div>
       <div class="chip fever" id="cFever" hidden title="Fever: fell raiders quickly to fill it"><i><svg viewBox="0 0 12 12"><path d="M6 1c1 2 3 3 3 6a3 3 0 0 1-6 0c0-1.3.6-2 1.2-2.6C4.4 6 5 6.4 5.6 6 5.2 4.4 5.4 2.6 6 1z" fill="#F0BE4E"/></svg></i><span id="fvt"></span><b class="mb fv"><b id="fvf"></b></b></div>
+      <div class="chip coop" id="cCoop" hidden><i><svg viewBox="0 0 12 12"><circle cx="4" cy="4.5" r="2" fill="#C77DFF"/><circle cx="8.5" cy="4.5" r="2" fill="#86B6FF"/><path d="M1 11c.4-2.4 1.6-3.5 3-3.5s2.6 1.1 3 3.5M5 11c.4-2.4 1.8-3.5 3.5-3.5S11.6 8.6 12 11" fill="#C9BCE8"/></svg></i><span id="coopT"></span></div>
       <div class="chip spd" id="cSpd" hidden><span id="spd">2×</span></div>
       <div class="chip" id="cLoad"><i><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="none" stroke="#B5A795" stroke-width="1.4" stroke-dasharray="6 4"/></svg></i><span data-t>Loading models</span></div>
     </div>
@@ -492,6 +552,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <div class="over" id="over" hidden></div>
   </div>
 
+  <div class="coopbar" id="coopbar" hidden></div>
   <div class="quest" id="quest" aria-live="polite"></div>
   <div class="req petition" id="petition" hidden aria-live="polite"></div>
   <div class="req" id="req" hidden aria-live="polite"></div>
@@ -520,6 +581,9 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
       <div class="srow"><span data-t>Graphics</span><button class="seg" id="qual" type="button" aria-label="Graphics quality" title="High adds night glow and sharper shadows">High</button></div>
       <div class="srow"><span data-t>Language</span><button class="seg" id="lang" type="button" aria-label="Language: English. Switch to Spanish" title="Español / English">EN</button></div>
       <div class="srow" id="installRow"><span data-t>App</span><button class="seg" id="install" type="button" hidden title="Install Small Crown on this device">Install</button></div>
+      <div class="srow"><span data-t>Kingdom code</span><button class="seg" id="shareBtn" type="button">Share</button></div>
+      <div class="srow"><span></span><button class="seg" id="codeBtn" type="button">Load a code</button></div>
+      <div class="srow"><span data-t>Two players</span><button class="seg" id="coopBtn" type="button">Play together</button></div>
       <p class="skeys" data-t>Keys: P pause, F speed, V whole valley, K hero view, I art style, M realm map.</p>
     </div>
     </div>
@@ -540,6 +604,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
 
   <details class="ledger" id="treasD" open>
     <summary data-t>Treasury at dawn</summary>
+    <div class="charts" id="charts"></div>
     <div id="ledger"></div>
   </details>
 
@@ -584,6 +649,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <p data-th="help28"><b>Ashkara and its crowns.</b> Your realm sits in the south of Ashkara, a continent of deserts, steppes, forests and mountains divided into some two dozen lands. Open the map with the globe button. Three rival crowns hold their own capitals and lands: King Harun of Qadir (warlike), Queen Ysolde of Merrow (cunning) and King Osric of Hallowmere (pious). Every dawn they grow, claim free land on their borders, feud and go to war with each other, and may form a coalition if you grow too strong. Prestige counts renown, gold, army, people and lands. You can settle, buy or conquer only lands that border yours. In each crown's court you can send envoys, sign trade agreements, pacts of peace and military alliances, marry into their house, request aid from allies, demand tribute, impose an embargo, sabotage them through your spymaster, denounce them or declare war; at war you can offer peace, demand surrender or call your allies in. Take a rival's capital and their crown falls. Finish 20 nights at the top to be named High King.</p>
     <p data-th="help29"><b>Placement, caravans and wonders.</b> Where you build matters: a farm beside two other farms or near a well grows more, mines and workshops near the smith work faster, lumber camps crowd each other, markets and taverns earn more among houses, and houses like wells, markets and shrines nearby but hate mines and breweries next door. The bonus shows while you place a building. With a trade agreement, send a daily caravan of goods to another crown from the Market and stores panel; each crown pays well for what it lacks, but prices fall the more you send. The Merchant Guild lends gold with interest and takes investments. From the throne, begin one of five wonders; each needs several dawns of work and a daily delivery of goods, and gives a lasting bonus.</p>
     <p data-th="help30"><b>Mirage, hero view and fever.</b> The Mirage button (I) turns the canyon into a psychedelic dream: rainbow-striped walls, a curving horizon, shifting colors and a giant score. The hero view button (K) puts the camera low behind your hero; steering follows the camera, and dragging turns the view. At night, felling raiders quickly fills the Fever meter. When it is full, the world goes Mirage for ten seconds, your hero hits twice as hard, runs faster and gets both abilities back, and every kill stretches the fever.</p>
+    <p data-th="help31"><b>Court audiences, maps and friends.</b> Every few days a visitor asks for an audience: a bard, a noblewoman, a desert prophet, a smuggler, a scholar, refugees or a secret envoy. Your choices change gold, food, mood, renown and relations, and some visitors come back later remembering what you did. The map of Ashkara is drawn on parchment by hand; the Terrain button switches back. Raider captains and warlords now think: they rally nearby raiders, go after weak walls, slip around your towers and fall back to heal when hurt. In Settings you can share your kingdom as a code, load a friend's code, or play together: one player hosts, the other joins with a four-letter code and sends build orders, trades, pings and quick signals. Playing together works on the web version at smallcrown.netlify.app.</p>
     <p data-th="help4"><b>Seasons</b> turn every 5 days. Spring rains add 1 food per farm, summer heat costs 1, harvest adds 2 and lifts markets, and winter costs 2 while every house burns 1 wood a dawn to stay warm. Weather is rolled each dawn: rain stops fires, sandstorms slow raiders but shorten your towers' sight, snow slows everyone.</p>
     <p data-th="help5"><b>Mood.</b> Villagers are happier with wells and shrines nearby, full granaries and a good harvest, and unhappier after hunger, cold houses and buildings lost to raiders. Content villagers pay extra taxes; unhappy ones pay less, stop moving in, and below 20 they start to leave. Wells also keep fire off the buildings around them.</p>
     <p data-th="help6"><b>Hero levels.</b> Raiders your hero fells, and every night survived, earn experience. Each level adds health, every second level adds damage, and each one lets you pick a perk.</p>
@@ -605,8 +671,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
 </main>
 
 <script>
-(()=>{
-if(!window.THREE){ document.getElementById('board').insertAdjacentHTML('beforeend','<div class="nogl">The 3D engine did not load. Check your connection and reload.</div>'); return; }
+const __main=()=>{
 const N=15, C=7, KEY='smallcrown-save-v3', BEST='smallcrown-best';
 const DEF={
   farm:{name:'Farm',cost:{wood:3},hp:3,enter:6,work:true},
@@ -1547,7 +1612,84 @@ const ES={
 "Language":"Idioma",
 "App":"Aplicación",
 "Settings":"Ajustes",
-"Keys: P pause, F speed, V whole valley, K hero view, I art style, M realm map.":"Teclas: P pausa, F velocidad, V todo el valle, K vista del héroe, I estilo, M mapa del reino."
+"Keys: P pause, F speed, V whole valley, K hero view, I art style, M realm map.":"Teclas: P pausa, F velocidad, V todo el valle, K vista del héroe, I estilo, M mapa del reino.",
+"Kingdom code":"Código del reino",
+"Share":"Compartir",
+"Load a code":"Cargar un código",
+"The realm over time":"El reino a lo largo del tiempo",
+"Charts fill in after a couple of dawns.":"Las gráficas se llenan tras un par de amaneceres.",
+"Charts are loading.":"Las gráficas se están cargando.",
+"Day":"Día",
+"Stores at dawn":"Reservas al amanecer",
+"Villagers and mood":"Aldeanos y ánimo",
+"Race for the high crown":"Carrera por la corona suprema",
+"Start or continue a kingdom first.":"Empieza o continúa un reino primero.",
+"Share codes are still loading. Try again in a moment.":"Los códigos aún se están cargando. Inténtalo en un momento.",
+"Share your kingdom":"Comparte tu reino",
+"Copy this code and send it to a friend. They can load it from Settings, Load a code, and play on from exactly where you are.":"Copia este código y envíaselo a un amigo. Puede cargarlo desde Ajustes, Cargar un código, y seguir jugando justo donde estás.",
+"Copy code":"Copiar código",
+"Copy web link":"Copiar enlace web",
+"{{n}} characters. The web link opens the game on smallcrown.netlify.app with this kingdom loaded.":"{{n}} caracteres. El enlace web abre el juego en smallcrown.netlify.app con este reino cargado.",
+"Copied":"Copiado",
+"Load a kingdom code":"Cargar un código de reino",
+"Paste a code a friend sent you. It replaces the kingdom in your current save slot.":"Pega un código que te haya enviado un amigo. Reemplaza el reino de tu ranura de guardado actual.",
+"Cancel":"Cancelar",
+"Load kingdom":"Cargar reino",
+"That code could not be read. Check that it was copied in full.":"No se pudo leer ese código. Comprueba que se copió completo.",
+"Kingdom loaded":"Reino cargado",
+"Terrain":"Relieve",
+"Parchment":"Pergamino",
+"Warlord {{n}}":"Caudillo {{n}}",
+"Warlord slain":"Caudillo abatido",
+"all crowns":"todas las coronas",
+"A visitor at court":"Una visita en la corte",
+"End the audience":"Terminar la audiencia",
+"Court audience":"Audiencia en la corte",
+"with {{k}}":"con {{k}}",
+"Breaching":"Abriendo brecha",
+"Flanking":"Flanqueando",
+"Retreating":"Retirándose",
+"Rallying":"Arengando",
+"Fall back!":"¡Retirada!",
+"Break that wall!":"¡Romped ese muro!",
+"Around the side!":"¡Por el flanco!",
+"With me!":"¡Conmigo!",
+"Trade request sent to your co-ruler.":"Petición de comercio enviada a tu correinante.",
+"Two players":"Dos jugadores",
+"Play together":"Jugar juntos",
+"Waiting · {{c}}":"Esperando · {{c}}",
+"Co-op host":"Anfitrión",
+"Co-op guest":"Invitado",
+"You host this kingdom":"Eres el anfitrión de este reino",
+"You are co-ruling a friend’s kingdom":"Correinas el reino de un amigo",
+"Your friend’s taps arrive as build orders and pings.":"Los toques de tu amigo llegan como órdenes de construcción y avisos.",
+"Your taps send build orders to the host’s hero.":"Tus toques envían órdenes de construcción al héroe del anfitrión.",
+"Share code {{c}} with your friend.":"Comparte el código {{c}} con tu amigo.",
+"Ping":"Aviso",
+"Leave":"Salir",
+"Tap the valley to ping a spot for your friend.":"Toca el valle para señalar un punto a tu amigo.",
+"You":"Tú",
+"One player hosts the kingdom and runs the game. A friend joins with a four-letter code and co-rules: their taps send build orders to the hero, they can trade at the market, ping spots on the map and send quick signals.":"Un jugador aloja el reino y ejecuta la partida. Un amigo se une con un código de cuatro letras y correina: sus toques envían órdenes al héroe, puede comerciar en el mercado, señalar puntos en el mapa y enviar señales rápidas.",
+"This page cannot open player-to-player connections. Open the web version at smallcrown.netlify.app to play together.":"Esta página no puede abrir conexiones entre jugadores. Abre la versión web en smallcrown.netlify.app para jugar juntos.",
+"Host this kingdom":"Alojar este reino",
+"Get a code to share":"Obtén un código para compartir",
+"Join a friend":"Unirse a un amigo",
+"Enter their code":"Introduce su código",
+"Enter the four-letter code your friend sees.":"Introduce el código de cuatro letras que ve tu amigo.",
+"Code":"Código",
+"Join":"Unirse",
+"Codes are four letters.":"Los códigos tienen cuatro letras.",
+"Co-op could not start here. Open the web version at smallcrown.netlify.app to play together.":"El cooperativo no pudo iniciarse aquí. Abre la versión web en smallcrown.netlify.app para jugar juntos.",
+"Co-op":"Cooperativo",
+"Your friend joined":"Tu amigo se ha unido",
+"Your friend left":"Tu amigo se ha ido",
+"Co-op error: {{e}}":"Error de cooperativo: {{e}}",
+"Your kingdom code":"El código de tu reino",
+"Tell your friend to choose Settings, Play together, Join a friend, and enter:":"Dile a tu amigo que elija Ajustes, Jugar juntos, Unirse a un amigo, e introduzca:",
+"The host ended the session":"El anfitrión terminó la sesión",
+"Could not reach code {{c}}. Check it and try again.":"No se pudo conectar con el código {{c}}. Compruébalo e inténtalo de nuevo.",
+"Your friend":"Tu amigo",
+"help31":"<b>Audiencias, mapas y amigos.</b> Cada pocos días un visitante pide audiencia: un bardo, una noble, un profeta del desierto, un contrabandista, un erudito, refugiados o un enviado secreto. Tus decisiones cambian el oro, la comida, el ánimo, el renombre y las relaciones, y algunos visitantes vuelven más tarde recordando lo que hiciste. El mapa de Ashkara está dibujado a mano en pergamino; el botón Relieve vuelve al otro. Los capitanes y caudillos ahora piensan: arengan a los asaltantes cercanos, atacan muros débiles, rodean tus torres y se retiran a curarse cuando están heridos. En Ajustes puedes compartir tu reino como código, cargar el de un amigo o jugar juntos: uno aloja y el otro se une con un código de cuatro letras y envía órdenes, comercia, señala y manda señales rápidas. Jugar juntos funciona en la versión web, smallcrown.netlify.app."
 };
 
 let lang='en';
@@ -2116,6 +2258,7 @@ const buyCost=r=>Math.max(1,Math.round(S.price[r]*LOT*(hasWonder('w_bazaar')?.85
 const sellGain=r=>Math.max(1,Math.floor(S.price[r]*LOT*.6*(hasWonder('w_bazaar')?1.15:1)));
 const marketOpen=()=>S.grid.some(t=>t.b&&t.b.type==='market'&&t.b.worked);
 function trade(r,buy){
+  if(NET.role==='guest'&&!NET.applying){ netSend({t:'trade',r,buy}); say(T('Trade request sent to your co-ruler.')); return; }
   if(!marketOpen()){ say('A market with a villager working it is needed to trade.'); sfx('no'); return; }
   if(buy){ const c=buyCost(r); if(S.res.gold<c){ say(`Buying ${LOT} ${r} costs ${c} gold. You have ${S.res.gold}.`); sfx('no'); return; }
     S.res.gold-=c; S.res[r]+=LOT; S.price[r]*=1.12; say(`Bought ${LOT} ${r} for ${c} gold.`); }
@@ -2484,7 +2627,8 @@ function startNight(){ S.fever=0; S.feverM=0; S.streak=0;
   if(S.hero.queue.length){ S.hero.queue=[]; }
   spawnMercs();
   sfx('bell'); if(S.kind==='coast'){ launchPirates(); seaBattle(); }
-  showHudBanner(T('Night {{n}}',{n:S.day})+(S.blood?' · '+T('Blood moon'):''),T('{{n}} raiders',{n:S.queue.length})+' · '+T(regionName(S.cur)),S.blood?'#FF8A7A':'#B9CCF0');
+  S.warName=S.queue.includes('warlord')?trace('warlord'):null;
+  showHudBanner(T('Night {{n}}',{n:S.day})+(S.blood?' · '+T('Blood moon'):''),(S.warName?T('Warlord {{n}}',{n:S.warName})+' · ':'')+T('{{n}} raiders',{n:S.queue.length})+' · '+T(regionName(S.cur)),S.blood?'#FF8A7A':'#B9CCF0');
   say(`<b>Night ${S.day}.</b> ${waveText().replace(/^./,c=>c.toUpperCase())}.${heroHere()?'':` Your hero is in ${regionName(S.heroAt)}, so ${regionName(S.cur)} stands on its own tonight.`}`);
   ui();
 }
@@ -2569,8 +2713,8 @@ function dawn(){
   if(E.popD) bump('r-people',E.popD>0?'bump':'hurt');
   const ch=CHAPTERS.find(c=>c.day===S.day); if(ch) setTimeout(()=>showChapter(ch),600);
   factionDawn(REP); routesDawn(E.shipped||[]);
-  { const kn=[]; kingdomDawn(kn,REP); crownsDawn(kn); guildDawn(kn); wonderDawn(kn); if(kn.length) $('msg').innerHTML+=' '+kn.join('. ')+'.'; }
-  recordDaily(); checkAch(); if(REP.total) setTimeout(()=>showReport(REP),300);
+  { const kn=[]; if(REP.total&&Math.random()<.3) kn.push('<i>'+trace('ballad')+'</i>'); kingdomDawn(kn,REP); crownsDawn(kn); guildDawn(kn); wonderDawn(kn); if(kn.length) $('msg').innerHTML+=' '+kn.join('. ')+'.'; }
+  recordHist(); planAudience(); recordDaily(); checkAch(); if(REP.total) setTimeout(()=>showReport(REP),300);
   dawnExtras();
   if(justWon) offerVictory(wasBoss); else if(wasBoss) offerBoons();
 }
@@ -2582,7 +2726,7 @@ function offerVictory(thenBoon){
     {label:'Found a new kingdom',sub:'Start a fresh valley',fn:newGame}]);
 }
 function lose(){
-  S.over=true; S.phase='over'; sel=null;
+  S.over=true; S.phase='over'; sel=null; cineTo(C,C,{zoom:2.3,hold:6,dur:2.2}); debris(C,C,[COL.stone,COL.stoneDark,COL.roof,COL.plank],26,4);
   const held=S.day-1;
   if(held>best){best=held;try{localStorage.setItem(BEST,best)}catch(e){}}
   dropSlot(slot); recordDaily();
@@ -2592,7 +2736,7 @@ function lose(){
   ui();
 }
 function offerBoons(){
-  party('big');
+  party('big'); if(S.bossAt) cineTo(S.bossAt[0],S.bossAt[1],{zoom:2.4,hold:1.4});
   const pool=[...BOONS], pick=[];
   while(pick.length<3&&pool.length) pick.push(pool.splice((Math.random()*pool.length)|0,1)[0]);
   showOver('The warlord is dead','Your people offer a boon. Choose one.',
@@ -2602,6 +2746,7 @@ function showOver(title,text,opts){
   S.modal=true;
   const o=$('over'); o.innerHTML=`<div class="card"><div class="orn"><svg viewBox="0 0 22 14" aria-hidden="true"><path d="M3 11V5l3 3 5-6 5 6 3-3v6z" fill="currentColor"/></svg></div><h2></h2><p></p><div class="opts"></div></div>`;
   o.querySelector('h2').textContent=title; o.querySelector('p').textContent=text;
+  if(window.gsap&&!reduce) requestAnimationFrame(()=>{ const c=o.querySelector('.card'); if(c){ gsap.fromTo(c.querySelectorAll('.opts>*'),{opacity:0,y:8},{opacity:1,y:0,duration:.3,stagger:.06,delay:.12,clearProps:'transform,opacity'}); } });
   const box=o.querySelector('.opts');
   opts.forEach(op=>{
     const b=document.createElement('button'); b.type='button'; b.className='opt'+(op.primary?' primary':'');
@@ -2618,6 +2763,7 @@ function refundOf(b){
   return out;
 }
 function place(x,y){
+  if(NET.role==='guest'&&!NET.applying){ netSend({t:'tap',x,y,tool:S.tool}); addPing(x,y,'me'); sfx('tap'); return; }
   if(S.over||S.modal) return;
   selFolk=null;
   const t=G(x,y);
@@ -2761,9 +2907,10 @@ function hurt(e,d,src){
   if(e.gone) return;
   e.hp-=d; e.hit=.14;
   if(e.hp<=0){
-    e.gone=true; e.died=true; const pay=(e.pay+S.mods.tax+(src==='hero'&&hasPerk('bounty')?2:0))*(S.blood&&S.phase==='night'?2:1);
+    e.gone=true; e.died=true; if(e.type==='warlord'||e.type==='captain') S.bossAt=[e.x,e.y]; const pay=(e.pay+S.mods.tax+(src==='hero'&&hasPerk('bounty')?2:0))*(S.blood&&S.phase==='night'?2:1);
     if(src==='hero') gainXP(e.pay*3);
     S.res.gold+=pay; S.kills++; S.nightKills++; feverKill(); S.nightGold=(S.nightGold||0)+pay; const nr=S.nr||(S.nr={}); nr[src||'other']=(nr[src||'other']||0)+1;
+    if(e.type==='warlord'&&S.warName) toast(T('Warlord slain'),S.warName,'⚔');
     if(e.type==='warlord'||e.type==='captain'){ addRenown(10); S.lootPending=(S.lootPending||0)+1; shiftHost(facOf(S.cur),-15,true); }
     if(src==='hero'&&gearOn('coin')){ S.res.gold+=2; }
     if(e.type==='knight'&&e.king&&S.crowns&&S.crowns[e.king]){ const k=S.crowns[e.king]; k.army=Math.max(5,k.army-1); k.ws=(k.ws||0)+.25; }
@@ -2782,7 +2929,7 @@ function boom(e,x,y,hit){
 function keepHit(d,fromX,fromY){
   S.keep-=d;
   puff((fromX+C)/2,(fromY+C)/2,COL.stone,12); embers((fromX+C)/2,(fromY+C)/2,16); floatText(C,C,'−'+d,CSS.foe);
-  shake=.35; flash=.35; sfx('hurt'); bump('cHp','hurt'); S.keepHitT=S.t;
+  shake=.35; flash=.35; sfx('hurt'); bump('cHp','hurt'); S.keepHitT=S.t; debris(C,C,[COL.stone,COL.stoneDark,COL.plank],Math.min(6,2+d),2.4);
   try{navigator.vibrate&&navigator.vibrate(60)}catch(err){}
   ui();
 }
@@ -2790,7 +2937,7 @@ function damageBuilding(x,y,d){
   const b=G(x,y).b; if(!b) return;
   if(b.type==='keep'){ keepHit(d,x,y); return; }
   b.hp-=d; b.hitT=S.t; puff(x,y,b.type==='wall'?COL.wood:COL.stone,4); sfx('chip');
-  if(b.hp<=0){ S.lostTonight++; puff(x,y,COL.woodLight,16); embers(x,y,14); addRubble(x,y,b.type); removeBuilding(x,y); field(); renderInsp(); }
+  if(b.hp<=0){ S.lostTonight++; collapse(x,y,b.type); puff(x,y,COL.woodLight,16); embers(x,y,14); addRubble(x,y,b.type); removeBuilding(x,y); field(); renderInsp(); }
 }
 function archerTarget(e){
   const R=e.range; let best=null,bd=R;
@@ -2802,7 +2949,7 @@ function archerTarget(e){
   return best;
 }
 function moveEnemy(e,dt){
-  e.age+=dt;
+  e.age+=dt; if(e.rallyT>0) e.rallyT-=dt; if((e.type==='warlord'||e.type==='captain')&&!e.gone) thinkCaptain(e,dt);
   if(e.burn>0){ e.burn-=dt; e.burnT=(e.burnT??1)-dt; if(!reduce&&Math.random()<dt*8) emit(FLM,e.x,e.y,.25,.4,.18); if(e.burnT<=0){ e.burnT=1; hurt(e,1,'tower'); if(e.gone) return; } } e.hit=Math.max(0,e.hit-dt); e.slow=Math.max(0,e.slow-dt);
   let foe=e.foe;
   if(foe&&(foe.hp<=0||foe.dead||Math.hypot(foe.x-e.x,foe.y-e.y)>.8)) foe=e.foe=null;
@@ -2812,7 +2959,7 @@ function moveEnemy(e,dt){
     e.foe=foe;
   }
   if(foe){ e.dir=Math.atan2(foe.y-e.y,foe.x-e.x); e.atk-=dt; e.swing=Math.max(0,1-e.atk);
-    if(e.atk<=0){ e.atk=1; damageAlly(foe,e.dmg); sfx('chip'); if(foe===S.hero&&gearOn('thornmail')) hurt(e,1,'hero'); } return; }
+    if(e.atk<=0){ e.atk=1; damageAlly(foe,e.dmg+(e.rallyT>0?1:0)); sfx('chip'); if(foe===S.hero&&gearOn('thornmail')) hurt(e,1,'hero'); } return; }
   if(e.heal){ e.swing=Math.max(0,(e.swing||0)-dt*1.5); e.healT=(e.healT??1)-dt; if(e.healT<=0){ e.healT=1.6; let n=0; for(const o of S.enemies){ if(o===e||o.gone||o.hp>=o.max||Math.hypot(o.x-e.x,o.y-e.y)>1.4) continue; o.hp=Math.min(o.max,o.hp+e.heal); n++; puff(o.x,o.y,0x7CFF9A,3); } if(n){ e.swing=1; floatText(e.x,e.y,'heal',CSS.good||'#8FCB7E'); } } }
   if(e.type==='archer'&&!e.moving&&e.age>.6){
     const t=archerTarget(e);
@@ -2821,7 +2968,7 @@ function moveEnemy(e,dt){
       return; }
   }
   if(e.moving){
-    const dx=e.tx-e.x,dy=e.ty-e.y,d=Math.hypot(dx,dy),v=e.spd*(e.slow>0?.5:1)*wxSlow()*dt;
+    const dx=e.tx-e.x,dy=e.ty-e.y,d=Math.hypot(dx,dy),v=e.spd*(e.slow>0?.5:1)*(e.rallyT>0?1.25:1)*wxSlow()*dt;
     if(d>1e-4) e.dir=Math.atan2(dy,dx);
     if(d<=v){
       e.x=e.tx;e.y=e.ty;e.cx=e.tx;e.cy=e.ty;e.moving=false;
@@ -2830,14 +2977,14 @@ function moveEnemy(e,dt){
     }else{e.x+=dx/d*v;e.y+=dy/d*v; if(!reduce&&Math.random()<dt*(e.type==='ram'?6:2.2)) dust(e.x,e.y,e.type==='ram'?.8:.45);}
     return;
   }
-  const n=nextStep(e.cx,e.cy); if(!n) return;
+  const n=(e.plan&&e.plan.pd?planStep(e):null)||nextStep(e.cx,e.cy); if(!n) return;
   e.dir=Math.atan2(n[1]-e.cy,n[0]-e.cx);
   const b=G(n[0],n[1]).b;
   if(b&&b.type==='keep'){ e.gone=true; keepHit(e.type==='sapper'?4:e.dmg,e.cx,e.cy); if(e.type==='sapper') boom(e,n[0],n[1],false); return; }
   if(b&&b.type!=='trap'&&b.type!=='road'&&e.type==='sapper'){ boom(e,n[0],n[1],true); return; }
   if(b&&b.type!=='trap'&&b.type!=='road'){
     e.atk-=dt; e.swing=Math.max(0,1-e.atk);
-    if(e.atk<=0){ e.atk=e.type==='ram'?1.4:1; if(e.type==='ram'){ shake=Math.max(shake,.12); embers(n[0],n[1],5); } damageBuilding(n[0],n[1],e.bdmg||e.dmg); }
+    if(e.atk<=0){ e.atk=e.type==='ram'?1.4:1; if(e.type==='ram'){ shake=Math.max(shake,.12); embers(n[0],n[1],5); } damageBuilding(n[0],n[1],(e.bdmg||e.dmg)+(e.rallyT>0?1:0)); }
     return;
   }
   e.swing=0; e.tx=n[0];e.ty=n[1];e.moving=true;
@@ -2877,6 +3024,7 @@ let renderer;
 try{ renderer=new THREE.WebGLRenderer({canvas:glc,antialias:true,powerPreference:'high-performance'}); }
 catch(e){ $('board').insertAdjacentHTML('beforeend','<div class="nogl">This device could not start 3D graphics.</div>'); return; }
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputColorSpace=THREE.LinearSRGBColorSpace; if('useLegacyLights' in renderer) renderer.useLegacyLights=true;
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x7A3A2B);
 const orthoCam=new THREE.OrthographicCamera(-7,7,6,-6,.1,100), chaseCam=new THREE.PerspectiveCamera(62,1.6,.1,90);
 let camera=orthoCam, renderPassRef=null;
@@ -2926,7 +3074,7 @@ function loadAssets(){
     for(const [n,sc] of pairs){ if(!sc) continue;
       sc.traverse(o=>{ if(o.isMesh){ if(!pal&&o.material.map) pal=o.material.map; o.castShadow=true; o.receiveShadow=true; } });
       ASSET.m[n]=sc; }
-    for(const t of [pal,ct]) if(t){ t.encoding=THREE.LinearEncoding; t.magFilter=THREE.NearestFilter; t.minFilter=THREE.NearestFilter; t.generateMipmaps=false; t.flipY=false; t.needsUpdate=true; }
+    for(const t of [pal,ct]) if(t){ t.colorSpace=THREE.NoColorSpace; t.magFilter=THREE.NearestFilter; t.minFilter=THREE.NearestFilter; t.generateMipmaps=false; t.flipY=false; t.needsUpdate=true; }
     ASSET.pal=new THREE.MeshLambertMaterial({map:pal}); ASSET.canyon=new THREE.MeshLambertMaterial({map:ct||pal});
     ASSET.vc=new THREE.MeshLambertMaterial({vertexColors:true}); ASSET.h={};
     for(const n in ASSET.m){ ASSET.m[n].traverse(o=>{ if(o.isMesh) o.material=n.startsWith('q_')?ASSET.vc:CANYON.has(n)?ASSET.canyon:ASSET.pal; }); ASSET.h[n]=new THREE.Box3().setFromObject(ASSET.m[n]).getSize(new V3()).y||1; }
@@ -3120,6 +3268,7 @@ const eMeshes=new Map(), sMeshes=new Map();
 
 // --- static world: ground, canyon walls, ore, plants ---
 function buildWorld(){
+  clearPhys();
   if(world){ scene.remove(world); world.traverse(o=>{ if(o.geometry&&o.userData.own) o.geometry.dispose(); }); }
   world=new THREE.Group(); scene.add(world);
   const seed=S.seed||1;
@@ -3874,6 +4023,7 @@ function folkThought(f){
   else if(S.raid!==S.cur) o.push('They say the raiders will strike somewhere else tonight. Thank the stars.');
   if(count('tavern')) o.push('Meet me at the tavern later?'); if(count('well')===0&&S.cur==='home') o.push('A well nearby would save my back.');
   if(S.hero&&heroHere()&&Math.hypot(S.hero.x-f.x,S.hero.y-f.y)<2) o.push('Our hero! Ride well tonight!');
+  o.push('@'+trace('chatter')); o.push('@'+trace('chatter'));
   if(S.kind==='coast') o.push('Smell that sea air.'); if(S.kind==='mountain') o.push('The snow never quite melts up here.');
   return o[(Math.random()*o.length)|0];
 }
@@ -4218,6 +4368,7 @@ function drawMini(){
     else if(t.ore){ mx.fillStyle='#6C7B8E'; mx.beginPath(); mx.arc(P(x),P(y),cs*.22,0,6.29); mx.fill(); } });
   { const pr=(x,y,t0)=>{ const a=S.t-t0; if(a<0||a>1.6) return; mx.strokeStyle=`rgba(240,190,78,${1-a/1.6})`; mx.lineWidth=Math.max(1.2,dpr*1.4); mx.beginPath(); mx.arc(P(x),P(y),cs*(.4+a*1.4),0,6.29); mx.stroke(); };
     S.grid.forEach((t,i)=>{ if(t.b&&t.b.hitT!=null) pr(i%N,(i/N)|0,t.b.hitT); }); if(S.keepHitT!=null) pr(C,C,S.keepHitT); }
+  for(const pg of NET.pings){ const a=clock-pg.t; if(a>3) continue; mx.strokeStyle=pg.who==='me'?'#86B6FF':'#C77DFF'; mx.lineWidth=Math.max(1.5,dpr*1.6); mx.beginPath(); mx.arc(P(pg.x),P(pg.y),cs*(.5+(a%1)*1.2),0,6.29); mx.stroke(); }
   if(S.phase==='day'){ mx.fillStyle='#E04848'; for(const [x,y] of S.spawns){ mx.beginPath(); mx.arc(P(x),P(y),cs*.3,0,6.29); mx.fill(); } }
   const dot=(x,y,r,c)=>{ mx.fillStyle=c; mx.beginPath(); mx.arc(P(x),P(y),r,0,6.29); mx.fill(); };
   for(const e of S.enemies) dot(e.x,e.y,Math.max(1.6*dpr,cs*(e.type==='warlord'?.3:.18)),'#FF4A3D');
@@ -4263,6 +4414,10 @@ function drawHud(){
       hctx.globalAlpha=Math.min(1,f.life*1.6); hctx.fillStyle=`hsl(${f.hue},100%,62%)`; hctx.beginPath(); hctx.arc(px,py,r,0,6.29); hctx.fill();
       hctx.globalAlpha*=.25; hctx.beginPath(); hctx.arc(px,py,r*2.6,0,6.29); hctx.fill(); }
     hctx.globalCompositeOperation='source-over'; hctx.globalAlpha=1; }
+  if(S.warName) for(const e of S.enemies){ if(e.type!=='warlord'||e.gone) continue; const [px,py]=scr(W2(e.px??e.x),1.25,W2(e.py??e.y)); hctx.font='700 12px Inter, system-ui, sans-serif'; hctx.textAlign='center'; hctx.textBaseline='middle'; hctx.lineWidth=3; hctx.strokeStyle='rgba(20,14,12,.85)'; hctx.strokeText(S.warName,px,py-12); hctx.fillStyle='#FF8A7A'; hctx.fillText(S.warName,px,py-12); }
+  for(const e of S.enemies){ if(e.gone||!e.plan||!e.plan.mode||(e.type!=='warlord'&&e.type!=='captain')) continue; const [px,py]=scr(W2(e.px??e.x),1.25,W2(e.py??e.y)); const L2={breach:T('Breaching'),flank:T('Flanking'),retreat:T('Retreating'),rally:T('Rallying')}[e.plan.mode]; if(!L2) continue;
+    hctx.font='600 10.5px Inter, system-ui, sans-serif'; hctx.textAlign='center'; hctx.textBaseline='middle'; const w=hctx.measureText(L2).width+12, yy=py-(e.type==='warlord'&&S.warName?27:12); hctx.fillStyle='rgba(20,14,12,.85)'; hctx.beginPath(); if(hctx.roundRect) hctx.roundRect(px-w/2,yy-8,w,16,8); else hctx.rect(px-w/2,yy-8,w,16); hctx.fill(); hctx.fillStyle=e.plan.mode==='retreat'?'#B9CCF0':'#FFB27A'; hctx.fillText(L2,px,yy+.5); }
+  for(const e of S.enemies){ if(e.rallyT>0&&!e.gone){ const [px,py]=scr(W2(e.px??e.x),.05,W2(e.py??e.y)); hctx.strokeStyle='rgba(255,150,80,.55)'; hctx.lineWidth=1.5; hctx.beginPath(); hctx.ellipse(px,py,u*.22,u*.12,0,0,6.29); hctx.stroke(); } }
   for(const e of S.enemies){ if(e.hp>=e.max) continue; const s=e.type==='warlord'?1.55:e.type==='brute'?1.1:1; const [px,py]=scr(W2(e.px??e.x),.68*s,W2(e.py??e.y)); bar(px-u*.35,py-6,u*.7,e.hp/e.max,CSS.foe); }
   each((b,x,y)=>{
     if(b.type==='keep'){ if(S.keep<S.keepMax){ const [px,py]=scr(W2(x),1.5,W2(y)); bar(px-u*.6,py-6,u*1.2,S.keep/S.keepMax,S.keep<=3?CSS.foe:CSS.gold); } return; }
@@ -4300,14 +4455,14 @@ function drawHud(){
   hctx.globalAlpha=1;
   if(flash>0){ const g=hctx.createRadialGradient(BW/2,BH/2,Math.min(BW,BH)*.25,BW/2,BH/2,Math.max(BW,BH)*.75); g.addColorStop(0,'rgba(200,40,30,0)'); g.addColorStop(1,`rgba(200,40,30,${flash*.7})`); hctx.fillStyle=g; hctx.fillRect(0,0,BW,BH); }
   if(nightA>.02){ const g=hctx.createRadialGradient(BW/2,BH/2,Math.min(BW,BH)*.35,BW/2,BH/2,Math.max(BW,BH)*.8); g.addColorStop(0,'rgba(10,12,30,0)'); g.addColorStop(1,`rgba(8,12,40,${nightA*.32})`); hctx.fillStyle=g; hctx.fillRect(0,0,BW,BH); }
-  drawDanger(); drawBigScore(); drawEdgeMarks(); drawHudBanner();
+  drawDanger(); drawBigScore(); drawPings(); drawEdgeMarks(); drawHudBanner();
   if(paused&&!S.modal&&!S.over){ hctx.fillStyle='rgba(28,23,20,.45)'; hctx.fillRect(0,0,BW,BH); hctx.fillStyle=CSS.ink; hctx.font=`800 ${Math.round(u*.9)}px "Bricolage Grotesque", system-ui, sans-serif`; hctx.fillText('Paused',BW/2,BH/2); }
 }
 function initBloom(){
   if(composer||!THREE.EffectComposer||!THREE.UnrealBloomPass||!BW) return;
   try{
     const w=Math.max(1,Math.round(BW*dpr)), h=Math.max(1,Math.round(BH*dpr));
-    const rt=renderer.capabilities.isWebGL2&&THREE.WebGLMultisampleRenderTarget?new THREE.WebGLMultisampleRenderTarget(w,h,{format:THREE.RGBAFormat}):undefined;
+    const rt=new THREE.WebGLRenderTarget(w,h,{samples:isSmall?2:4,type:THREE.HalfFloatType});
     composer=new THREE.EffectComposer(renderer,rt); composer.setPixelRatio(dpr); composer.setSize(BW,BH);
     renderPassRef=new THREE.RenderPass(scene,camera); composer.addPass(renderPassRef);
     bloom=new THREE.UnrealBloomPass(new THREE.Vector2(BW,BH),0,.45,.84); composer.addPass(bloom);
@@ -4401,7 +4556,7 @@ mvPosition = viewMatrix * mirWP;
 gl_Position = projectionMatrix * mvPosition;`;
 const MIR_FRAG=`if(uMir>0.001){
   vec3 mBase=gl_FragColor.rgb; float mL=dot(mBase,vec3(.299,.587,.114));
-  float mV=${MIR_D?'1.0-abs(normalize(cross(dFdx(vMirW),dFdy(vMirW))).y)':'0.5'};
+  vec3 mCr=${MIR_D?'cross(dFdx(vMirW),dFdy(vMirW))':'vec3(0.,1.,0.)'}; float mV=clamp(1.0-abs(mCr.y)/max(length(mCr),1e-6),0.,1.);
   float mB=vMirW.y*2.4*(0.35+mV)+(vMirW.x*0.55-vMirW.z*0.35)*(0.4+mV*0.8)+uMirT*0.32;
   float mF=fract(mB*1.15), mS=smoothstep(0.40,0.47,mF)*(1.0-smoothstep(0.90,0.97,mF));
   vec3 mP1=0.5+0.5*cos(6.2831*(vec3(0.0,0.33,0.67)+mB*0.21));
@@ -4474,7 +4629,7 @@ function toggleHeroCam(){ heroCam=!heroCam; $('cam').setAttribute('aria-pressed'
 function feverKill(){ if(S.fever>0) { S.fever=Math.min(14,S.fever+.35); return; }
   const fast=S.t-(S.lastKillT||-9)<3; S.lastKillT=S.t; S.streak=fast?(S.streak||0)+1:1;
   S.feverM=Math.min(1,(S.feverM||0)+(fast?.11:.06));
-  if(S.feverM>=1){ S.fever=10; S.feverM=0; if(S.hero){ S.hero.cdC=0; S.hero.cdR=0; } sfx('up'); shake=Math.max(shake,.25); showHudBanner(T('Fever!'),T('Your hero strikes twice as hard and runs faster'),'#F0BE4E'); bump('cFever','bump'); } }
+  if(S.feverM>=1){ S.fever=10; S.feverM=0; punchZoom(); if(S.hero){ S.hero.cdC=0; S.hero.cdR=0; } sfx('up'); shake=Math.max(shake,.25); showHudBanner(T('Fever!'),T('Your hero strikes twice as hard and runs faster'),'#F0BE4E'); bump('cFever','bump'); } }
 function stepFever(dt){ if(S.phase!=='night'){ S.fever=0; S.feverM=0; return; } if(S.fever>0){ S.fever=Math.max(0,S.fever-dt); if(!S.fever) say(T('The fever fades.')); } else if(S.feverM>0) S.feverM=Math.max(0,S.feverM-dt*.025); }
 // a giant wobbling score in the Mirage style
 function drawBigScore(){
@@ -4512,7 +4667,8 @@ function initTabs(){
 function selectTab(id,user){
   sideTab=id; for(const [pid] of PANELS){ const on=pid===id; $(pid).classList.toggle('on',on); $(pid).open=true; const t=$('tab-'+pid); if(t){ t.setAttribute('aria-selected',on); t.tabIndex=on?0:-1; } }
   if(user){ try{ localStorage.setItem('smallcrown-tab',id); }catch(e){} $('tab-'+id).scrollIntoView({block:'nearest',inline:'nearest'}); if(innerWidth<1180) $('side').scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'}); else $('side').scrollTop=0; }
-  if(id==='chronD'&&S) renderChron(); if(id==='throneD') throneKey=''; if(id==='marketD') mktKey=''; tabKey=''; if(S) ui();
+  if(user&&window.gsap&&!reduce) gsap.fromTo($(id),{opacity:0,y:8},{opacity:1,y:0,duration:.28,ease:'power2.out',clearProps:'transform,opacity'});
+  if(id==='chronD'&&S) renderChron(); if(id==='treasD') chartKey=''; if(id==='throneD') throneKey=''; if(id==='marketD') mktKey=''; tabKey=''; if(S) ui();
 }
 function syncTabs(){
   if(!$('side').classList.contains('tabbed')) return;
@@ -4531,11 +4687,282 @@ const TGROUPS=[['all','All',null],['settle','Settle',['farm','house','lumber','m
 let toolGroup='all'; try{ const v=localStorage.getItem('smallcrown-tgroup'); if(TGROUPS.some(g=>g[0]===v)) toolGroup=v; }catch(e){}
 function renderTcats(){
   const box=$('tcats'); if(!box.dataset.built){ box.innerHTML=TGROUPS.map(([id,n])=>`<button type="button" class="tcat" role="tab" data-g="${id}"><span class="gn"></span><span class="ct"></span></button>`).join(''); box.dataset.built=1;
-    box.querySelectorAll('.tcat').forEach(b=>b.addEventListener('click',()=>{ toolGroup=b.dataset.g; try{ localStorage.setItem('smallcrown-tgroup',toolGroup); }catch(e){} renderTools(); })); }
+    box.querySelectorAll('.tcat').forEach(b=>b.addEventListener('click',()=>{ toolGroup=b.dataset.g; try{ localStorage.setItem('smallcrown-tgroup',toolGroup); }catch(e){} renderTools(); if(window.gsap&&!reduce) gsap.fromTo([...$('tools').querySelectorAll('.tool:not(.hid)')],{opacity:0,y:6},{opacity:1,y:0,duration:.22,stagger:.018,clearProps:'transform,opacity'}); })); }
   const open=t=>{ const d=DEF[t]; return !!d&&!(d.unlock&&S.day<d.unlock)&&canPay(d.cost); };
   box.querySelectorAll('.tcat').forEach(b=>{ const g=TGROUPS.find(x=>x[0]===b.dataset.g); b.setAttribute('aria-selected',g[0]===toolGroup); b.querySelector('.gn').textContent=T(g[1]);
     b.querySelector('.ct').textContent=g[2]?g[2].filter(open).length||'':''; b.title=g[2]?T('{{n}} you can afford',{n:g[2].filter(open).length}):''; });
 }
+// ---------- GSAP: cinematic camera moves ----------
+let cineBusy=false;
+function cineTo(tx,ty,o={}){
+  if(reduce||!window.gsap||!S||camera===chaseCam||!BW) return;
+  const zoom=o.zoom||2.4, hold=o.hold??1.6, dur=o.dur||1.15, z0=zoomHH, c={x:camTarget.x,y:camTarget.z}, zp={v:zoomHH};
+  if(!viewNear) toggleView(); gsap.killTweensOf(c); camFree=c; camVel=null; cineBusy=true;
+  const tl=gsap.timeline({onComplete:()=>{ if(camFree===c) camFree=null; cineBusy=false; }});
+  tl.to(c,{x:W2(tx),y:W2(ty)+.25,duration:dur,ease:'power3.inOut'},0)
+    .to(zp,{v:zoom,duration:dur,ease:'power2.inOut',onUpdate:()=>{ zoomHH=Math.max(ZMIN,zp.v); }},0);
+  if(o.orbit) tl.to(c,{x:'+=.35',duration:hold,ease:'sine.inOut',yoyo:true,repeat:1},dur);
+  if(!S.over) tl.to(zp,{v:z0,duration:.9,ease:'power2.inOut',onUpdate:()=>{ zoomHH=Math.max(ZMIN,zp.v); }},dur+hold);
+}
+function punchZoom(){ if(reduce||!window.gsap) return; const zp={v:zoomHH}, z0=zoomHH; gsap.timeline().to(zp,{v:z0*.82,duration:.18,ease:'power2.out',onUpdate:()=>{ zoomHH=Math.max(ZMIN,zp.v); }}).to(zp,{v:z0,duration:.6,ease:'elastic.out(1,.5)',onUpdate:()=>{ zoomHH=Math.max(ZMIN,zp.v); }}); }
+// ---------- cannon-es: tumbling debris ----------
+const PHYS={world:null,items:[]};
+function physInit(){ if(PHYS.world) return true; if(!window.CANNON) return false; const Cn=window.CANNON;
+  const W=new Cn.World({gravity:new Cn.Vec3(0,-9.8,0)}); W.allowSleep=true; W.defaultContactMaterial.restitution=.25; W.defaultContactMaterial.friction=.5;
+  const g=new Cn.Body({mass:0,shape:new Cn.Plane()}); g.quaternion.setFromEuler(-Math.PI/2,0,0); W.addBody(g); PHYS.world=W; return true; }
+const UBOX=new THREE.BoxGeometry(1,1,1);
+function debris(x,y,cols,n,power){
+  if(reduce||!physInit()||!cols||!cols.length) return; const Cn=window.CANNON, max=quality==='high'?70:30;
+  for(let i=0;i<n;i++){ const s=.05+Math.random()*.11, sz=[s,s*(.5+Math.random()*.9),s*(.6+Math.random()*.7)];
+    const body=new Cn.Body({mass:s*10,shape:new Cn.Box(new Cn.Vec3(sz[0]/2,sz[1]/2,sz[2]/2)),linearDamping:.08,angularDamping:.15,sleepSpeedLimit:.15});
+    body.position.set(W2(x)+(Math.random()-.5)*.55,.25+Math.random()*.55,W2(y)+(Math.random()-.5)*.55);
+    const a=Math.random()*6.283, p=power*(.45+Math.random()*.8); body.velocity.set(Math.cos(a)*p,power*(.8+Math.random()*1.3),Math.sin(a)*p);
+    body.angularVelocity.set((Math.random()-.5)*14,(Math.random()-.5)*14,(Math.random()-.5)*14); PHYS.world.addBody(body);
+    const m=new THREE.Mesh(UBOX,M(cols[i%cols.length])); m.scale.set(...sz); m.castShadow=true; m.position.copy(body.position); scene.add(m);
+    PHYS.items.push({body,m,life:4.5+Math.random()*2,sc:sz}); }
+  while(PHYS.items.length>max) dropPhys(PHYS.items.shift());
+}
+function dropPhys(it){ scene.remove(it.m); PHYS.world&&PHYS.world.removeBody(it.body); }
+function clearPhys(){ for(const it of PHYS.items) dropPhys(it); PHYS.items.length=0; }
+function stepPhys(raw){ if(!PHYS.world||!PHYS.items.length) return; PHYS.world.step(1/60,raw,3);
+  for(let i=PHYS.items.length-1;i>=0;i--){ const it=PHYS.items[i]; it.life-=raw; it.m.position.copy(it.body.position); it.m.quaternion.copy(it.body.quaternion);
+    if(it.life<.8){ const k=Math.max(0,it.life/.8); it.m.scale.set(it.sc[0]*k,it.sc[1]*k,it.sc[2]*k); }
+    if(it.life<=0){ dropPhys(it); PHYS.items.splice(i,1); } } }
+function collapse(x,y,type){
+  const e=bMeshes[idx(x,y)], cols=[]; if(e&&e.g) e.g.traverse(o=>{ if(o.material&&o.material.color&&cols.length<5){ const h=o.material.color.getHex(); if(!cols.includes(h)) cols.push(h); } });
+  if(!cols.length) cols.push(COL.woodLight,COL.stone); debris(x,y,cols,type==='wall'?10:type==='tower'?18:14,type==='trap'?1.2:2.8); }
+// ---------- uPlot: treasury charts ----------
+const HIST_KEYS=['gold','food','wood','stone','iron'];
+function recordHist(){ const h=S.hist||(S.hist={d:[],r:{},pop:[],mood:[],cr:{}}); h.d.push(S.day);
+  for(const r of HIST_KEYS) (h.r[r]||(h.r[r]=[])).push(S.res[r]||0); h.pop.push(S.pop); h.mood.push(S.mood);
+  let st=[]; try{ st=standings(); }catch(e){} for(const id of ['me',...Object.keys(KINGS)]){ const row=st.find(x=>x.id===id); (h.cr[id]||(h.cr[id]=[])).push(row?Math.round(row.p):null); }
+  const cap=60; if(h.d.length>cap){ h.d.shift(); for(const r in h.r) h.r[r].shift(); h.pop.shift(); h.mood.shift(); for(const id in h.cr) h.cr[id].shift(); } }
+let chartKey='', charts=[];
+function renderCharts(){
+  const box=$('charts'); if(!box||!$('treasD').classList.contains('on')&&$('side').classList.contains('tabbed')) return;
+  const h=S.hist, w=Math.max(220,Math.floor(box.clientWidth-16)), key=[h&&h.d.length,w,lang,S.mtnUnlocked].join('|'); if(key===chartKey) return; chartKey=key;
+  charts.forEach(c=>c.destroy()); charts=[];
+  if(!window.uPlot||!h||h.d.length<2){ box.innerHTML=`<div class="chart"><h4>${T('The realm over time')}</h4><div class="empty">${T(window.uPlot?'Charts fill in after a couple of dawns.':'Charts are loading.')}</div></div>`; return; }
+  const cs=getComputedStyle(document.documentElement), mut=cs.getPropertyValue('--muted').trim()||'#B5A795', grid='rgba(242,234,221,.07)';
+  const axes=[{stroke:mut,grid:{stroke:grid},ticks:{stroke:grid},font:'11px Inter, system-ui',values:(u,v)=>v.map(x=>T('Day {{n}}',{n:x}))},{stroke:mut,grid:{stroke:grid},ticks:{stroke:grid},font:'11px Inter, system-ui',size:40}];
+  const mk=(title,series,data,ht)=>{ const el=document.createElement('div'); el.className='chart'; el.innerHTML=`<h4>${title}</h4>`; box.appendChild(el);
+    charts.push(new uPlot({width:w,height:ht||150,cursor:{drag:{x:false,y:false}},scales:{x:{time:false}},axes,series:[{label:T('Day')},...series],legend:{live:false}},data,el)); };
+  box.innerHTML='';
+  const res=HIST_KEYS.filter(r=>r!=='iron'||S.mtnUnlocked||(h.r.iron||[]).some(v=>v>0));
+  mk(T('Stores at dawn'),res.map(r=>({label:T(cap1(r)),stroke:RCOL[r],width:2,points:{show:false}})),[h.d,...res.map(r=>h.r[r])]);
+  mk(T('Villagers and mood'),[{label:T('Villagers'),stroke:RCOL.people,width:2,points:{show:false}},{label:T('Mood'),stroke:RCOL.mood,width:2,points:{show:false}}],[h.d,h.pop,h.mood],130);
+  const ids=['me',...Object.keys(KINGS)].filter(id=>(h.cr[id]||[]).some(v=>v!=null));
+  if(ids.length>1) mk(T('Race for the high crown'),ids.map(id=>({label:id==='me'?T('Your realm'):KINGS[id].short,stroke:id==='me'?'#F0BE4E':KINGS[id].color,width:id==='me'?3:2,points:{show:false}})),[h.d,...ids.map(id=>h.cr[id])],150);
+}
+// ---------- lz-string: kingdom share codes ----------
+function shareKingdom(){
+  if(!S||S.over){ say(T('Start or continue a kingdom first.')); return; } if(!window.LZString){ say(T('Share codes are still loading. Try again in a moment.')); return; }
+  const code='SC1.'+LZString.compressToEncodedURIComponent(saveJSON()), link=`https://smallcrown.netlify.app/?k=${code}`;
+  showOver(T('Share your kingdom'),T('Copy this code and send it to a friend. They can load it from Settings, Load a code, and play on from exactly where you are.'),[{label:T('Close'),primary:true,fn:()=>{ hideOver(); }}]);
+  const card=$('over').querySelector('.card'), box=document.createElement('div'); box.className='sharebox';
+  box.innerHTML=`<textarea readonly aria-label="${T('Kingdom code')}"></textarea><div class="sb"><button type="button" class="pri" data-c="code">${T('Copy code')}</button><button type="button" data-c="link">${T('Copy web link')}</button></div><small>${T('{{n}} characters. The web link opens the game on smallcrown.netlify.app with this kingdom loaded.',{n:code.length.toLocaleString()})}</small>`;
+  card.insertBefore(box,card.querySelector('.opts')); const ta=box.querySelector('textarea'); ta.value=code;
+  box.querySelectorAll('[data-c]').forEach(b=>b.addEventListener('click',()=>{ const v=b.dataset.c==='link'?link:code;
+    const ok=()=>{ b.textContent=T('Copied'); setTimeout(()=>b.textContent=T(b.dataset.c==='link'?'Copy web link':'Copy code'),1500); };
+    try{ navigator.clipboard.writeText(v).then(ok,()=>{ ta.value=v; ta.select(); }); }catch(e){ ta.value=v; ta.select(); } }));
+}
+function readCode(txt){ txt=(txt||'').trim(); const m=txt.match(/[?&]k=([^&#\s]+)/); if(m) txt=decodeURIComponent(m[1]); if(txt.startsWith('SC1.')) txt=txt.slice(4);
+  try{ const j=LZString.decompressFromEncodedURIComponent(txt); if(!j) return null; const d=JSON.parse(j); return d&&d.grid?d:null; }catch(e){ return null; } }
+function loadCodeDialog(prefill){
+  if(!window.LZString){ say(T('Share codes are still loading. Try again in a moment.')); return; }
+  const was=S&&S.modal;
+  showOver(T('Load a kingdom code'),T('Paste a code a friend sent you. It replaces the kingdom in your current save slot.'),[{label:T('Cancel'),fn:()=>{ hideOver(); if(!S||S.over) newGame(); }}]);
+  const card=$('over').querySelector('.card'), box=document.createElement('div'); box.className='sharebox';
+  box.innerHTML=`<textarea aria-label="${T('Kingdom code')}" placeholder="SC1.…"></textarea><div class="sb"><button type="button" class="pri">${T('Load kingdom')}</button></div><small class="err" hidden></small>`;
+  card.insertBefore(box,card.querySelector('.opts')); const ta=box.querySelector('textarea'); if(prefill) ta.value=prefill; setTimeout(()=>ta.focus(),50);
+  box.querySelector('.pri').addEventListener('click',()=>{ const d=readCode(ta.value), er=box.querySelector('.err');
+    if(!d){ er.hidden=false; er.textContent=T('That code could not be read. Check that it was copied in full.'); return; }
+    if(load(d)){ saveOn=true; hideOver(); save(); ui(); forecast(); toast(T('Kingdom loaded'),T('Day {{n}}',{n:S.day}),'♛'); } });
+}
+// ---------- Tracery: generated chatter, ballads, warlord names, letters ----------
+const TRX={en:{
+  chatter:['#opener# #topic#','#topic.capitalize#','#opener# #wish#'],
+  opener:['Heard the news?','Between you and me,','My cousin swears','Word in the market is','Honestly,','Mark my words:'],
+  topic:['#beast# was seen out past the #place# again.','#rival# is building #thing#. As if that will help.','the well water tastes #taste# today.','someone stole #item# from the #building#.','the #building# needs a new roof before #season#.','#villager# is sweet on #villager2#. Everyone knows.','I saw the hero sharpen that sword three times this morning.','the caravans say the roads to #city# are full of bandits.'],
+  wish:['I hope we get #thing# soon.','a #feast# would lift everyone.','I would trade #item# for one quiet night.'],
+  beast:['a three-legged camel','a jackal pack','a giant sand lizard','the old white vulture','a goat the size of a horse'],
+  place:['salt flats','red mesa','dry well','broken tower','canyon mouth'], city:['Qadir','Merrow','Hallowmere'],
+  rival:['King Harun','Queen Ysolde','King Osric'], thing:['a bigger wall','a second market','a proper bathhouse','a bell tower','more wells'],
+  taste:['of copper','of dust','sweeter than usual','of rain'], item:['a whole wheel of cheese','my best goat','three good spoons','the miller’s hat'],
+  building:['tavern','granary','market','shrine','barracks'], season:['the rains','winter','harvest'], feast:['feast','festival','wedding'],
+  villager:FOLK_NAMES, villager2:FOLK_NAMES,
+  ballad:['The bards sing of how #deed#.','A new verse tells how #deed#.','In the tavern they already sing of how #deed#.'],
+  deed:['the keep stood while the sky burned red','#villager# chased a raider off with a ladle','the walls drank the rain and did not fall','the hero held the gate alone','the arrows fell like a sandstorm on the raiders'],
+  warlord:['#wfirst# the #wep#','#wfirst# #wep2#'], wfirst:['Kharzul','Mordak','Zerath','Ulgren','Sabra','Vesh','Grakka','Teshur','Ravka','Dun Morl','Azkar','Hessa'],
+  wep:['Flayer','Red','Unbowed','Sand-Eater','Grinning','Twice-Hanged','Hollow','Ash-Born','Many-Scarred'], wep2:['Bonebreaker','Wellpoisoner','Gatecrusher','Skullhoarder'],
+  letter:['A rider arrives in #wax# livery with a sealed letter.','The letter is sealed in #wax# wax and smells of #scent#.','A herald clears his throat and unrolls a long scroll.'],
+  wax:['crimson','blue','green','black','gold'], scent:['incense','smoke','sea salt','roses']},
+ es:{
+  chatter:['#opener# #topic#','#topic.capitalize#','#opener# #wish#'],
+  opener:['¿Te has enterado?','Entre tú y yo,','Mi primo jura que','En el mercado dicen que','Sinceramente,','Hazme caso:'],
+  topic:['han vuelto a ver #beast# más allá de #place#.','#rival# está construyendo #thing#. Como si eso fuera a servir.','el agua del pozo sabe #taste# hoy.','alguien robó #item# de #building#.','#building# necesita un tejado nuevo antes de #season#.','#villager# está enamorado de #villager2#. Lo sabe todo el mundo.','vi al héroe afilar la espada tres veces esta mañana.','las caravanas dicen que los caminos a #city# están llenos de bandidos.'],
+  wish:['ojalá tengamos #thing# pronto.','una #feast# nos animaría a todos.','cambiaría #item# por una noche tranquila.'],
+  beast:['un camello de tres patas','una manada de chacales','un lagarto gigante','el viejo buitre blanco','una cabra del tamaño de un caballo'],
+  place:['las salinas','la meseta roja','el pozo seco','la torre rota','la boca del cañón'], city:['Qadir','Merrow','Hallowmere'],
+  rival:['el rey Harun','la reina Ysolde','el rey Osric'], thing:['una muralla más grande','un segundo mercado','unos baños como es debido','un campanario','más pozos'],
+  taste:['a cobre','a polvo','más dulce que nunca','a lluvia'], item:['un queso entero','mi mejor cabra','tres cucharas buenas','el sombrero del molinero'],
+  building:['la taberna','el granero','el mercado','el santuario','el cuartel'], season:['las lluvias','el invierno','la cosecha'], feast:['fiesta','feria','boda'],
+  villager:FOLK_NAMES, villager2:FOLK_NAMES,
+  ballad:['Los bardos cantan cómo #deed#.','Un verso nuevo cuenta cómo #deed#.','En la taberna ya cantan cómo #deed#.'],
+  deed:['el castillo resistió mientras el cielo ardía','#villager# espantó a un asaltante con un cucharón','las murallas bebieron la lluvia y no cayeron','el héroe defendió la puerta solo','las flechas cayeron como una tormenta de arena'],
+  warlord:['#wfirst# el #wep#','#wfirst# #wep2#'], wfirst:['Kharzul','Mordak','Zerath','Ulgren','Sabra','Vesh','Grakka','Teshur','Ravka','Dun Morl','Azkar','Hessa'],
+  wep:['Desollador','Rojo','Indoblegable','Comearena','Sonriente','Dos Veces Ahorcado','Hueco','Nacido de Ceniza'], wep2:['Rompehuesos','Envenenapozos','Derribapuertas','Coleccionacráneos'],
+  letter:['Llega un jinete con librea #wax# y una carta sellada.','La carta lleva lacre #wax# y huele a #scent#.','Un heraldo carraspea y desenrolla un largo pergamino.'],
+  wax:['carmesí','azul','verde','negra','dorada'], scent:['incienso','humo','sal marina','rosas']}};
+const TRG={};
+function trace(sym){ try{ if(!window.tracery) return ''; const L=lang==='es'?'es':'en'; if(!TRG[L]){ TRG[L]=tracery.createGrammar(TRX[L]); TRG[L].addModifiers(tracery.baseEngModifiers); } return TRG[L].flatten('#'+sym+'#'); }catch(e){ return ''; } }
+function letterOpener(id){ const t=trace('letter'), p=$('over').querySelector('.card p'); if(t&&p&&!p.previousElementSibling?.classList?.contains('letter')) p.insertAdjacentHTML('beforebegin',`<p class="letter" style="margin:0;font-size:12.5px;color:var(--muted);font-style:italic">${t}</p>`); }
+// ---------- Rough.js: sketch the realm map ----------
+function roughSvg(svg){ if(!svg||!window.rough||svg.dataset.rough) return; svg.dataset.rough=1; const rs=rough.svg(svg); let sd=1;
+  svg.querySelectorAll('path,circle,line').forEach(el=>{ if(el.closest('defs')||el.closest('pattern')) return; const fill=el.getAttribute('fill'); if(fill&&fill.startsWith('url(')) return;
+    const stroke=el.getAttribute('stroke')||'none', sw=+(el.getAttribute('stroke-width')||1), op={roughness:.9,bowing:.8,stroke:stroke==='none'?'none':stroke,strokeWidth:sw,seed:sd++};
+    if(fill&&fill!=='none'){ op.fill=fill; op.fillStyle='solid'; }
+    let n=null; try{ if(el.tagName==='path') n=rs.path(el.getAttribute('d'),op); else if(el.tagName==='circle') n=rs.circle(+el.getAttribute('cx'),+el.getAttribute('cy'),2*+el.getAttribute('r'),op); else n=rs.line(+el.getAttribute('x1'),+el.getAttribute('y1'),+el.getAttribute('x2'),+el.getAttribute('y2'),op); }catch(e){ return; }
+    const opa=el.getAttribute('opacity'); if(opa) n.setAttribute('opacity',opa); el.replaceWith(n); }); }
+// ---------- inkjs: court audiences written in Ink ----------
+const INK={en:{"inkVersion":21,"root":[[["done",{"#n":"g-0"}],null],"done",{"bard":[["#","^speaker: Lysander the Bard","/#","^A lanky man with a lute bows so low his feathered hat sweeps the floor.","\n","^\"Your Majesty! I have sung for sultans and goatherds alike. For a modest purse I will write a song of your reign that will outlive us both.\"","\n","ev","str","^Pay him ten gold for the song","/str","str","^gold","/str",10,{"x()":"can","exArgs":2},"/ev",{"*":".^.c-0","flg":21},"ev","str","^Ask him to sing of your hero instead","/str","/ev",{"*":".^.c-1","flg":20},"ev","str","^Send him away","/str","/ev",{"*":".^.c-2","flg":20},{"c-0":["\n","ev","str","^gold","/str",-10,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",6,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",1,"/ev",{"VAR=":"m_bard","re":true},"^He strums a chord that makes the guards tap their feet. By nightfall the whole valley is humming it.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^renown","/str",3,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",2,"/ev",{"VAR=":"m_bard","re":true},"^\"A hero! Even better. Heroes rhyme with everything.\" He leaves already composing.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev",3,"/ev",{"VAR=":"m_bard","re":true},"^He sweeps his hat back onto his head. \"As you wish. Bards have long memories, Majesty.\"","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["end",null]}],null],"bard_return":[["#","^speaker: Lysander the Bard","/#","ev",{"VAR?":"m_bard"},3,"==","/ev",[{"->":".^.b","c":true},{"b":["^ Lysander is back, and he has brought a crowd. He clears his throat meaningfully.",{"->":".^.^.^.10"},null]}],[{"->":".^.b"},{"b":["^Lysander returns, his clothes finer and his lute inlaid with silver.",{"->":".^.^.^.10"},null]}],"nop","\n","ev",{"VAR?":"m_bard"},3,"==","/ev",[{"->":".^.b","c":true},{"b":["^ \"I have written a new song, Majesty. It is called 'The Miser on the Throne'. Shall I perform it?\"",{"->":".^.^.^.19"},null]}],[{"->":".^.b"},{"b":["^\"Your song is sung from Merrow to Qadir! Kings ask who this ruler is. I came back to thank you.\"",{"->":".^.^.^.19"},null]}],"nop","\n","ev","str","^Pay him to sing something else","/str",{"VAR?":"m_bard"},3,"==","str","^gold","/str",15,{"x()":"can","exArgs":2},"&&","/ev",{"*":".^.c-0","flg":21},"ev","str","^Let him sing","/str",{"VAR?":"m_bard"},3,"==","/ev",{"*":".^.c-1","flg":21},"ev","str","^Welcome him as an old friend","/str",{"VAR?":"m_bard"},3,"!=","/ev",{"*":".^.c-2","flg":21},{"c-0":["\n","ev","str","^gold","/str",-15,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",3,{"x()":"gain","exArgs":2},"pop","/ev","\n","^He bows. \"A change of key, then.\" The new song is about the weather. Everyone is relieved.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^mood","/str",-5,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^renown","/str",-3,{"x()":"gain","exArgs":2},"pop","/ev","\n","^The verses are clever and cruel. The children learn them first.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev","str","^renown","/str",5,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^all","/str",3,{"x()":"rel","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",4,{"x()":"gain","exArgs":2},"pop","/ev","\n","^He plays late into the night. Foreign envoys write the words down.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["ev",9,"/ev",{"VAR=":"m_bard","re":true},["end",{"#n":"g-1"}],null]}],null],"noble":[["#","^speaker: Lady Varenne","/#","^A noblewoman in dusty silks stands beside a farmer clutching his cap.","\n","^\"This man plows land my grandfather held. I want it back, with the harvest he took from it.\"","\n","^The farmer says nothing. His hands are shaking.","\n","ev","str","^Side with Lady Varenne","/str","/ev",{"*":".^.c-0","flg":20},"ev","str","^Side with the farmer","/str","/ev",{"*":".^.c-1","flg":20},"ev","str","^Split the field between them","/str","/ev",{"*":".^.c-2","flg":20},{"c-0":["\n","ev","str","^gold","/str",15,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",-5,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",1,"/ev",{"VAR=":"m_noble","re":true},"^She presses a purse into your steward's hand. \"A wise judgment, Majesty. I will remember it.\" The farmer walks out without a word.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^mood","/str",6,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",2,"/ev",{"VAR=":"m_noble","re":true},"^The hall murmurs approval. Lady Varenne's smile does not reach her eyes. \"Of course, Majesty.\"","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev","str","^mood","/str",2,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^gold","/str",5,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",3,"/ev",{"VAR=":"m_noble","re":true},"^Neither is happy. Both bow. That is usually how you know it was fair.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["end",null]}],null],"noble_return":[["#","^speaker: Lady Varenne","/#","ev",{"VAR?":"m_noble"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ Lady Varenne returns with armed riders at her back, all wearing your colors.",{"->":".^.^.^.10"},null]}],[{"->":".^.b"},{"b":["^Lady Varenne returns. She is not smiling at all now.",{"->":".^.^.^.10"},null]}],"nop","\n","ev",{"VAR?":"m_noble"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ \"You stood by my house. My house will stand by you. Take this, for your walls.\"",{"->":".^.^.^.19"},null]}],[{"->":".^.b"},{"b":["^\"Word has reached me that you favor peasants over blood. Some of my cousins would pay well to see your keep burn.\"",{"->":".^.^.^.19"},null]}],"nop","\n","ev","str","^Accept her gift","/str",{"VAR?":"m_noble"},1,"==","/ev",{"*":".^.c-0","flg":21},"ev","str","^Buy her silence","/str",{"VAR?":"m_noble"},2,"==","str","^gold","/str",12,{"x()":"can","exArgs":2},"&&","/ev",{"*":".^.c-1","flg":21},"ev","str","^Have her escorted out","/str",{"VAR?":"m_noble"},2,"==","/ev",{"*":".^.c-2","flg":21},"ev","str","^Hear her new complaint","/str",{"VAR?":"m_noble"},3,"==","/ev",{"*":".^.c-3","flg":21},{"c-0":["\n","ev","str","^gold","/str",20,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^renown","/str",3,{"x()":"gain","exArgs":2},"pop","/ev","\n","^Twenty gold and a new friend at court.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^gold","/str",-12,{"x()":"gain","exArgs":2},"pop","/ev","\n","^She weighs the purse. \"Cousins can be persuaded.\"","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev","str","^renown","/str",4,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",3,{"x()":"gain","exArgs":2},"pop","/ev","\n","^The guards are glad to do it. Tonight the farmers drink to your name.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-3":["\n","ev","str","^gold","/str",6,{"x()":"gain","exArgs":2},"pop","/ev","\n","^She has found another field to argue over. You charge a fee for the hearing.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["ev",9,"/ev",{"VAR=":"m_noble","re":true},["end",{"#n":"g-1"}],null]}],null],"prophet":[["#","^speaker: The Prophet of the Dunes","/#","^An old man wrapped in sun-bleached cloth stares past you at something no one else can see.","\n","^\"The sand speaks to me, crowned one. It says the moon will bleed, and the wells will taste of salt, unless the valley gives back to the desert.\"","\n","ev","str","^Leave eight food at the desert's edge","/str","str","^food","/str",8,{"x()":"can","exArgs":2},"/ev",{"*":".^.c-0","flg":21},"ev","str","^Ask what he wants for himself","/str","/ev",{"*":".^.c-1","flg":20},"ev","str","^Have him thrown out","/str","/ev",{"*":".^.c-2","flg":20},{"c-0":["\n","ev","str","^food","/str",-8,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",4,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",1,"/ev",{"VAR=":"m_prophet","re":true},"^The villagers watch you do it. They sleep easier tonight, whatever the moon does.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","^He laughs until he coughs. \"Nothing. That is the point.\"","\n","ev",2,"/ev",{"VAR=":"m_prophet","re":true},"ev","str","^renown","/str",1,{"x()":"gain","exArgs":2},"pop","/ev","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev",3,"/ev",{"VAR=":"m_prophet","re":true},"ev","str","^mood","/str",-3,{"x()":"gain","exArgs":2},"pop","/ev","\n","^He goes without a struggle, muttering about salt.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["end",null]}],null],"prophet_return":[["#","^speaker: The Prophet of the Dunes","/#","ev",{"VAR?":"m_prophet"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ The old man is back. This time he carries a forked stick.",{"->":".^.^.^.10"},null]}],[{"->":".^.b"},{"b":["^The old man returns, thinner than before.",{"->":".^.^.^.10"},null]}],"nop","\n","ev",{"VAR?":"m_prophet"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ \"The desert remembers its friends. I have walked your valley. There is water under the third palm from the well.\"",{"->":".^.^.^.19"},null]}],[{"->":".^.b"},{"b":["^\"The wells will taste of salt. I did warn you.\"",{"->":".^.^.^.19"},null]}],"nop","\n","ev","str","^Dig where he points","/str",{"VAR?":"m_prophet"},1,"==","/ev",{"*":".^.c-0","flg":21},"ev","str","^Ask how to undo it","/str",{"VAR?":"m_prophet"},1,"!=","/ev",{"*":".^.c-1","flg":21},{"c-0":["\n","ev","str","^food","/str",18,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",3,{"x()":"gain","exArgs":2},"pop","/ev","\n","^Sweet water, enough for new fields. The villagers call it the Prophet's Spring.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^food","/str",-6,{"x()":"gain","exArgs":2},"pop","/ev","\n","^\"Give, and keep giving.\" He takes a loaf on his way out.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["ev",9,"/ev",{"VAR=":"m_prophet","re":true},["end",{"#n":"g-1"}],null]}],null],"smuggler":[["#","^speaker: Qadim the Salt Runner","/#","^A sunburned man with too many rings slides a sack across the floor. It is full of salt.","\n","^\"No taxes, no questions, Majesty. Ten measures for fifteen gold. Half the market price, and the market never needs to know.\"","\n","ev","str","^Buy the salt","/str","str","^gold","/str",15,{"x()":"can","exArgs":2},"/ev",{"*":".^.c-0","flg":21},"ev","str","^Arrest him","/str","/ev",{"*":".^.c-1","flg":20},"ev","str","^Tell him to try the market like everyone else","/str","/ev",{"*":".^.c-2","flg":20},{"c-0":["\n","ev","str","^gold","/str",-15,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^salt","/str",10,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",1,"/ev",{"VAR=":"m_smuggler","re":true},"^The sack vanishes into your stores. Qadim winks. \"Pleasure doing business.\"","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^renown","/str",3,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^salt","/str",4,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",2,"/ev",{"VAR=":"m_smuggler","re":true},"^The guards seize what he carried. The honest salt merchants send their thanks.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev",3,"/ev",{"VAR=":"m_smuggler","re":true},"^He shrugs. \"Markets are for people who like paying.\"","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["end",null]}],null],"smuggler_return":[["#","^speaker: Qadim the Salt Runner","/#","ev",{"VAR?":"m_smuggler"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ Qadim is back, all smiles, with two sacks this time.",{"->":".^.^.^.10"},null]}],[{"->":".^.b"},{"b":["^A cart pulls up with a cracked axle and a familiar face behind it.",{"->":".^.^.^.10"},null]}],"nop","\n","ev",{"VAR?":"m_smuggler"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ \"My best customer! But a little bird tells me the guild is asking where your salt came from. Another deal, and I forget your name.\"",{"->":".^.^.^.19"},null]}],[{"->":".^.b"},{"b":["^\"No hard feelings, Majesty. I have reformed. Mostly. Spices, honestly taxed.\"",{"->":".^.^.^.19"},null]}],"nop","\n","ev","str","^Pay for his silence","/str",{"VAR?":"m_smuggler"},1,"==","str","^gold","/str",10,{"x()":"can","exArgs":2},"&&","/ev",{"*":".^.c-0","flg":21},"ev","str","^Refuse and let the guild talk","/str",{"VAR?":"m_smuggler"},1,"==","/ev",{"*":".^.c-1","flg":21},"ev","str","^Buy his honest spices","/str",{"VAR?":"m_smuggler"},1,"!=","/ev",{"*":".^.c-2","flg":21},{"c-0":["\n","ev","str","^gold","/str",-10,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^salt","/str",6,{"x()":"gain","exArgs":2},"pop","/ev","\n","^He throws in a little extra salt. Silence, it turns out, is salty.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^renown","/str",-4,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",2,{"x()":"gain","exArgs":2},"pop","/ev","\n","^The gossip stings, but the villagers like a ruler who won't be squeezed.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev","str","^gold","/str",-4,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",5,{"x()":"gain","exArgs":2},"pop","/ev","\n","^The market smells of cumin for a week.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["ev",9,"/ev",{"VAR=":"m_smuggler","re":true},["end",{"#n":"g-1"}],null]}],null],"scholar":[["#","^speaker: Ibn Tariq the Astronomer","/#","^A young scholar unrolls a star chart across your table, pinning it with your own goblets.","\n","^\"With a proper tower and twenty gold for lenses, I could chart the caravan stars. Your merchants would never lose their way again.\"","\n","ev","str","^Fund the observatory","/str","str","^gold","/str",20,{"x()":"can","exArgs":2},"/ev",{"*":".^.c-0","flg":21},"ev","str","^Ask him to teach the children instead","/str","/ev",{"*":".^.c-1","flg":20},"ev","str","^Not now","/str","/ev",{"*":".^.c-2","flg":20},{"c-0":["\n","ev","str","^gold","/str",-20,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",1,"/ev",{"VAR=":"m_scholar","re":true},"^He nearly knocks over the goblets in his excitement.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^mood","/str",4,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",2,"/ev",{"VAR=":"m_scholar","re":true},"^He looks disappointed, then delighted. Children ask better questions than kings.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev",3,"/ev",{"VAR=":"m_scholar","re":true},"^He rolls up the chart carefully. \"The stars will wait. They are good at it.\"","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["end",null]}],null],"scholar_return":[["#","^speaker: Ibn Tariq the Astronomer","/#","ev",{"VAR?":"m_scholar"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ Ibn Tariq arrives with a bound book of charts and a merchant guildmaster in tow.",{"->":".^.^.^.10"},null]}],[{"->":".^.b"},{"b":["^Ibn Tariq is back, ink on his fingers.",{"->":".^.^.^.10"},null]}],"nop","\n","ev",{"VAR?":"m_scholar"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ \"The caravan stars, all of them. The guild wants copies. I told them to ask you.\"",{"->":".^.^.^.19"},null]}],[{"->":".^.b"},{"b":["^\"I found a patron in Merrow. I wanted you to hear it from me.\"",{"->":".^.^.^.19"},null]}],"nop","\n","ev","str","^Sell copies to the guild","/str",{"VAR?":"m_scholar"},1,"==","/ev",{"*":".^.c-0","flg":21},"ev","str","^Give the charts away freely","/str",{"VAR?":"m_scholar"},1,"==","/ev",{"*":".^.c-1","flg":21},"ev","str","^Wish him well","/str",{"VAR?":"m_scholar"},1,"!=","/ev",{"*":".^.c-2","flg":21},{"c-0":["\n","ev","str","^gold","/str",35,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^renown","/str",4,{"x()":"gain","exArgs":2},"pop","/ev","\n","^The guildmaster pays without haggling, which worries everyone.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^renown","/str",8,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^all","/str",4,{"x()":"rel","exArgs":2},"pop","/ev","\n","^Every crown in Ashkara now navigates by your stars.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev","str","^all","/str",1,{"x()":"rel","exArgs":2},"pop","/ev","\n","^He bows. \"I will name a star after your keep. A small one.\"","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["ev",9,"/ev",{"VAR=":"m_scholar","re":true},["end",{"#n":"g-1"}],null]}],null],"orphans":[["#","^speaker: Sister Maren","/#","^A tired woman leads six children into the hall. Their clothes smell of smoke.","\n","^\"Raiders burned our village by the salt flats. We walked three days. Please, Majesty. They can work, or they will, soon.\"","\n","ev","str","^Take them in","/str","str","^food","/str",10,{"x()":"can","exArgs":2},"/ev",{"*":".^.c-0","flg":21},"ev","str","^Give them bread for the road","/str","/ev",{"*":".^.c-1","flg":20},"ev","str","^Turn them away","/str","/ev",{"*":".^.c-2","flg":20},{"c-0":["\n","ev","str","^food","/str",-10,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",6,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^pop","/str",1,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",1,"/ev",{"VAR=":"m_orphans","re":true},"^The cook adopts all six on the spot. Sister Maren stays to help.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^food","/str",-3,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",2,"/ev",{"VAR=":"m_orphans","re":true},"^They thank you and walk on toward Hallowmere.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev","str","^mood","/str",-6,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",3,"/ev",{"VAR=":"m_orphans","re":true},"^The hall is very quiet after they leave.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["end",null]}],null],"envoy":[["#","^speaker: A hooded envoy","/#","^A visitor arrives after dark and lowers a hood. Under it is the seal of ","ev",{"VAR?":"king"},"out","/ev","^.","\n","^\"My master does not trust ","ev",{"VAR?":"rival"},"out","/ev","^, and neither should you. A quiet understanding between our crowns would profit us both. No one need know.\"","\n","ev","str","^Agree to the secret pact","/str","/ev",{"*":".^.c-0","flg":20},"ev","str","^Expose the envoy at court","/str","/ev",{"*":".^.c-1","flg":20},"ev","str","^Send him home with no answer","/str","/ev",{"*":".^.c-2","flg":20},{"c-0":["\n","ev","str","^king","/str",12,{"x()":"rel","exArgs":2},"pop","/ev","\n","ev","str","^rival","/str",-6,{"x()":"rel","exArgs":2},"pop","/ev","\n","ev",1,"/ev",{"VAR=":"m_envoy","re":true},"^The envoy leaves before dawn. A purse of goodwill follows within the week.","\n","ev","str","^gold","/str",10,{"x()":"gain","exArgs":2},"pop","/ev","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^king","/str",-12,{"x()":"rel","exArgs":2},"pop","/ev","\n","ev","str","^rival","/str",8,{"x()":"rel","exArgs":2},"pop","/ev","\n","ev","str","^renown","/str",4,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",2,"/ev",{"VAR=":"m_envoy","re":true},"^The court gasps. ","ev",{"VAR?":"rival"},"out","/ev","^ will hear of your honesty. ","ev",{"VAR?":"king"},"out","/ev","^ will hear of it too.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev",3,"/ev",{"VAR=":"m_envoy","re":true},"^\"Silence is also an answer,\" he says, and goes.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["end",null]}],null],"global decl":["ev","str","^Harun","/str",{"VAR=":"king"},"str","^Osric","/str",{"VAR=":"rival"},1,{"VAR=":"day"},0,{"VAR=":"m_bard"},0,{"VAR=":"m_noble"},0,{"VAR=":"m_prophet"},0,{"VAR=":"m_smuggler"},0,{"VAR=":"m_scholar"},0,{"VAR=":"m_orphans"},0,{"VAR=":"m_envoy"},"/ev","end",null]}],"listDefs":{}},es:{"inkVersion":21,"root":[[["done",{"#n":"g-0"}],null],"done",{"bard":[["#","^speaker: Lisandro el Bardo","/#","^Un hombre larguirucho con un laúd se inclina tanto que su sombrero de plumas barre el suelo.","\n","^\"¡Majestad! He cantado para sultanes y para cabreros. Por una bolsa modesta compondré una canción de vuestro reinado que nos sobrevivirá a ambos.\"","\n","ev","str","^Pagarle diez de oro por la canción","/str","str","^gold","/str",10,{"x()":"can","exArgs":2},"/ev",{"*":".^.c-0","flg":21},"ev","str","^Pedirle que cante a tu héroe","/str","/ev",{"*":".^.c-1","flg":20},"ev","str","^Despedirlo","/str","/ev",{"*":".^.c-2","flg":20},{"c-0":["\n","ev","str","^gold","/str",-10,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",6,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",1,"/ev",{"VAR=":"m_bard","re":true},"^Rasga un acorde que hace que los guardias marquen el ritmo. Al caer la noche, todo el valle la tararea.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^renown","/str",3,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",2,"/ev",{"VAR=":"m_bard","re":true},"^\"¡Un héroe! Aún mejor. Los héroes riman con todo.\" Se marcha componiendo.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev",3,"/ev",{"VAR=":"m_bard","re":true},"^Vuelve a ponerse el sombrero. \"Como deseéis. Los bardos tenemos buena memoria, Majestad.\"","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["end",null]}],null],"bard_return":[["#","^speaker: Lisandro el Bardo","/#","ev",{"VAR?":"m_bard"},3,"==","/ev",[{"->":".^.b","c":true},{"b":["^ Lisandro ha vuelto, y trae público. Carraspea con intención.",{"->":".^.^.^.10"},null]}],[{"->":".^.b"},{"b":["^Lisandro regresa con ropas más finas y un laúd con incrustaciones de plata.",{"->":".^.^.^.10"},null]}],"nop","\n","ev",{"VAR?":"m_bard"},3,"==","/ev",[{"->":".^.b","c":true},{"b":["^ \"He compuesto una canción nueva, Majestad. Se llama 'El avaro del trono'. ¿La interpreto?\"",{"->":".^.^.^.19"},null]}],[{"->":".^.b"},{"b":["^\"¡Vuestra canción se canta de Merrow a Qadir! Los reyes preguntan quién es este monarca. He vuelto a daros las gracias.\"",{"->":".^.^.^.19"},null]}],"nop","\n","ev","str","^Pagarle para que cante otra cosa","/str",{"VAR?":"m_bard"},3,"==","str","^gold","/str",15,{"x()":"can","exArgs":2},"&&","/ev",{"*":".^.c-0","flg":21},"ev","str","^Dejarle cantar","/str",{"VAR?":"m_bard"},3,"==","/ev",{"*":".^.c-1","flg":21},"ev","str","^Recibirlo como a un viejo amigo","/str",{"VAR?":"m_bard"},3,"!=","/ev",{"*":".^.c-2","flg":21},{"c-0":["\n","ev","str","^gold","/str",-15,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",3,{"x()":"gain","exArgs":2},"pop","/ev","\n","^Hace una reverencia. \"Cambiemos de tono, entonces.\" La nueva canción trata del tiempo. Todos respiran aliviados.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^mood","/str",-5,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^renown","/str",-3,{"x()":"gain","exArgs":2},"pop","/ev","\n","^Los versos son ingeniosos y crueles. Los niños los aprenden primero.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev","str","^renown","/str",5,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^all","/str",3,{"x()":"rel","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",4,{"x()":"gain","exArgs":2},"pop","/ev","\n","^Toca hasta bien entrada la noche. Los enviados extranjeros apuntan la letra.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["ev",9,"/ev",{"VAR=":"m_bard","re":true},["end",{"#n":"g-1"}],null]}],null],"noble":[["#","^speaker: Dama Varenne","/#","^Una noble con sedas polvorientas está junto a un campesino que estruja su gorra.","\n","^\"Este hombre ara tierras que fueron de mi abuelo. Las quiero de vuelta, con la cosecha que sacó de ellas.\"","\n","^El campesino no dice nada. Le tiemblan las manos.","\n","ev","str","^Dar la razón a Dama Varenne","/str","/ev",{"*":".^.c-0","flg":20},"ev","str","^Dar la razón al campesino","/str","/ev",{"*":".^.c-1","flg":20},"ev","str","^Repartir el campo entre los dos","/str","/ev",{"*":".^.c-2","flg":20},{"c-0":["\n","ev","str","^gold","/str",15,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",-5,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",1,"/ev",{"VAR=":"m_noble","re":true},"^Deja una bolsa en manos de tu mayordomo. \"Un juicio sabio, Majestad. Lo recordaré.\" El campesino se va sin decir palabra.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^mood","/str",6,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",2,"/ev",{"VAR=":"m_noble","re":true},"^La sala murmura con aprobación. La sonrisa de Dama Varenne no llega a sus ojos. \"Por supuesto, Majestad.\"","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev","str","^mood","/str",2,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^gold","/str",5,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",3,"/ev",{"VAR=":"m_noble","re":true},"^Ninguno queda contento. Ambos se inclinan. Así suele saberse que fue justo.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["end",null]}],null],"noble_return":[["#","^speaker: Dama Varenne","/#","ev",{"VAR?":"m_noble"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ Dama Varenne vuelve con jinetes armados a su espalda, todos con tus colores.",{"->":".^.^.^.10"},null]}],[{"->":".^.b"},{"b":["^Dama Varenne vuelve. Ahora no sonríe en absoluto.",{"->":".^.^.^.10"},null]}],"nop","\n","ev",{"VAR?":"m_noble"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ \"Defendisteis a mi casa. Mi casa os defenderá. Tomad esto, para vuestras murallas.\"",{"->":".^.^.^.19"},null]}],[{"->":".^.b"},{"b":["^\"Me han dicho que preferís a los campesinos antes que a la sangre noble. Algunos de mis primos pagarían bien por ver arder vuestro castillo.\"",{"->":".^.^.^.19"},null]}],"nop","\n","ev","str","^Aceptar su regalo","/str",{"VAR?":"m_noble"},1,"==","/ev",{"*":".^.c-0","flg":21},"ev","str","^Comprar su silencio","/str",{"VAR?":"m_noble"},2,"==","str","^gold","/str",12,{"x()":"can","exArgs":2},"&&","/ev",{"*":".^.c-1","flg":21},"ev","str","^Hacer que la escolten fuera","/str",{"VAR?":"m_noble"},2,"==","/ev",{"*":".^.c-2","flg":21},"ev","str","^Escuchar su nueva queja","/str",{"VAR?":"m_noble"},3,"==","/ev",{"*":".^.c-3","flg":21},{"c-0":["\n","ev","str","^gold","/str",20,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^renown","/str",3,{"x()":"gain","exArgs":2},"pop","/ev","\n","^Veinte de oro y una nueva amiga en la corte.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^gold","/str",-12,{"x()":"gain","exArgs":2},"pop","/ev","\n","^Sopesa la bolsa. \"A los primos se les puede persuadir.\"","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev","str","^renown","/str",4,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",3,{"x()":"gain","exArgs":2},"pop","/ev","\n","^Los guardias lo hacen con gusto. Esta noche los campesinos brindan por tu nombre.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-3":["\n","ev","str","^gold","/str",6,{"x()":"gain","exArgs":2},"pop","/ev","\n","^Ha encontrado otro campo por el que pleitear. Cobras una tasa por la audiencia.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["ev",9,"/ev",{"VAR=":"m_noble","re":true},["end",{"#n":"g-1"}],null]}],null],"prophet":[["#","^speaker: El Profeta de las Dunas","/#","^Un anciano envuelto en tela blanqueada por el sol mira más allá de ti, a algo que nadie más ve.","\n","^\"La arena me habla, coronado. Dice que la luna sangrará y que los pozos sabrán a sal, a menos que el valle devuelva algo al desierto.\"","\n","ev","str","^Dejar ocho de comida en el borde del desierto","/str","str","^food","/str",8,{"x()":"can","exArgs":2},"/ev",{"*":".^.c-0","flg":21},"ev","str","^Preguntarle qué quiere para sí","/str","/ev",{"*":".^.c-1","flg":20},"ev","str","^Hacer que lo echen","/str","/ev",{"*":".^.c-2","flg":20},{"c-0":["\n","ev","str","^food","/str",-8,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",4,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",1,"/ev",{"VAR=":"m_prophet","re":true},"^Los aldeanos te ven hacerlo. Esta noche duermen más tranquilos, haga lo que haga la luna.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","^Se ríe hasta toser. \"Nada. De eso se trata.\"","\n","ev",2,"/ev",{"VAR=":"m_prophet","re":true},"ev","str","^renown","/str",1,{"x()":"gain","exArgs":2},"pop","/ev","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev",3,"/ev",{"VAR=":"m_prophet","re":true},"ev","str","^mood","/str",-3,{"x()":"gain","exArgs":2},"pop","/ev","\n","^Se marcha sin resistirse, murmurando sobre la sal.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["end",null]}],null],"prophet_return":[["#","^speaker: El Profeta de las Dunas","/#","ev",{"VAR?":"m_prophet"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ El anciano ha vuelto. Esta vez trae una vara ahorquillada.",{"->":".^.^.^.10"},null]}],[{"->":".^.b"},{"b":["^El anciano regresa, más delgado que antes.",{"->":".^.^.^.10"},null]}],"nop","\n","ev",{"VAR?":"m_prophet"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ \"El desierto recuerda a sus amigos. He recorrido vuestro valle. Hay agua bajo la tercera palmera desde el pozo.\"",{"->":".^.^.^.19"},null]}],[{"->":".^.b"},{"b":["^\"Los pozos sabrán a sal. Ya os lo advertí.\"",{"->":".^.^.^.19"},null]}],"nop","\n","ev","str","^Cavar donde señala","/str",{"VAR?":"m_prophet"},1,"==","/ev",{"*":".^.c-0","flg":21},"ev","str","^Preguntar cómo deshacerlo","/str",{"VAR?":"m_prophet"},1,"!=","/ev",{"*":".^.c-1","flg":21},{"c-0":["\n","ev","str","^food","/str",18,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",3,{"x()":"gain","exArgs":2},"pop","/ev","\n","^Agua dulce, suficiente para nuevos campos. Los aldeanos la llaman la Fuente del Profeta.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^food","/str",-6,{"x()":"gain","exArgs":2},"pop","/ev","\n","^\"Dad, y seguid dando.\" Se lleva una hogaza al salir.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["ev",9,"/ev",{"VAR=":"m_prophet","re":true},["end",{"#n":"g-1"}],null]}],null],"smuggler":[["#","^speaker: Qadim el Contrabandista","/#","^Un hombre quemado por el sol y con demasiados anillos desliza un saco por el suelo. Está lleno de sal.","\n","^\"Sin impuestos ni preguntas, Majestad. Diez medidas por quince de oro. La mitad del precio del mercado, y el mercado no tiene por qué enterarse.\"","\n","ev","str","^Comprar la sal","/str","str","^gold","/str",15,{"x()":"can","exArgs":2},"/ev",{"*":".^.c-0","flg":21},"ev","str","^Arrestarlo","/str","/ev",{"*":".^.c-1","flg":20},"ev","str","^Decirle que pruebe en el mercado como todos","/str","/ev",{"*":".^.c-2","flg":20},{"c-0":["\n","ev","str","^gold","/str",-15,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^salt","/str",10,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",1,"/ev",{"VAR=":"m_smuggler","re":true},"^El saco desaparece en tus almacenes. Qadim guiña un ojo. \"Un placer hacer negocios.\"","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^renown","/str",3,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^salt","/str",4,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",2,"/ev",{"VAR=":"m_smuggler","re":true},"^Los guardias requisan lo que llevaba. Los salineros honrados te dan las gracias.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev",3,"/ev",{"VAR=":"m_smuggler","re":true},"^Se encoge de hombros. \"Los mercados son para quien disfruta pagando.\"","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["end",null]}],null],"smuggler_return":[["#","^speaker: Qadim el Contrabandista","/#","ev",{"VAR?":"m_smuggler"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ Qadim ha vuelto, todo sonrisas, esta vez con dos sacos.",{"->":".^.^.^.10"},null]}],[{"->":".^.b"},{"b":["^Llega un carro con el eje roto y una cara conocida detrás.",{"->":".^.^.^.10"},null]}],"nop","\n","ev",{"VAR?":"m_smuggler"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ \"¡Mi mejor cliente! Pero un pajarito me dice que el gremio pregunta de dónde salió vuestra sal. Otro trato y olvido vuestro nombre.\"",{"->":".^.^.^.19"},null]}],[{"->":".^.b"},{"b":["^\"Sin rencores, Majestad. Me he reformado. Casi del todo. Especias, con sus impuestos pagados.\"",{"->":".^.^.^.19"},null]}],"nop","\n","ev","str","^Pagar su silencio","/str",{"VAR?":"m_smuggler"},1,"==","str","^gold","/str",10,{"x()":"can","exArgs":2},"&&","/ev",{"*":".^.c-0","flg":21},"ev","str","^Negarse y dejar que el gremio hable","/str",{"VAR?":"m_smuggler"},1,"==","/ev",{"*":".^.c-1","flg":21},"ev","str","^Comprar sus especias honradas","/str",{"VAR?":"m_smuggler"},1,"!=","/ev",{"*":".^.c-2","flg":21},{"c-0":["\n","ev","str","^gold","/str",-10,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^salt","/str",6,{"x()":"gain","exArgs":2},"pop","/ev","\n","^Añade un poco más de sal. El silencio, resulta, es salado.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^renown","/str",-4,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",2,{"x()":"gain","exArgs":2},"pop","/ev","\n","^Los chismes escuecen, pero a los aldeanos les gusta un monarca que no se deja exprimir.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev","str","^gold","/str",-4,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",5,{"x()":"gain","exArgs":2},"pop","/ev","\n","^El mercado huele a comino durante una semana.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["ev",9,"/ev",{"VAR=":"m_smuggler","re":true},["end",{"#n":"g-1"}],null]}],null],"scholar":[["#","^speaker: Ibn Tariq el Astrónomo","/#","^Un joven erudito despliega una carta estelar sobre tu mesa y la sujeta con tus propias copas.","\n","^\"Con una torre adecuada y veinte de oro para lentes, podría cartografiar las estrellas de las caravanas. Vuestros mercaderes nunca volverían a perderse.\"","\n","ev","str","^Financiar el observatorio","/str","str","^gold","/str",20,{"x()":"can","exArgs":2},"/ev",{"*":".^.c-0","flg":21},"ev","str","^Pedirle que enseñe a los niños","/str","/ev",{"*":".^.c-1","flg":20},"ev","str","^Ahora no","/str","/ev",{"*":".^.c-2","flg":20},{"c-0":["\n","ev","str","^gold","/str",-20,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",1,"/ev",{"VAR=":"m_scholar","re":true},"^Casi tira las copas de la emoción.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^mood","/str",4,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",2,"/ev",{"VAR=":"m_scholar","re":true},"^Parece decepcionado, luego encantado. Los niños hacen mejores preguntas que los reyes.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev",3,"/ev",{"VAR=":"m_scholar","re":true},"^Enrolla la carta con cuidado. \"Las estrellas esperarán. Se les da bien.\"","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["end",null]}],null],"scholar_return":[["#","^speaker: Ibn Tariq el Astrónomo","/#","ev",{"VAR?":"m_scholar"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ Ibn Tariq llega con un libro de cartas encuadernado y un maestre del gremio detrás.",{"->":".^.^.^.10"},null]}],[{"->":".^.b"},{"b":["^Ibn Tariq ha vuelto, con tinta en los dedos.",{"->":".^.^.^.10"},null]}],"nop","\n","ev",{"VAR?":"m_scholar"},1,"==","/ev",[{"->":".^.b","c":true},{"b":["^ \"Las estrellas de las caravanas, todas. El gremio quiere copias. Les dije que os preguntaran a vos.\"",{"->":".^.^.^.19"},null]}],[{"->":".^.b"},{"b":["^\"Encontré un mecenas en Merrow. Quería que lo supierais por mí.\"",{"->":".^.^.^.19"},null]}],"nop","\n","ev","str","^Vender copias al gremio","/str",{"VAR?":"m_scholar"},1,"==","/ev",{"*":".^.c-0","flg":21},"ev","str","^Regalar las cartas a todos","/str",{"VAR?":"m_scholar"},1,"==","/ev",{"*":".^.c-1","flg":21},"ev","str","^Desearle suerte","/str",{"VAR?":"m_scholar"},1,"!=","/ev",{"*":".^.c-2","flg":21},{"c-0":["\n","ev","str","^gold","/str",35,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^renown","/str",4,{"x()":"gain","exArgs":2},"pop","/ev","\n","^El maestre paga sin regatear, lo que preocupa a todos.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^renown","/str",8,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^all","/str",4,{"x()":"rel","exArgs":2},"pop","/ev","\n","^Todas las coronas de Ashkara navegan ahora por tus estrellas.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev","str","^all","/str",1,{"x()":"rel","exArgs":2},"pop","/ev","\n","^Hace una reverencia. \"Pondré a una estrella el nombre de vuestro castillo. Una pequeña.\"","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["ev",9,"/ev",{"VAR=":"m_scholar","re":true},["end",{"#n":"g-1"}],null]}],null],"orphans":[["#","^speaker: Hermana Maren","/#","^Una mujer cansada entra en la sala con seis niños. Su ropa huele a humo.","\n","^\"Unos asaltantes quemaron nuestra aldea junto a las salinas. Caminamos tres días. Por favor, Majestad. Pueden trabajar, o podrán pronto.\"","\n","ev","str","^Acogerlos","/str","str","^food","/str",10,{"x()":"can","exArgs":2},"/ev",{"*":".^.c-0","flg":21},"ev","str","^Darles pan para el camino","/str","/ev",{"*":".^.c-1","flg":20},"ev","str","^Rechazarlos","/str","/ev",{"*":".^.c-2","flg":20},{"c-0":["\n","ev","str","^food","/str",-10,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^mood","/str",6,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev","str","^pop","/str",1,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",1,"/ev",{"VAR=":"m_orphans","re":true},"^La cocinera adopta a los seis en el acto. La hermana Maren se queda a ayudar.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^food","/str",-3,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",2,"/ev",{"VAR=":"m_orphans","re":true},"^Te dan las gracias y siguen hacia Hallowmere.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev","str","^mood","/str",-6,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",3,"/ev",{"VAR=":"m_orphans","re":true},"^La sala queda muy callada cuando se van.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["end",null]}],null],"envoy":[["#","^speaker: Un enviado encapuchado","/#","^Un visitante llega de noche y se baja la capucha. Debajo lleva el sello de ","ev",{"VAR?":"king"},"out","/ev","^.","\n","^\"Mi señor no se fía de ","ev",{"VAR?":"rival"},"out","/ev","^, y vos tampoco deberíais. Un acuerdo discreto entre nuestras coronas nos beneficiaría a ambos. Nadie tiene por qué saberlo.\"","\n","ev","str","^Aceptar el pacto secreto","/str","/ev",{"*":".^.c-0","flg":20},"ev","str","^Desenmascarar al enviado ante la corte","/str","/ev",{"*":".^.c-1","flg":20},"ev","str","^Despedirlo sin respuesta","/str","/ev",{"*":".^.c-2","flg":20},{"c-0":["\n","ev","str","^king","/str",12,{"x()":"rel","exArgs":2},"pop","/ev","\n","ev","str","^rival","/str",-6,{"x()":"rel","exArgs":2},"pop","/ev","\n","ev",1,"/ev",{"VAR=":"m_envoy","re":true},"^El enviado se va antes del alba. En una semana llega una bolsa de buena voluntad.","\n","ev","str","^gold","/str",10,{"x()":"gain","exArgs":2},"pop","/ev","\n",{"->":".^.^.g-0"},{"#f":5}],"c-1":["\n","ev","str","^king","/str",-12,{"x()":"rel","exArgs":2},"pop","/ev","\n","ev","str","^rival","/str",8,{"x()":"rel","exArgs":2},"pop","/ev","\n","ev","str","^renown","/str",4,{"x()":"gain","exArgs":2},"pop","/ev","\n","ev",2,"/ev",{"VAR=":"m_envoy","re":true},"^La corte ahoga un grito. ","ev",{"VAR?":"rival"},"out","/ev","^ sabrá de tu honradez. ","ev",{"VAR?":"king"},"out","/ev","^ también.","\n",{"->":".^.^.g-0"},{"#f":5}],"c-2":["\n","ev",3,"/ev",{"VAR=":"m_envoy","re":true},"^\"El silencio también es una respuesta\", dice, y se marcha.","\n",{"->":".^.^.g-0"},{"#f":5}],"g-0":["end",null]}],null],"global decl":["ev","str","^Harun","/str",{"VAR=":"king"},"str","^Osric","/str",{"VAR=":"rival"},1,{"VAR=":"day"},0,{"VAR=":"m_bard"},0,{"VAR=":"m_noble"},0,{"VAR=":"m_prophet"},0,{"VAR=":"m_smuggler"},0,{"VAR=":"m_scholar"},0,{"VAR=":"m_orphans"},0,{"VAR=":"m_envoy"},"/ev","end",null]}],"listDefs":{}}};
+const AUD=[{k:'bard',d:3},{k:'prophet',d:3},{k:'noble',d:4},{k:'orphans',d:4},{k:'smuggler',d:5},{k:'scholar',d:5},{k:'envoy',d:6}];
+const AUD_RET={bard:'bard_return',noble:'noble_return',prophet:'prophet_return',smuggler:'smuggler_return',scholar:'scholar_return'};
+function planAudience(){ const A=S.aud||(S.aud={vars:{},seen:[],at:{},last:0,pend:null}); if(A.pend||S.over||S.day-A.last<3||Math.random()>.6) return;
+  for(const k in AUD_RET){ const v=A.vars['m_'+k]; if(v>=1&&v<=3&&!A.seen.includes(AUD_RET[k])&&S.day-(A.at[k]||0)>=4){ A.pend=AUD_RET[k]; return; } }
+  const c=AUD.filter(a=>!A.seen.includes(a.k)&&S.day>=a.d&&(a.k!=='envoy'||liveKings().length>=2)); if(c.length) A.pend=c[(Math.random()*c.length)|0].k; }
+function audGain(w,n,fx){ n=Math.round(n); if(!n) return;
+  if(w==='mood') S.mood=Math.max(0,Math.min(100,S.mood+n)); else if(w==='renown') addRenown(n); else if(w==='pop') S.pop=Math.max(1,S.pop+n); else S.res[w]=Math.max(0,(S.res[w]||0)+n);
+  fx.push([w==='pop'?'villagers':w,n]); }
+function openAudience(){
+  const A=S.aud, knot=A.pend; if(!knot||!window.inkjs){ return; } let st;
+  try{ st=new inkjs.Story(INK[lang]||INK.en); }catch(e){ A.pend=null; return; }
+  const kings=liveKings(), king=kings[(Math.random()*kings.length)|0]||'harun', rival=kings.find(k=>k!==king)||'osric', fx=[];
+  for(const k in A.vars) try{ st.variablesState[k]=A.vars[k]; }catch(e){}
+  try{ st.variablesState.king=T(KINGS[king].name); st.variablesState.rival=T(KINGS[rival].name); st.variablesState.day=S.day; }catch(e){}
+  st.BindExternalFunction('gain',(w,n)=>{ audGain(w,n,fx); }); st.BindExternalFunction('can',(w,n)=>(w==='mood'?S.mood:(S.res[w]||0))>=n,true);
+  st.BindExternalFunction('rel',(who,n)=>{ const ids=who==='all'?liveKings():[who==='king'?king:rival]; ids.forEach(id=>relShift(id,n)); fx.push([who==='all'?T('all crowns'):kn(who==='king'?king:rival),n,'rel']); });
+  try{ st.ChoosePathString(knot); }catch(e){ A.pend=null; return; }
+  const finish=()=>{ for(const k of ['m_bard','m_noble','m_prophet','m_smuggler','m_scholar','m_orphans','m_envoy']){ try{ A.vars[k]=st.variablesState[k]; }catch(e){} }
+    A.seen.push(knot); A.at[knot.replace('_return','')]=S.day; A.pend=null; A.last=S.day; hideOver(); S.ver++; save(); ui(); };
+  const step=()=>{ const lines=[]; let who='';
+    while(st.canContinue){ const t=st.Continue().trim(); for(const tg of st.currentTags||[]){ const m=/^speaker:\s*(.+)$/.exec(tg); if(m) who=m[1].trim(); } if(t) lines.push(t); }
+    who=who||step.who||T('A visitor at court'); step.who=who;
+    const ch=st.currentChoices, opts=ch.length?ch.map(c=>({label:c.text,fn:()=>{ fx.length=0; st.ChooseChoiceIndex(c.index); step(); }})):[{label:T('End the audience'),primary:true,fn:finish}];
+    showOver(who,'',opts); const card=$('over').querySelector('.card'); card.classList.add('aud');
+    card.querySelector('h2').outerHTML=`<div class="who"><span class="av">${who.replace(/^(the|el|la|un|una|a|lady|dama|sister|hermana)\s+/i,'').charAt(0)}</span><div><small>${T('Court audience')}</small><h2 style="margin:0">${who}</h2></div></div>`;
+    const p=card.querySelector('p'); p.outerHTML=`<div class="lines">${lines.map(l=>`<p class="${/^[“"]/.test(l)?'q':''}">${l.replace(/</g,'&lt;')}</p>`).join('')}</div>${fx.length?`<div class="fx">${fx.map(([w,n,r])=>`<span class="${n>0?'up':'dn'}">${n>0?'+':''}${n} ${r?T('with {{k}}',{k:w}):T(w)}</span>`).join('')}</div>`:''}`;
+    sfx('tap'); renderRes(); };
+  step();
+}
+// ---------- Yuka: goal-driven raider captains ----------
+let YK=null; const BRAIN=new WeakMap();
+function ykKit(){ if(YK) return YK; const Y=window.YUKA; if(!Y||!Y.Think||!Y.GoalEvaluator) return null;
+  class PlanGoal extends Y.Goal{ constructor(o,mode){ super(o); this.mode=mode; } activate(){ setPlan(this.owner.e,this.mode); } execute(){ const p=this.owner.e.plan; this.status=(this.mode==='assault'?!p:p&&p.mode===this.mode)?Y.Goal.STATUS.ACTIVE:Y.Goal.STATUS.COMPLETED; } }
+  class Ev extends Y.GoalEvaluator{ constructor(mode,fn,bias){ super(bias||1); this.mode=mode; this.fn=fn; } calculateDesirability(o){ return this.fn(o.e); }
+    setGoal(o){ const b=o.brain, cur=b.currentSubgoal(); if(!(cur&&cur.mode===this.mode&&cur.status!==Y.Goal.STATUS.COMPLETED)){ b.clearSubgoals(); b.addSubgoal(new PlanGoal(o,this.mode)); } } }
+  return YK={Y,PlanGoal,Ev}; }
+const EVALS={assault:()=>.32,retreat:desRetreat,breach:desBreach,flank:desFlank,rally:desRally};
+function brainOf(e){ let b=BRAIN.get(e); if(b) return b; const k=ykKit();
+  if(k){ const ent=new k.Y.GameEntity(); ent.e=e; ent.brain=new k.Y.Think(ent); for(const m in EVALS) ent.brain.addEvaluator(new k.Ev(m,EVALS[m],e.type==='warlord'&&m==='breach'?1.15:e.type==='captain'&&m==='flank'?1.2:1)); b={ent,t:0}; }
+  else b={ent:null,t:0}; BRAIN.set(e,b); return b; }
+function thinkCaptain(e,dt){ if(e.age<1.2) return; const b=brainOf(e); b.t-=dt; if(b.t>0) return; b.t=.6;
+  if(b.ent){ b.ent.brain.arbitrate(); b.ent.brain.execute(); }
+  else { let best='assault',bv=-1; for(const m in EVALS){ const v=EVALS[m](e); if(v>bv){ bv=v; best=m; } } if(!(e.plan&&e.plan.mode===best)) setPlan(e,best); }
+  if(e.plan&&e.plan.mode==='retreat') e.hp=Math.min(e.max,e.hp+e.max*.04); }
+function capNear(e,r){ let n=0; for(const o of S.enemies) if(o!==e&&!o.gone&&Math.hypot(o.x-e.x,o.y-e.y)<r) n++; return n; }
+function desRetreat(e){ const f=e.hp/e.max; if(e.plan&&e.plan.mode==='retreat') return f<.75?.95:0; return f<.33&&!e.retreated?.9:0; }
+function desBreach(e){ let best=null,bv=0; for(let y=Math.max(0,e.cy-5);y<=Math.min(N-1,e.cy+5);y++)for(let x=Math.max(0,e.cx-5);x<=Math.min(N-1,e.cx+5);x++){ const b=G(x,y).b; if(!b||b.type==='keep'||b.type==='trap'||b.type==='road'||b.type==='farm') continue;
+    const f=b.hp/b.max, d=Math.hypot(x-e.cx,y-e.cy), v=(b.type==='wall'?.3:b.type==='tower'||b.type==='cata'?.25:.1)+(1-f)*.5-d*.03; if(v>bv){ bv=v; best=[x,y]; } }
+  e.cand=best; return best?Math.min(.85,.35+bv):0; }
+function towerCover(x,y){ let n=0; each((b,bx,by)=>{ const w=weapon(b); if(w&&b.type!=='keep'&&Math.hypot(bx-x,by-y)<=w.range+.5) n++; }); return n; }
+function desFlank(e){ if(e.flanked) return 0; const here=towerCover(e.cx,e.cy); if(here<2) return 0; return .62; }
+function desRally(e){ if((e.rallyCd||0)>e.age) return 0; return capNear(e,2.2)>=3?.7:0; }
+function pathField(tx,ty){ const d=new Array(N*N).fill(Infinity), done=new Array(N*N).fill(false); d[idx(tx,ty)]=0;
+  for(;;){ let u=-1,m=Infinity; for(let i=0;i<N*N;i++) if(!done[i]&&d[i]<m){ m=d[i]; u=i; } if(u<0) break; done[u]=true; const ux=u%N, uy=(u/N)|0, tb=S.grid[u].b, en=tb&&u!==idx(tx,ty)?DEF[tb.type].enter:1;
+    for(const [a,b] of NB){ const nx=ux+a, ny=uy+b; if(!inb(nx,ny)) continue; const v=idx(nx,ny); if(!S.grid[v].land) continue; if(d[u]+en<d[v]) d[v]=d[u]+en; } }
+  return d; }
+function setPlan(e,mode){ const say2=t=>floatText(e.x,e.y,t,'#FFB27A');
+  if(mode==='assault'){ e.plan=null; return; }
+  if(mode==='retreat'){ let sp=null,bd=1e9; for(const [x,y] of S.spawns||[]){ const d=Math.hypot(x-e.cx,y-e.cy); if(d<bd){ bd=d; sp=[x,y]; } } if(!sp){ e.plan=null; return; } e.retreated=true; e.plan={mode,tx:sp[0],ty:sp[1],pd:pathField(sp[0],sp[1])}; say2(T('Fall back!')); return; }
+  if(mode==='breach'){ const c=e.cand; if(!c){ e.plan=null; return; } e.plan={mode,tx:c[0],ty:c[1],pd:pathField(c[0],c[1])}; say2(T('Break that wall!')); return; }
+  if(mode==='flank'){ let best=null,bv=1e9; for(let a=0;a<12;a++){ const ang=a/12*6.283, x=Math.round(C+Math.cos(ang)*3.5), y=Math.round(C+Math.sin(ang)*3.5); if(!inb(x,y)||!G(x,y).land||G(x,y).b) continue; const v=towerCover(x,y)*3+Math.hypot(x-e.cx,y-e.cy)*.4; if(v<bv){ bv=v; best=[x,y]; } }
+    e.flanked=true; if(!best){ e.plan=null; return; } e.plan={mode,tx:best[0],ty:best[1],pd:pathField(best[0],best[1])}; say2(T('Around the side!')); return; }
+  if(mode==='rally'){ let n=0; for(const o of S.enemies) if(!o.gone&&o!==e&&Math.hypot(o.x-e.x,o.y-e.y)<2.4){ o.rallyT=6; n++; } e.rallyT=6; e.rallyCd=e.age+12; e.plan={mode:'rally',until:e.age+1.2}; say2(T('With me!')); sfx('horn'); return; } }
+function planStep(e){ const p=e.plan; if(p.mode==='rally'){ if(e.age>p.until) e.plan=null; return null; }
+  if(p.mode==='breach'&&!G(p.tx,p.ty).b){ e.plan=null; return null; }
+  const here=p.pd[idx(e.cx,e.cy)]; if(here<=0||(p.mode!=='breach'&&here<=1&&e.cx===p.tx&&e.cy===p.ty)){ if(p.mode!=='retreat'||e.hp>=e.max*.75) e.plan=null; return null; }
+  let bx=-1,by=-1,bd=here; for(const [a,b] of NB){ const nx=e.cx+a,ny=e.cy+b; if(!inb(nx,ny)) continue; const dv=p.pd[idx(nx,ny)]; if(dv<bd){ bd=dv; bx=nx; by=ny; } }
+  if(bx<0){ e.plan=null; return null; } return [bx,by]; }
+// ---------- PeerJS: two-player co-op ----------
+const NET={role:null,peer:null,conn:null,bc:null,code:null,pings:[],nid:0,liveT:0,fullT:0,fullVer:-1,applying:false,gmap:new Map(),host:''};
+function loadScript(src){ return new Promise((res,rej)=>{ const sc=document.createElement('script'); sc.src=src; sc.onload=res; sc.onerror=rej; document.head.appendChild(sc); }); }
+async function peerReady(){ if(window.Peer) return true; try{ await loadScript('https://cdn.jsdelivr.net/npm/peerjs@1.5.5/dist/peerjs.min.js'); }catch(e){} return !!window.Peer; }
+function netSend(o){ const s=JSON.stringify(o); try{ if(NET.conn&&NET.conn.open) NET.conn.send(s); }catch(e){} try{ if(NET.bc) NET.bc.postMessage(s); }catch(e){} }
+function coopStatus(){ const on=!!NET.role, c=$('cCoop'); c.hidden=!on; const ok=(NET.conn&&NET.conn.open)||NET.bcPeer; $('coopT').textContent=!on?'':!ok?T('Waiting · {{c}}',{c:NET.code||'…'}):NET.role==='host'?T('Co-op host'):T('Co-op guest'); renderCoopBar(); }
+function renderCoopBar(){ const b=$('coopbar'); if(!NET.role){ b.hidden=true; return; } b.hidden=false; const ok=(NET.conn&&NET.conn.open)||NET.bcPeer;
+  b.innerHTML=`<b>${NET.role==='host'?T('You host this kingdom'):T('You are co-ruling a friend’s kingdom')}</b><span style="color:var(--muted)">${ok?(NET.role==='host'?T('Your friend’s taps arrive as build orders and pings.'):T('Your taps send build orders to the host’s hero.')):T('Share code {{c}} with your friend.',{c:NET.code})}</span>
+    <span style="flex:1"></span>${['👍','⚠','🛡','🎉'].map(x=>`<button type="button" data-emo="${x}" ${ok?'':'disabled'}>${x}</button>`).join('')}<button type="button" class="pingb" aria-pressed="${!!NET.pingMode}" ${ok?'':'disabled'}>${T('Ping')}</button><button type="button" data-leave>${T('Leave')}</button>`;
+  b.querySelectorAll('[data-emo]').forEach(x=>x.addEventListener('click',()=>{ netSend({t:'emo',e:x.dataset.emo}); toast(T('You'),x.dataset.emo,'💬'); }));
+  b.querySelector('.pingb').addEventListener('click',()=>{ NET.pingMode=!NET.pingMode; renderCoopBar(); say(NET.pingMode?T('Tap the valley to ping a spot for your friend.'):''); });
+  b.querySelector('[data-leave]').addEventListener('click',leaveCoop); }
+function addPing(x,y,who){ NET.pings.push({x,y,t:clock,who}); if(NET.pings.length>8) NET.pings.shift(); }
+function drawPings(){ for(let i=NET.pings.length-1;i>=0;i--){ const p=NET.pings[i], a=clock-p.t; if(a>3){ NET.pings.splice(i,1); continue; } const [px,py]=scr(W2(p.x),.05,W2(p.y)), col=p.who==='me'?'134,182,255':'199,125,255';
+  for(let k=0;k<2;k++){ const q=((a*1.2+k*.5)%1); hctx.strokeStyle=`rgba(${col},${(1-q)*(1-a/3)})`; hctx.lineWidth=2.5; hctx.beginPath(); hctx.ellipse(px,py,10+q*30,(10+q*30)*.55,0,0,6.29); hctx.stroke(); }
+  hctx.fillStyle=`rgba(${col},${1-a/3})`; hctx.beginPath(); hctx.moveTo(px,py); hctx.lineTo(px-7,py-18); hctx.lineTo(px+7,py-18); hctx.closePath(); hctx.fill(); } }
+function coopDialog(){
+  if(!S||S.over){ say(T('Start or continue a kingdom first.')); return; }
+  const can=typeof RTCPeerConnection!=='undefined';
+  showOver(T('Play together'),T('One player hosts the kingdom and runs the game. A friend joins with a four-letter code and co-rules: their taps send build orders to the hero, they can trade at the market, ping spots on the map and send quick signals.')+(can?'':' '+T('This page cannot open player-to-player connections. Open the web version at smallcrown.netlify.app to play together.')),[
+    {label:T('Host this kingdom'),sub:T('Get a code to share'),primary:true,fn:()=>{ hideOver(); startHost(); }},
+    {label:T('Join a friend'),sub:T('Enter their code'),fn:()=>{ hideOver(); joinDialog(); }},
+    {label:T('Cancel'),fn:()=>hideOver()}]); }
+function joinDialog(){ showOver(T('Join a friend'),T('Enter the four-letter code your friend sees.'),[{label:T('Cancel'),fn:()=>hideOver()}]);
+  const card=$('over').querySelector('.card'), box=document.createElement('div'); box.className='sharebox';
+  box.innerHTML=`<input type="text" maxlength="4" autocapitalize="characters" autocomplete="off" aria-label="${T('Code')}" style="font:600 26px var(--f-num);letter-spacing:.3em;text-align:center;text-transform:uppercase;background:var(--bg);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:8px"><div class="sb"><button type="button" class="pri">${T('Join')}</button></div><small class="err" hidden></small>`;
+  card.insertBefore(box,card.querySelector('.opts')); const inp=box.querySelector('input'); setTimeout(()=>inp.focus(),50);
+  const go=()=>{ const c=inp.value.trim().toUpperCase(); if(!/^[A-Z]{4}$/.test(c)){ const er=box.querySelector('.err'); er.hidden=false; er.textContent=T('Codes are four letters.'); return; } hideOver(); startGuest(c); };
+  box.querySelector('.pri').addEventListener('click',go); inp.addEventListener('keydown',e=>{ if(e.key==='Enter') go(); }); }
+function bcFor(code){ if(!window.__coopBC||typeof BroadcastChannel==='undefined') return null; const bc=new BroadcastChannel('smallcrown-coop-'+code); bc.onmessage=m=>{ if(!NET.bcPeer){ NET.bcPeer=true; coopStatus(); } onNet(m.data); }; return bc; }
+async function startHost(){ leaveCoop(true); NET.role='host'; NET.code=Array.from({length:4},()=>'ABCDEFGHJKLMNPQRSTUVWXYZ'[(Math.random()*23)|0]).join(''); NET.fullVer=-1; coopStatus();
+  NET.bc=bcFor(NET.code);
+  if(!NET.bc){ if(!(await peerReady())||typeof RTCPeerConnection==='undefined'){ say(T('Co-op could not start here. Open the web version at smallcrown.netlify.app to play together.')); leaveCoop(true); return; }
+    try{ NET.peer=new Peer('smallcrown-'+NET.code.toLowerCase()); NET.peer.on('connection',c=>{ if(NET.conn&&NET.conn.open){ c.close(); return; } NET.conn=c; c.on('open',()=>{ NET.fullVer=-1; coopStatus(); toast(T('Co-op'),T('Your friend joined'),'🤝'); }); c.on('data',d=>onNet(d)); c.on('close',()=>{ NET.conn=null; coopStatus(); toast(T('Co-op'),T('Your friend left'),'👋'); }); });
+      NET.peer.on('error',err=>{ say(T('Co-op error: {{e}}',{e:err.type||'network'})); }); }catch(e){ leaveCoop(true); return; } }
+  showOver(T('Your kingdom code'),T('Tell your friend to choose Settings, Play together, Join a friend, and enter:'),[{label:T('Done'),primary:true,fn:()=>hideOver()}]);
+  $('over').querySelector('.card p').insertAdjacentHTML('afterend',`<div class="coopcode">${NET.code}</div>`); }
+async function startGuest(code){ leaveCoop(true); NET.role='guest'; NET.code=code; saveOn=false; coopStatus();
+  NET.bc=bcFor(code); if(NET.bc){ netSend({t:'hello'}); return; }
+  if(!(await peerReady())||typeof RTCPeerConnection==='undefined'){ say(T('Co-op could not start here. Open the web version at smallcrown.netlify.app to play together.')); leaveCoop(); return; }
+  NET.peer=new Peer(); NET.peer.on('open',()=>{ const c=NET.peer.connect('smallcrown-'+code.toLowerCase(),{reliable:true}); NET.conn=c; c.on('open',()=>{ coopStatus(); netSend({t:'hello'}); }); c.on('data',d=>onNet(d)); c.on('close',()=>{ toast(T('Co-op'),T('The host ended the session'),'👋'); leaveCoop(); }); });
+  NET.peer.on('error',err=>{ say(T('Could not reach code {{c}}. Check it and try again.',{c:code})); leaveCoop(); }); }
+function leaveCoop(quiet){ const was=NET.role; try{ NET.conn&&NET.conn.close(); }catch(e){} try{ NET.peer&&NET.peer.destroy(); }catch(e){} try{ NET.bc&&NET.bc.close(); }catch(e){}
+  Object.assign(NET,{role:null,peer:null,conn:null,bc:null,bcPeer:false,pingMode:false}); NET.gmap.clear(); coopStatus();
+  if(was==='guest'&&quiet!==true){ saveOn=true; S=null; newGame(); } }
+function netEnemies(){ return S.enemies.filter(e=>!e.gone).map(e=>{ if(!e.nid) e.nid=++NET.nid; return {n:e.nid,ty:e.type,x:+e.x.toFixed(2),y:+e.y.toFixed(2),d:+(e.dir||0).toFixed(2),hp:e.hp,mx:e.max,m:e.moving?1:0,s:+(e.swing||0).toFixed(2),pl:e.plan&&e.plan.mode||0,pi:e.pirate?1:0,k:e.king||0}; }); }
+function hostTick(raw){ const ok=(NET.conn&&NET.conn.open)||NET.bcPeer; if(!ok) return;
+  NET.fullT-=raw; if(NET.fullT<=0&&(S.ver!==NET.fullVer||NET.fullT<-6)){ NET.fullT=1.5; NET.fullVer=S.ver; netSend({t:'full',d:saveJSON(),ver:S.ver}); }
+  NET.liveT-=raw; if(NET.liveT>0) return; NET.liveT=.1; const h=S.hero;
+  netSend({t:'live',ph:S.phase,day:S.day,cur:S.cur,keep:S.keep,km:S.keepMax,res:S.res,pop:S.pop,mood:S.mood,warName:S.warName||null,fever:S.fever||0,
+    h:h&&{x:+h.x.toFixed(2),y:+h.y.toFixed(2),d:+(h.dir||0).toFixed(2),hp:h.hp,mx:h.max,dead:h.dead?1:0,m:h.moving?1:0,sw:+(h.swing||0).toFixed(2),q:h.queue.map(q=>[q.x,q.y,q.tool||0])},
+    en:netEnemies(),u:S.units.map(u=>({x:+u.x.toFixed(2),y:+u.y.toFixed(2),d:+(u.dir||0).toFixed(2),hp:u.hp,mx:u.max}))}); }
+function onNet(raw){ let m; try{ m=typeof raw==='string'?JSON.parse(raw):raw; }catch(e){ return; } if(!m||!NET.role) return;
+  if(m.t==='emo'){ toast(T('Your friend'),m.e,'💬'); sfx('tap'); return; }
+  if(m.t==='ping'){ addPing(m.x,m.y,'them'); sfx('tap'); return; }
+  if(NET.role==='host'){
+    if(m.t==='hello'){ NET.fullVer=-1; NET.fullT=0; coopStatus(); if(NET.bc) toast(T('Co-op'),T('Your friend joined'),'🤝'); }
+    else if(m.t==='tap'&&inb(m.x,m.y)){ addPing(m.x,m.y,'them'); if(NET.pingModeRemote) return; NET.applying=true; const t0=S.tool; try{ if(m.tool&&(DEF[m.tool]||m.tool==='clear'||m.tool==='ride')) S.tool=m.tool; place(m.x,m.y); }catch(e){} S.tool=t0; NET.applying=false; ui(); }
+    else if(m.t==='trade'){ NET.applying=true; try{ trade(m.r,m.buy); }catch(e){} NET.applying=false; } return; }
+  if(m.t==='full'){ const was=S&&S.cur; if(load(m.d)){ Object.assign(S,{perkPending:0,lootPending:0,demand:null,royalMsg:null,petition:null,trader:null}); if(S.aud) S.aud.pend=null; hideOver(); if(was!==S.cur) camFree=null; ui(); } return; }
+  if(m.t==='live'&&S){ Object.assign(S,{phase:m.ph,day:m.day,keep:m.keep,keepMax:m.km,res:m.res,pop:m.pop,mood:m.mood,warName:m.warName,fever:m.fever,modal:false});
+    const h=S.hero; if(h&&m.h){ h.nx=m.h.x; h.ny=m.h.y; h.dir=m.h.d; h.hp=m.h.hp; h.max=m.h.mx; h.dead=!!m.h.dead; h.moving=!!m.h.m; h.swing=m.h.sw; h.queue=m.h.q.map(([x,y,tool])=>({x,y,tool})); if(h.x==null||Math.hypot(h.x-h.nx,h.y-h.ny)>3){ h.x=h.nx; h.y=h.ny; } }
+    const seen=new Set(); for(const o of m.en){ seen.add(o.n); let e=NET.gmap.get(o.n); if(!e){ e={type:o.ty,x:o.x,y:o.y,cx:Math.round(o.x),cy:Math.round(o.y),tx:o.x,ty:o.y,dir:o.d,hp:o.hp,max:o.mx,moving:!!o.m,swing:o.s,age:1,slow:0,hit:0,pirate:!!o.pi,king:o.k||undefined,lane:0,spd:1}; NET.gmap.set(o.n,e); S.enemies.push(e); }
+      if(o.hp<e.hp) e.hit=.14; Object.assign(e,{nx:o.x,ny:o.y,dir:o.d,hp:o.hp,max:o.mx,moving:!!o.m,swing:o.s,plan:o.pl?{mode:o.pl}:null}); }
+    for(const [n,e] of NET.gmap) if(!seen.has(n)){ e.gone=true; e.died=true; NET.gmap.delete(n); }
+    S.enemies=S.enemies.filter(e=>!e.gone);
+    S.units.forEach((u,i)=>{ const o=m.u[i]; if(o){ u.nx=o.x; u.ny=o.y; u.dir=o.d; u.hp=o.hp; u.max=o.mx; } }); } }
+function guestTick(raw){ const k=Math.min(1,raw*12), mv=o=>{ if(o.nx==null) return; o.x+=(o.nx-o.x)*k; o.y+=(o.ny-o.y)*k; };
+  if(S.hero) mv(S.hero); S.enemies.forEach(mv); S.units.forEach(mv); for(const f of S.floats) f.life-=raw; S.floats=S.floats.filter(f=>f.life>0); clock; }
 let abilKey='';
 function syncAbil(){
   const h=S.hero; if(!h) return;
@@ -4560,7 +4987,7 @@ function render(raw,t){
     camera.lookAt(camera.position.clone().sub(CAM_DIR)); }
   glowMat.opacity=nightA*.6;
   if(!paused) stepBurn(raw,t);
-  syncAmbient(raw,t); syncHud();
+  syncAmbient(raw,t); syncHud(); if(NET.role==='host') hostTick(raw);
   if(quality==='high'||mirK>.01) initBloom();
   const post=!!(composer&&(quality==='high'||mirK>.01)); $('board').classList.toggle('post',post);
   if(post){ bloom.enabled=nightA>.03||mirK>.05; bloom.strength=Math.max(nightA*.75,mirK*.55);
@@ -4569,7 +4996,7 @@ function render(raw,t){
     if(finish){ const U=finish.uniforms; U.tilt.value=reduce?0:(viewNear?Math.min(1,.55+.12*(zoomHH-2.2)):.35); U.warm.value=.32*(1-nightA)+goldK*1.15; U.sat.value=1.1-nightA*.18+goldK*.08; U.vig.value=.3+nightA*.12; }
     composer.render(); }
   else renderer.render(scene,camera);
-  if(!paused) stepFx(raw);
+  if(!paused){ stepFx(raw); stepPhys(raw); }
   const go=(Math.pow(nightA,1.6)*.72).toFixed(2); if(gradeEl.style.opacity!==go) gradeEl.style.opacity=go;
   const gc=S.blood&&S.phase!=='day'?'#9A2030':'#3756B8'; if(gradeEl.dataset.c!==gc){ gradeEl.dataset.c=gc; gradeEl.style.background=gc; }
   drawHud(); drawFolkHud(); drawMini(); syncAbil(); syncMusicTempo();
@@ -4678,10 +5105,13 @@ function slotPick(n,d,boot){
 }
 function encRegion(r){ return {grid:r.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...t.b,aim:undefined,born:undefined,hitT:undefined,worked:undefined,sm_:undefined,fl_:undefined}:null,t.grove?1:0,t.water?1:0]),spawns:r.spawns,seed:r.seed,keep:r.keep,keepMax:r.keepMax,kind:r.kind,shore:r.shore}; }
 function save(){
-  if(!S||S.over||!saveOn) return;
+  if(!S||S.over||!saveOn||NET.role==='guest') return;
+  try{ writeSlot(slot,saveJSON()); }catch(e){}
+}
+function saveJSON(){
   stash();
-  try{ writeSlot(slot,JSON.stringify({R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,mtnUnlocked:S.mtnUnlocked,visitedMtn:S.visitedMtn,daily:S.daily||null,survivedBlood:!!S.survivedBlood,routes:S.routes||{},sat:S.sat||{},loan:S.loan||null,inv:S.inv||null,guildBan:S.guildBan||0,worldSeed:S.worldSeed||0,krel:S.krel||null,kwar:S.kwar||null,coalition:!!S.coalition,hosted:S.hosted??null,kingslayer:!!S.kingslayer,crowns:S.crowns||null,prov:S.prov||null,levy:S.levy||null,royalMsg:S.royalMsg||null,royalRaid:S.royalRaid||null,newsLog:S.newsLog||[],marched:S.marched||0,tourneys:S.tourneys||0,highKing:!!S.highKing,ph:S.ph||{},renown:S.renown||0,tax:taxLvl(),council:S.council||{},petition:S.petition||null,lastPet:S.lastPet||null,debt:S.debt||null,keepLvl:S.keepLvl||1,edicts:S.edicts||[],fac:S.fac||{},gear:S.gear||{},lootPending:S.lootPending||0,demand:S.demand||null,req:S.req||null,lastReq:S.lastReq||null,trader:S.trader||null,seedDays:S.seedDays||0,oilNights:S.oilNights||0,banner:S.banner||0,spy:!!S.spy,feastSeason:S.feastSeason??null,feastDay:S.feastDay||0,sapperWarned:!!S.sapperWarned,warships:S.warships,plate:S.plate,mercs:S.mercs,sunk:S.sunk,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
-    grid:S.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...t.b,aim:undefined,born:undefined,hitT:undefined,worked:undefined}:null,t.grove?1:0]),spawns:S.spawns,queue:S.queue})); }catch(e){}
+  return JSON.stringify({hist:S.hist||null,aud:S.aud||null,R:Object.fromEntries(Object.entries(S.R).map(([id,r])=>[id,encRegion(r)])),cur:S.cur,heroAt:S.heroAt,raid:S.raid,coastUnlocked:S.coastUnlocked,mtnUnlocked:S.mtnUnlocked,visitedMtn:S.visitedMtn,daily:S.daily||null,survivedBlood:!!S.survivedBlood,routes:S.routes||{},sat:S.sat||{},loan:S.loan||null,inv:S.inv||null,guildBan:S.guildBan||0,worldSeed:S.worldSeed||0,krel:S.krel||null,kwar:S.kwar||null,coalition:!!S.coalition,hosted:S.hosted??null,kingslayer:!!S.kingslayer,crowns:S.crowns||null,prov:S.prov||null,levy:S.levy||null,royalMsg:S.royalMsg||null,royalRaid:S.royalRaid||null,newsLog:S.newsLog||[],marched:S.marched||0,tourneys:S.tourneys||0,highKing:!!S.highKing,ph:S.ph||{},renown:S.renown||0,tax:taxLvl(),council:S.council||{},petition:S.petition||null,lastPet:S.lastPet||null,debt:S.debt||null,keepLvl:S.keepLvl||1,edicts:S.edicts||[],fac:S.fac||{},gear:S.gear||{},lootPending:S.lootPending||0,demand:S.demand||null,req:S.req||null,lastReq:S.lastReq||null,trader:S.trader||null,seedDays:S.seedDays||0,oilNights:S.oilNights||0,banner:S.banner||0,spy:!!S.spy,feastSeason:S.feastSeason??null,feastDay:S.feastDay||0,sapperWarned:!!S.sapperWarned,warships:S.warships,plate:S.plate,mercs:S.mercs,sunk:S.sunk,voyages:S.voyages,iron:S.iron,portPrice:S.portPrice,voyagesSent:S.voyagesSent,visitedCoast:S.visitedCoast,mood:S.mood,weather:S.weather,blood:S.blood,hx:S.hx,hl:S.hl,perks:S.perks,perkPending:S.perkPending,hungry:S.hungry,cold:S.cold,diff:S.diff,quest:S.quest,upg:S.upg,won:S.won,abilUsed:S.abilUsed,res:S.res,pop:S.pop,price:S.price,day:S.day,keep:S.keep,keepMax:S.keepMax,mods:S.mods,kills:S.kills,seed:S.seed,
+    grid:S.grid.map(t=>[t.land?1:0,t.ore?1:0,t.b?{...t.b,aim:undefined,born:undefined,hitT:undefined,worked:undefined}:null,t.grove?1:0]),spawns:S.spawns,queue:S.queue});
 }
 function load(d){
   try{
@@ -4691,7 +5121,7 @@ function load(d){
       mods:{...S.mods,...d.mods},kills:d.kills||0,spawns:d.spawns,queue:d.queue,seed:d.seed||Math.random()*1000});
     if(d.R){ S.R={}; for(const id in d.R){ const r=d.R[id]; S.R[id]={grid:r.grid.map(([l,o,b,gr,w])=>({land:!!l,ore:!!o,grove:!!gr,water:!!w,b})),spawns:r.spawns||[],seed:r.seed,keep:r.keep,keepMax:r.keepMax,kind:r.kind||'canyon',shore:r.shore||null,units:[]}; } unstash(d.cur&&S.R[d.cur]?d.cur:'home'); }
     else{ S.grid=d.grid.map(([l,o,b,gr])=>({land:!!l,ore:!!o,grove:!!gr,b})); Object.assign(S,{kind:'canyon',shore:null,units:[],cur:'home'}); stash(); }
-    S.ph=d.ph||{}; ensureEco();
+    S.ph=d.ph||{}; ensureEco(); S.hist=d.hist||null; S.aud=d.aud||null;
     Object.assign(S,{routes:d.routes||{},sat:d.sat||{},loan:d.loan||null,inv:d.inv||null,guildBan:d.guildBan||0});
     Object.assign(S,{worldSeed:d.worldSeed||0,krel:d.krel||null,kwar:d.kwar||null,coalition:!!d.coalition,hosted:d.hosted??null,kingslayer:!!d.kingslayer});
     Object.assign(S,{crowns:d.crowns||null,prov:d.prov||null,levy:d.levy||null,royalMsg:d.royalMsg||null,royalRaid:d.royalRaid||null,newsLog:d.newsLog||[],marched:d.marched||0,tourneys:d.tourneys||0,highKing:!!d.highKing});
@@ -5002,7 +5432,7 @@ function wonderDawn(notes){
     if(!b.worked){ notes.push(`<b>Work stalled on the ${d.name}:</b> no villager free to build`); return; }
     if(!canPay(d.daily)){ notes.push(`<b>Work stalled on the ${d.name}:</b> it needs ${costStr(d.daily)} each dawn`); return; }
     spend(d.daily); b.prog=(b.prog||0)+1; S.ver++;
-    if(b.prog>=d.days){ b.done=true; b.hp=b.max; addRenown(d===DEF.w_colossus?30:15); party('win'); sfx('dawn'); toast(T('Wonder complete'),T(d.name),'✦'); notes.push(`<b>The ${d.name} is complete!</b> ${d.desc}`); news(`Your realm completed the ${d.name}`); }
+    if(b.prog>=d.days){ b.done=true; b.hp=b.max; if(here) setTimeout(()=>cineTo(x,y,{zoom:2.2,hold:2.2,orbit:true}),900); addRenown(d===DEF.w_colossus?30:15); party('win'); sfx('dawn'); toast(T('Wonder complete'),T(d.name),'✦'); notes.push(`<b>The ${d.name} is complete!</b> ${d.desc}`); news(`Your realm completed the ${d.name}`); }
     else notes.push(`<b>${d.name}:</b> ${b.prog} of ${d.days} dawns of work done`); });
   if(hasWonder('w_cathedral')) addRenown(2);
 }
@@ -5264,6 +5694,7 @@ function crownsDawn(notes){
 }
 function offerRoyal(){
   const m=S.royalMsg, KG=KINGS[m.k], k=K(m.k), done=()=>{ S.royalMsg=null; hideOver(); afterDiplo(); };
+  queueMicrotask(()=>letterOpener(m.k));
   if(!KG||k.dead){ S.royalMsg=null; return; }
   if(m.kind==='marry') showOver(T('A proposal from {{k}}',{k:T(KG.name)}),T('{{k}} offers the hand of a royal child to your house. A marriage would bind your crowns: they would never march on you and would send knights when you are at war.',{k:kn(m.k)}),[
     {label:T('Accept the marriage'),sub:T('An alliance, +10 renown'),primary:true,fn:()=>{ S.royalMsg=null; proposeMarriage(m.k); hideOver(); }},{label:T('Decline politely'),sub:T('Relations cool a little'),fn:()=>{ relShift(m.k,-8); done(); }}]);
@@ -5371,7 +5802,10 @@ function fitWorld(){ const cv=$('wmap'), r=cv.getBoundingClientRect(); const dp=
 function drawWorld(){
   const cv=$('wmap'); if(!cv||$('world').hidden||!wBase) return; paintOwners(); const x=cv.getContext('2d'), v=wView, dp=cv.width/Math.max(1,cv.getBoundingClientRect().width);
   x.setTransform(1,0,0,1,0,0); x.fillStyle='#143446'; x.fillRect(0,0,cv.width,cv.height);
-  x.setTransform(v.s,0,0,v.s,v.x,v.y); x.imageSmoothingEnabled=true; x.drawImage(wBase.c,0,0); x.drawImage(wOver,0,0);
+  const parch=mapStyle==='parchment'&&ensureParch(); if(parch){ x.setTransform(1,0,0,1,0,0); x.fillStyle='#2B231D'; x.fillRect(0,0,cv.width,cv.height); }
+  x.setTransform(v.s,0,0,v.s,v.x,v.y); x.imageSmoothingEnabled=true;
+  if(parch){ x.drawImage(wParch.c,0,0); x.globalCompositeOperation='multiply'; x.globalAlpha=.5; x.drawImage(wOver,0,0); x.globalAlpha=1; x.globalCompositeOperation='source-over'; x.drawImage(wParch.ink,0,0); }
+  else { x.drawImage(wBase.c,0,0); x.drawImage(wOver,0,0); }
   const W=WORLD;
   if(wSel){ const k=PROV[wSel].k, cw=WMW/W.GW, ch=WMH/W.GH; x.fillStyle='rgba(255,248,230,.28)'; for(let j=0;j<W.GH;j++)for(let i=0;i<W.GW;i++) if(W.pg[j*W.GW+i]===k) x.fillRect(i*cw,j*ch,cw+.4,ch+.4); }
   x.setTransform(1,0,0,1,0,0); x.textAlign='center'; x.textBaseline='middle';
@@ -5381,12 +5815,52 @@ function drawWorld(){
   for(const id of order){ const P=PROV[id], [sx,sy]=P2(P.x,P.y), o=S.prov[id].owner;
     if(P.cap){ x.fillStyle=P.cap==='me'?'#F0BE4E':KINGS[P.cap].color; x.strokeStyle='#1C1714'; x.lineWidth=2*dp; const s=7*dp; x.beginPath(); x.moveTo(sx-s,sy+s*.6); x.lineTo(sx-s,sy-s*.3); x.lineTo(sx-s*.5,sy); x.lineTo(sx,sy-s*.8); x.lineTo(sx+s*.5,sy); x.lineTo(sx+s,sy-s*.3); x.lineTo(sx+s,sy+s*.6); x.closePath(); x.fill(); x.stroke(); if(K(P.cap)&&K(P.cap).dead&&P.cap!=='me'){ x.strokeStyle='#E8604F'; x.beginPath(); x.moveTo(sx-s,sy-s); x.lineTo(sx+s,sy+s); x.stroke(); } }
     else { x.fillStyle=o==='me'?'#F0BE4E':o?KINGS[o].color:'#E8DCC8'; x.beginPath(); x.arc(sx,sy,2.6*dp,0,6.29); x.fill(); }
-    const f2=P.cap?fs:fs*.86; x.font=`${P.cap?700:500} ${f2}px Inter,system-ui,sans-serif`; const ty=sy+(P.cap?13:9)*dp, tw=x.measureText(T(P.name)).width; if(!fits(sx,ty,tw+4*dp,f2*1.1)&&id!==wSel) continue; x.lineWidth=3*dp; x.strokeStyle='rgba(24,18,14,.75)'; x.strokeText(T(P.name),sx,ty); x.fillStyle=P.cap?'#FFF4E0':'#F2EADD'; x.fillText(T(P.name),sx,ty); }
+    const f2=P.cap?fs:fs*.86; x.font=`${P.cap?700:500} ${f2}px Inter,system-ui,sans-serif`; const ty=sy+(P.cap?13:9)*dp, tw=x.measureText(T(P.name)).width; if(!fits(sx,ty,tw+4*dp,f2*1.1)&&id!==wSel) continue; x.lineWidth=3*dp; x.strokeStyle=parch?'rgba(240,228,198,.85)':'rgba(24,18,14,.75)'; x.strokeText(T(P.name),sx,ty); x.fillStyle=parch?(P.cap?'#2A1A10':'#4A3626'):P.cap?'#FFF4E0':'#F2EADD'; x.fillText(T(P.name),sx,ty); }
   // crown names over their territory
   const owners=['me',...Object.keys(KINGS)];
   for(const o of owners){ const L=landsOf(o); if(!L.length||(o!=='me'&&K(o).dead)) continue; let cx=0,cy=0; L.forEach(p=>{ cx+=PROV[p].x; cy+=PROV[p].y; }); cx/=L.length; cy/=L.length; const [sx,sy]=P2(cx,cy-.045);
-    x.font=`800 ${Math.round(fs*1.35)}px "Bricolage Grotesque",system-ui,sans-serif`; const name=o==='me'?T('Small Crown'):T(CAPNAME[o]).toUpperCase(); x.lineWidth=4*dp; x.strokeStyle='rgba(24,18,14,.6)'; x.strokeText(o==='me'?name.toUpperCase():name,sx,sy); x.fillStyle=o==='me'?'#F0BE4E':KINGS[o].color; x.fillText(o==='me'?name.toUpperCase():name,sx,sy); }
-  x.font=`800 ${Math.round(fs*2)}px "Bricolage Grotesque",system-ui,sans-serif`; x.fillStyle='rgba(242,234,221,.5)'; x.textAlign='left'; x.fillText(CONT_NAME.toUpperCase(),14*dp,22*dp);
+    x.font=`800 ${Math.round(fs*1.35)}px "Bricolage Grotesque",system-ui,sans-serif`; const name=o==='me'?T('Small Crown'):T(CAPNAME[o]).toUpperCase(); x.lineWidth=4*dp; x.strokeStyle=parch?'rgba(240,228,198,.8)':'rgba(24,18,14,.6)'; x.strokeText(o==='me'?name.toUpperCase():name,sx,sy); x.fillStyle=o==='me'?'#F0BE4E':KINGS[o].color; x.fillText(o==='me'?name.toUpperCase():name,sx,sy); }
+  x.font=`800 ${Math.round(fs*2)}px "Bricolage Grotesque",system-ui,sans-serif`; if(parch){ const [tx,ty]=P2(.045,.075); x.font=`800 ${Math.round(fs*2.2)}px "Bricolage Grotesque",Georgia,serif`; x.fillStyle='rgba(60,40,26,.78)'; x.textAlign='left'; x.fillText(CONT_NAME.toUpperCase(),tx,ty); } else { x.fillStyle='rgba(242,234,221,.5)'; x.textAlign='left'; x.fillText(CONT_NAME.toUpperCase(),14*dp,22*dp); }
+}
+let mapStyle='parchment', wParch=null; try{ if(localStorage.getItem('smallcrown-mapstyle')==='terrain') mapStyle='terrain'; }catch(e){}
+function ensureParch(){ if(wParch&&wParch.seed===S.worldSeed) return true; if(!window.rough) return false; if(!ensureParch.pending){ ensureParch.pending=true; setTimeout(()=>{ try{ buildParch(); }catch(e){ console.warn(e); } ensureParch.pending=false; drawWorld(); },20); } return false; }
+function buildParch(){
+  const Wd=WMW, Hd=WMH, src=wBase.c.getContext('2d').getImageData(0,0,Wd,Hd).data, out=new ImageData(Wd,Hd), o=out.data, N2=Wd*Hd;
+  const sea=new Uint8Array(N2); for(let k=0;k<N2;k++){ const r=src[k*4],g=src[k*4+1],b=src[k*4+2]; sea[k]=(b>r+18&&b>=g-30)?1:0; }
+  const INF=1e9, dist=new Float32Array(N2); for(let k=0;k<N2;k++) dist[k]=sea[k]?INF:0;
+  for(let j=0;j<Hd;j++)for(let i=0;i<Wd;i++){ const k=j*Wd+i; if(!sea[k]) continue; let d=dist[k]; if(i>0) d=Math.min(d,dist[k-1]+1); if(j>0){ d=Math.min(d,dist[k-Wd]+1); if(i>0) d=Math.min(d,dist[k-Wd-1]+1.414); if(i<Wd-1) d=Math.min(d,dist[k-Wd+1]+1.414); } dist[k]=d; }
+  for(let j=Hd-1;j>=0;j--)for(let i=Wd-1;i>=0;i--){ const k=j*Wd+i; if(!sea[k]) continue; let d=dist[k]; if(i<Wd-1) d=Math.min(d,dist[k+1]+1); if(j<Hd-1){ d=Math.min(d,dist[k+Wd]+1); if(i<Wd-1) d=Math.min(d,dist[k+Wd+1]+1.414); if(i>0) d=Math.min(d,dist[k+Wd-1]+1.414); } dist[k]=d; }
+  { const core=new Float32Array(N2); for(let k=0;k<N2;k++) core[k]=sea[k]&&dist[k]>=3?0:INF;
+    for(let j=0;j<Hd;j++)for(let i=0;i<Wd;i++){ const k=j*Wd+i; let d=core[k]; if(i>0) d=Math.min(d,core[k-1]+1); if(j>0) d=Math.min(d,core[k-Wd]+1); core[k]=d; }
+    for(let j=Hd-1;j>=0;j--)for(let i=Wd-1;i>=0;i--){ const k=j*Wd+i; let d=core[k]; if(i<Wd-1) d=Math.min(d,core[k+1]+1); if(j<Hd-1) d=Math.min(d,core[k+Wd]+1); core[k]=d; }
+    for(let k=0;k<N2;k++) if(sea[k]&&core[k]>3.2){ sea[k]=0; dist[k]=0; core[k]=-1; } else core[k]=0;
+    var river=core; }
+  const rnd=mulberry32(S.worldSeed+77), ink=[64,46,32];
+  for(let j=0;j<Hd;j++)for(let i=0;i<Wd;i++){ const k=j*Wd+i, r=src[k*4],g=src[k*4+1],b=src[k*4+2], gr=(rnd()-.5)*12; let c;
+    if(sea[k]){ const d=dist[k]; c=[214+gr,205+gr,176+gr]; c=c.map((v,q)=>v*.86+[120,150,148][q]*.14); let a=0; if(d<1.6) a=.9; else if(Math.abs(d-6)<.7) a=.32; else if(Math.abs(d-12.5)<.6) a=.2; else if(Math.abs(d-20)<.5) a=.1; if(a) c=c.map((v,q)=>v+(ink[q]-v)*a); }
+    else if(river[k]<0){ c=[78,92,104]; }
+    else { const lum=(.3*r+.59*g+.11*b)/255, sh=.8+.34*lum; c=[236*sh+gr,222*sh+gr,188*sh+gr]; c=c.map((v,q)=>v*.8+[r,g,b][q]*.2); const nb=(i>0&&sea[k-1])||(i<Wd-1&&sea[k+1])||(j>0&&sea[k-Wd])||(j<Hd-1&&sea[k+Wd]); if(nb) c=ink; }
+    const ex=i/Wd-.5, ey=j/Hd-.5, vg=1-.22*Math.max(0,Math.min(1,(Math.sqrt(ex*ex*1.2+ey*ey*1.5)-.36)/.42)); o[k*4]=c[0]*vg; o[k*4+1]=c[1]*vg; o[k*4+2]=c[2]*vg; o[k*4+3]=255; }
+  const pc=document.createElement('canvas'); pc.width=Wd; pc.height=Hd; pc.getContext('2d').putImageData(out,0,0);
+  // ink layer: dashed province borders and Rough.js glyphs
+  const ic=document.createElement('canvas'); ic.width=Wd; ic.height=Hd; const ix=ic.getContext('2d'), W=WORLD, nz=seededNoise(S.worldSeed+5), pgAt=new Int16Array(N2);
+  for(let j=0;j<Hd;j++)for(let i=0;i<Wd;i++){ const wx=i+nz.noise2D(i*.03,j*.03)*4, wy=j+nz.noise2D(i*.03+40,j*.03)*4; const gi=Math.max(0,Math.min(W.GW-1,Math.floor(wx/Wd*W.GW))), gj=Math.max(0,Math.min(W.GH-1,Math.floor(wy/Hd*W.GH))); pgAt[j*Wd+i]=sea[j*Wd+i]?-1:W.pg[gj*W.GW+gi]; }
+  const bd=ix.createImageData(Wd,Hd), bo=bd.data;
+  for(let j=0;j<Hd-1;j++)for(let i=0;i<Wd-1;i++){ const k=j*Wd+i, a=pgAt[k]; if(a<0) continue; const r2=pgAt[k+1], d2=pgAt[k+Wd]; if((r2>=0&&r2!==a)||(d2>=0&&d2!==a)){ if(((i+j)>>2)%3===0) continue; bo[k*4]=70; bo[k*4+1]=50; bo[k*4+2]=36; bo[k*4+3]=170; } }
+  ix.putImageData(bd,0,0);
+  const rc=rough.canvas(ic), {H,M}=worldFns(S.worldSeed), INK='rgba(64,46,32,.9)', step=24; let sd=1;
+  for(let y=step/2;y<Hd-10;y+=step)for(let x=step/2;x<Wd-10;x+=step*1.1){ const px=x+(rnd()-.5)*step*.7, py=y+(rnd()-.5)*step*.6, h=H(px/Wd,py/Hd,4); if(h<.02) continue;
+    const t=terrOf(h,M(px/Wd,py/Hd,3),py/Hd); sd++;
+    if(t==='mountains'){ const s2=.8+rnd()*.5; rc.linearPath([[px-10*s2,py+5],[px-2*s2,py-9*s2],[px+1,py-4*s2],[px+4*s2,py-10*s2],[px+11*s2,py+5]],{stroke:INK,strokeWidth:1.1,roughness:1.2,seed:sd}); rc.polygon([[px+4*s2,py-10*s2],[px+11*s2,py+5],[px+3*s2,py+5]],{stroke:'none',fill:INK,fillStyle:'hachure',hachureGap:2.2,hachureAngle:-35,fillWeight:.6,roughness:1,seed:sd+1}); }
+    else if(t==='hills'){ if(rnd()<.6) rc.arc(px,py,18,12,Math.PI*1.08,Math.PI*1.92,false,{stroke:INK,strokeWidth:1,roughness:1.1,seed:sd}); }
+    else if(t==='forest'){ for(let q=0;q<3;q++){ const tx=px+(q-1)*6, ty=py+(q===1?-3:2); rc.line(tx,ty+3,tx,ty+7,{stroke:INK,strokeWidth:.9,roughness:.6,seed:sd+q}); rc.circle(tx,ty,7,{stroke:'rgba(52,64,36,.9)',strokeWidth:.8,fill:'rgba(78,98,52,.55)',fillStyle:'hachure',hachureGap:1.8,fillWeight:.6,roughness:1,seed:sd+q+5}); } }
+    else if(t==='desert'){ ix.fillStyle='rgba(96,70,46,.55)'; for(let q=0;q<5;q++){ ix.beginPath(); ix.arc(px+(rnd()-.5)*12,py+(rnd()-.5)*8,.9,0,6.29); ix.fill(); } }
+    else if(t==='grass'&&rnd()<.25){ rc.linearPath([[px-4,py],[px-2,py-4],[px,py],[px+2,py-4],[px+4,py]],{stroke:'rgba(70,84,44,.7)',strokeWidth:.8,roughness:.8,seed:sd}); } }
+  rc.rectangle(10,10,Wd-20,Hd-20,{stroke:INK,strokeWidth:2.2,roughness:1.3,seed:3}); rc.rectangle(16,16,Wd-32,Hd-32,{stroke:'rgba(64,46,32,.6)',strokeWidth:1,roughness:1.6,seed:4});
+  { const cx=Wd-74, cy=Hd-74, R0=40; rc.circle(cx,cy,R0*2,{stroke:INK,strokeWidth:1.2,roughness:1.2,seed:7}); rc.circle(cx,cy,R0*1.25,{stroke:'rgba(64,46,32,.5)',strokeWidth:.8,roughness:1.4,seed:8});
+    for(let q=0;q<8;q++){ const a=q*Math.PI/4-Math.PI/2, L2=q%2?R0*.62:R0*.98, w2=q%2?5:8, a1=a+Math.PI/2; rc.polygon([[cx+Math.cos(a)*L2,cy+Math.sin(a)*L2],[cx+Math.cos(a1)*w2,cy+Math.sin(a1)*w2],[cx-Math.cos(a1)*w2,cy-Math.sin(a1)*w2]],{stroke:INK,strokeWidth:.9,fill:q%2?'rgba(64,46,32,.25)':'rgba(64,46,32,.75)',fillStyle:q%2?'hachure':'solid',hachureGap:2,roughness:.9,seed:20+q}); }
+    ix.font='700 13px "Bricolage Grotesque", Georgia, serif'; ix.fillStyle='rgba(64,46,32,.9)'; ix.textAlign='center'; ix.textBaseline='middle'; ix.fillText('N',cx,cy-R0-10); }
+  wParch={c:pc,ink:ic,seed:S.worldSeed};
 }
 function worldPick(ev){ const cv=$('wmap'), r=cv.getBoundingClientRect(), dp=cv.width/r.width, px=((ev.clientX-r.left)*dp-wView.x)/wView.s/WMW, py=((ev.clientY-r.top)*dp-wView.y)/wView.s/WMH;
   const W=WORLD, i=Math.floor(px*W.GW), j=Math.floor(py*W.GH); if(i<0||j<0||i>=W.GW||j>=W.GH) return null; const k=W.pg[j*W.GW+i]; return k<0?null:'p'+k; }
@@ -5434,6 +5908,7 @@ function renderWorldPanel(){
     ({envoy,trade:proposePact,nap:signNap,ally:signAlliance,wed:proposeMarriage,aid:requestAid,tribute:demandTribute,embargo,sabotage,denounce,unally:breakAlliance,war:declareWar,peace:offerPeace,surrender:demandSurrender})[a](id); renderWorldPanel(); drawWorld(); }));
 }
 function initWorldUI(){
+  const ws=$('wStyle'); if(ws){ const lab=()=>{ ws.textContent=T(mapStyle==='parchment'?'Terrain':'Parchment'); ws.setAttribute('aria-pressed',mapStyle==='parchment'); }; lab(); ws.addEventListener('click',()=>{ mapStyle=mapStyle==='parchment'?'terrain':'parchment'; try{ localStorage.setItem('smallcrown-mapstyle',mapStyle); }catch(e){} lab(); drawWorld(); }); }
   const cv=$('wmap');
   cv.addEventListener('pointerdown',e=>{ wDrag={x:e.clientX,y:e.clientY,vx:wView.x,vy:wView.y,moved:false}; cv.setPointerCapture(e.pointerId); });
   cv.addEventListener('pointermove',e=>{ if(!wDrag) return; const dp=cv.width/cv.getBoundingClientRect().width, dx=(e.clientX-wDrag.x)*dp, dy=(e.clientY-wDrag.y)*dp; if(Math.abs(dx)+Math.abs(dy)>6) wDrag.moved=true; if(wDrag.moved){ wView.x=wDrag.vx+dx; wView.y=wDrag.vy+dy; drawWorld(); } });
@@ -5607,11 +6082,12 @@ function ui(){
   $('region').textContent=T(regionName(S.cur))+(heroHere()?'':T(' · hero away')); if(!$('realm').hidden) renderRealm();
   const sea=season(); $('season').textContent=T(sea.name)+(S.weather!=='clear'?` · ${T(WX[S.weather].name)}`:'')+(S.blood?' · '+T('Blood moon'):''); $('seaDot').setAttribute('fill',sea.col); $('cSeason').classList.toggle('blood',!!S.blood);
   $('hlv').textContent=T(innerWidth<=520?'Lv {{n}}':'Hero Lv {{n}}',{n:S.hl}); $('cSeason').title=$('season').textContent; $('xpf').style.width=Math.round(100*S.hx/xpNeed(S.hl))+'%';
-  checkRequest(); renderReq(); renderPetition(); renderThrone(); syncTabs();
+  checkRequest(); renderReq(); renderPetition(); renderThrone(); syncTabs(); renderCharts();
   if(S.phase==='day'&&!S.modal&&!S.over&&S.perkPending>0) offerPerk();
   if(S.phase==='day'&&!S.modal&&!S.over&&S.lootPending>0) offerLoot();
   if(S.phase==='day'&&!S.modal&&!S.over&&S.demand) offerDemand();
   if(S.phase==='day'&&!S.modal&&!S.over&&S.royalMsg) offerRoyal();
+  if(S.phase==='day'&&!S.modal&&!S.over&&S.aud&&S.aud.pend) openAudience();
   renderEdicts(); renderHeroPanel();
   if(S.phase==='day') checkAch(); else renderAch();
   $('best').textContent=[S.crowns?T('{{n}} crown',{n:ordinal(myPlace())}):'',T(rankName()),T(DIFF[S.diff].label),T('score {{n}}',{n:score().toLocaleString()}),bestScore?T('best {{n}}',{n:bestScore.toLocaleString()}):''].filter(Boolean).join(' · ');
@@ -5728,7 +6204,7 @@ function renderInsp(){
   if(selFolk){ const f=selFolk;
     box.innerHTML=`<div class="info"><div class="name"></div><div class="det"></div></div><div class="acts"><button id="fClose" type="button">${T('Close')}</button></div>`;
     box.querySelector('.name').textContent=`${f.name} · ${T(ROLE_NAME[f.role]||'Townsperson')}`;
-    box.querySelector('.det').textContent=`“${T(f.thought||'')}”`;
+    box.querySelector('.det').textContent=`“${(f.thought||'').startsWith('@')?f.thought.slice(1):T(f.thought||'')}”`;
     $('fClose').addEventListener('click',()=>{ selFolk=null; renderInsp(); }); return; }
   if(sel&&!G(...sel).b) sel=null;
   if(!sel){
@@ -5875,6 +6351,7 @@ function renderRealm(){
   $('realmClose').addEventListener('click',closeRealm);
   $('realmSlots').addEventListener('click',()=>{ closeRealm(); save(); slotMenu(false); });
   $('worldBtn2')?.addEventListener('click',()=>openWorld()); $('hostBtn')?.addEventListener('click',hostTourney);
+  roughSvg($('realm').querySelector('svg'));
   $('realm').querySelectorAll('[data-court]').forEach(b=>b.addEventListener('click',()=>openWorld('court',b.dataset.court)));
   const RQ=(sel,fn)=>$('realm').querySelectorAll(sel).forEach(b=>b.addEventListener('click',()=>fn(Object.values(b.dataset)[0])));
   RQ('[data-envoy]',envoy); RQ('[data-pact2]',proposePact); RQ('[data-wed]',proposeMarriage); RQ('[data-den]',denounce); RQ('[data-war]',declareWar); RQ('[data-peace]',offerPeace);
@@ -5998,7 +6475,7 @@ glc.addEventListener('pointermove',ev=>{ if(ev.pointerType==='mouse') hover=tile
 glc.addEventListener('pointerleave',()=>hover=null);
 glc.addEventListener('click',ev=>{ if(dragged){ dragged=false; return; }
   if(S&&S.phase==='day'&&!S.modal&&(S.tool==='ride'||!DEF[S.tool])){ const f=folkAt(ev); if(f){ selectFolk(f); return; } }
-  const t=tileAt(ev); if(t) place(t[0],t[1]); });
+  const t=tileAt(ev); if(t&&NET.pingMode){ netSend({t:'ping',x:t[0],y:t[1]}); addPing(t[0],t[1],'me'); NET.pingMode=false; renderCoopBar(); return; } if(t) place(t[0],t[1]); });
 glc.addEventListener('contextmenu',ev=>{
   ev.preventDefault(); if(!S||S.over||S.modal) return;
   const t=tileAt(ev); if(!t) return;
@@ -6055,6 +6532,10 @@ $('setmenu').addEventListener('click',e=>e.stopPropagation());
 document.addEventListener('click',()=>{ if(!$('setmenu').hidden) setMenu(false); });
 document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&!$('setmenu').hidden){ setMenu(false); $('setBtn').focus(); } });
 initTabs();
+$('shareBtn').addEventListener('click',()=>{ setMenu(false); shareKingdom(); });
+$('coopBtn').addEventListener('click',()=>{ setMenu(false); coopDialog(); });
+$('cCoop').addEventListener('click',()=>renderCoopBar());
+$('codeBtn').addEventListener('click',()=>{ setMenu(false); loadCodeDialog(); });
 $('realmBtn').addEventListener('click',toggleRealm);
 $('worldBtn').addEventListener('click',()=>{ if($('world').hidden) openWorld(); else closeWorld(); });
 initWorldUI();
@@ -6108,7 +6589,8 @@ function loop(now){
   try{
     if(!document.hidden&&real<.5){ ftAvg=ftAvg*.97+real*.03; adaptResolution(real);   // drop to Low once if even the lowest resolution struggles
       if(quality==='high'&&!qualityChosen&&ftAvg>.045&&renderScale<=.61){ slowT+=real; if(slowT>4){ quality='low'; applyQuality(); savePrefs(); say('Graphics switched to Low to keep the game smooth. Tap the quality button to change it back.'); } } else slowT=0; }
-    if(!S.over&&!paused&&!S.modal){ simAcc=Math.min(simAcc+raw*speed,FIX*12); let n=0; while(simAcc>=FIX&&n<12){ step(FIX); simAcc-=FIX; n++; if(S.over||S.modal) break; } uiT+=raw; if(uiT>.3&&S.phase==='night'){uiT=0;ui()} }
+    if(NET.role==='guest'){ guestTick(raw); uiT+=raw; if(uiT>.4){ uiT=0; ui(); } }
+    else if(!S.over&&!paused&&!S.modal){ simAcc=Math.min(simAcc+raw*speed,FIX*12); let n=0; while(simAcc>=FIX&&n<12){ step(FIX); simAcc-=FIX; n++; if(S.over||S.modal) break; } uiT+=raw; if(uiT>.3&&S.phase==='night'){uiT=0;ui()} }
     else if(!paused){ for(const f of S.floats) f.life-=raw; S.floats=S.floats.filter(f=>f.life>0); }
     if(!paused) clock+=raw;
     if(flash>0) flash=Math.max(0,flash-raw*1.5);
@@ -6128,8 +6610,12 @@ applyQuality();
 startGame('normal'); applyLang(); S.modal=true;
 slotMenu(true);
 loadAssets();
+{ const k=new URLSearchParams(location.search).get('k'); if(k){ let n=0; const tryK=()=>{ if(window.LZString){ loadCodeDialog(k); try{ history.replaceState(null,'',location.pathname); }catch(e){} } else if(n++<40) setTimeout(tryK,250); }; setTimeout(tryK,600); } }
 requestAnimationFrame(loop);
-})();
+};
+{ let booted=false; const boot=()=>{ if(booted) return; booted=true; __main(); };
+  if(window.THREE&&window.THREE.WebGLRenderer) boot(); else window.addEventListener('three-ready',boot,{once:true});
+  setTimeout(()=>{ if(!booted) document.getElementById('board').insertAdjacentHTML('beforeend','<div class="nogl">The 3D engine did not load. Check your connection and reload.</div>'); },20000); }
 </script>
 
 </body>
