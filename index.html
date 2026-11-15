@@ -377,6 +377,12 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
 .chip.low{animation:lowp 1s ease-in-out infinite;color:#FFB4A8}
 @keyframes lowp{50%{background:rgba(130,34,26,.9)}}
 .chip.spd{color:var(--gold);font-weight:600}
+.chip.fever .mb.fv>b{background:linear-gradient(90deg,#E8604F,#F0BE4E,#8FCB7E,#6A8AD8,#C77DFF);width:0}
+.chip.fever.on{color:#1A1208;background:linear-gradient(90deg,#FF6A88,#F0BE4E,#8FE07E,#6AC8FF,#C77DFF);background-size:300% 100%;animation:fvb 1.2s linear infinite}
+.chip.fever.on i{background:rgba(255,255,255,.5)}
+@keyframes fvb{to{background-position:300% 0}}
+.ic[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+@media (prefers-reduced-motion:reduce){ .chip.fever.on{animation:none} }
 .ab .cdn{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--f-num);font-size:15px;font-weight:700;color:var(--ink);z-index:1;pointer-events:none;text-shadow:0 1px 2px #000}
 .ab.ready{box-shadow:0 0 0 2px rgba(240,190,78,.9),0 0 14px rgba(240,190,78,.45)}
 .ab.ready.flash{animation:abf .7s ease-out}
@@ -424,6 +430,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
       <div class="chip" id="cRegion"><i><svg viewBox="0 0 12 12"><path d="M6 1a3.5 3.5 0 0 1 3.5 3.5C9.5 7 6 11 6 11S2.5 7 2.5 4.5A3.5 3.5 0 0 1 6 1z" fill="#D99A60"/><circle cx="6" cy="4.5" r="1.3" fill="#28201C"/></svg></i><span id="region">The Valley</span></div>
       <div class="chip" id="cSeason"><i><svg viewBox="0 0 12 12"><circle id="seaDot" cx="6" cy="6" r="3.4" fill="#8FCB7E"/></svg></i><span id="season">Spring</span></div>
       <div class="chip" id="cHero" title="Your hero's level. Felling raiders earns experience."><i><svg viewBox="0 0 12 12"><path d="M6 1l1.5 3.2 3.5.4-2.6 2.4.7 3.5L6 8.8 2.9 10.5l.7-3.5L1 4.6l3.5-.4z" fill="#F0BE4E"/></svg></i><span id="hlv">Lv 1</span><span class="bars"><b class="mb hpb" title="Health"><b id="hhpf"></b></b><b class="mb" title="Experience"><b id="xpf" style="width:0"></b></b></span></div>
+      <div class="chip fever" id="cFever" hidden title="Fever: fell raiders quickly to fill it"><i><svg viewBox="0 0 12 12"><path d="M6 1c1 2 3 3 3 6a3 3 0 0 1-6 0c0-1.3.6-2 1.2-2.6C4.4 6 5 6.4 5.6 6 5.2 4.4 5.4 2.6 6 1z" fill="#F0BE4E"/></svg></i><span id="fvt"></span><b class="mb fv"><b id="fvf"></b></b></div>
       <div class="chip spd" id="cSpd" hidden><span id="spd">2×</span></div>
       <div class="chip" id="cLoad"><i><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="none" stroke="#B5A795" stroke-width="1.4" stroke-dasharray="6 4"/></svg></i><span data-t>Loading models</span></div>
     </div>
@@ -451,6 +458,8 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <button class="ic" id="speed" type="button" aria-label="Game speed" title="Speed (F)">1×</button>
     <button class="ic" id="view" type="button" aria-label="Show whole valley" aria-pressed="false" title="Whole valley (V)">
       <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M2 6V2h4M12 2h4v4M16 12v4h-4M6 16H2v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+    <button class="ic" id="style" type="button" aria-pressed="false" title="Art style (I): Classic or Mirage">Classic</button>
+    <button class="ic" id="cam" type="button" aria-pressed="false" aria-label="Hero view" title="Hero view (K)"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M2 14l7-10 7 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="9" cy="11" r="2" fill="currentColor"/></svg></button>
     <button class="ic" id="qual" type="button" aria-label="Graphics quality" title="Graphics quality: High adds night glow and sharper shadows">High</button>
     <button class="ic" id="lang" type="button" aria-label="Language: English. Switch to Spanish" title="Español / English">EN</button>
     <button class="ic" id="install" type="button" hidden title="Install Small Crown on this device">Install</button>
@@ -513,6 +522,7 @@ kbd{font-family:var(--f-num);font-size:11px;border:1px solid var(--line);border-
     <p data-th="help27"><b>Goods and living standards.</b> Beyond the basics, your villagers want cloth, ale and salt. Goat pastures (<kbd>J</kbd>) give wool, weavers (<kbd>O</kbd>) turn it into cloth, breweries (<kbd>I</kbd>) turn food into ale, and salt pans (<kbd>,</kbd>) on the cove's shore make salt. Meeting those wants lifts their living standard from poor to modest, comfortable and prosperous, which raises mood and multiplies taxes. Workshops (<kbd>.</kbd>) turn iron and wood into tools; with enough tools every producer yields 1 more. Food spoils a little each dawn (less in winter, half with salt), every store holds up to 80 of each good, and storehouses (<kbd>K</kbd>) add 60 more. Idle villagers pay half taxes. Market prices follow the seasons and drop when your stores are full; trade everything from the Market and stores panel. Vellmar buys cloth and Kharum buys salt by sea.</p>
     <p data-th="help28"><b>Ashkara and its crowns.</b> Your realm sits in the south of Ashkara, a continent of deserts, steppes, forests and mountains divided into some two dozen lands. Open the map with the globe button. Three rival crowns hold their own capitals and lands: King Harun of Qadir (warlike), Queen Ysolde of Merrow (cunning) and King Osric of Hallowmere (pious). Every dawn they grow, claim free land on their borders, feud and go to war with each other, and may form a coalition if you grow too strong. Prestige counts renown, gold, army, people and lands. You can settle, buy or conquer only lands that border yours. In each crown's court you can send envoys, sign trade agreements, pacts of peace and military alliances, marry into their house, request aid from allies, demand tribute, impose an embargo, sabotage them through your spymaster, denounce them or declare war; at war you can offer peace, demand surrender or call your allies in. Take a rival's capital and their crown falls. Finish 20 nights at the top to be named High King.</p>
     <p data-th="help29"><b>Placement, caravans and wonders.</b> Where you build matters: a farm beside two other farms or near a well grows more, mines and workshops near the smith work faster, lumber camps crowd each other, markets and taverns earn more among houses, and houses like wells, markets and shrines nearby but hate mines and breweries next door. The bonus shows while you place a building. With a trade agreement, send a daily caravan of goods to another crown from the Market and stores panel; each crown pays well for what it lacks, but prices fall the more you send. The Merchant Guild lends gold with interest and takes investments. From the throne, begin one of five wonders; each needs several dawns of work and a daily delivery of goods, and gives a lasting bonus.</p>
+    <p data-th="help30"><b>Mirage, hero view and fever.</b> The Mirage button (I) turns the canyon into a psychedelic dream: rainbow-striped walls, a curving horizon, shifting colors and a giant score. The hero view button (K) puts the camera low behind your hero; steering follows the camera, and dragging turns the view. At night, felling raiders quickly fills the Fever meter. When it is full, the world goes Mirage for ten seconds, your hero hits twice as hard, runs faster and gets both abilities back, and every kill stretches the fever.</p>
     <p data-th="help4"><b>Seasons</b> turn every 5 days. Spring rains add 1 food per farm, summer heat costs 1, harvest adds 2 and lifts markets, and winter costs 2 while every house burns 1 wood a dawn to stay warm. Weather is rolled each dawn: rain stops fires, sandstorms slow raiders but shorten your towers' sight, snow slows everyone.</p>
     <p data-th="help5"><b>Mood.</b> Villagers are happier with wells and shrines nearby, full granaries and a good harvest, and unhappier after hunger, cold houses and buildings lost to raiders. Content villagers pay extra taxes; unhappy ones pay less, stop moving in, and below 20 they start to leave. Wells also keep fire off the buildings around them.</p>
     <p data-th="help6"><b>Hero levels.</b> Raiders your hero fells, and every night survived, earn experience. Each level adds health, every second level adds damage, and each one lets you pick a perk.</p>
@@ -1448,7 +1458,19 @@ const ES={
 "{{n}} raiders":"{{n}} asaltantes",
 "Keep {{a}} of {{b}}":"Castillo {{a}} de {{b}}",
 "Health":"Salud",
-"Experience":"Experiencia"
+"Experience":"Experiencia",
+"help30":"<b>Espejismo, vista del héroe y frenesí.</b> El botón Espejismo (I) convierte el cañón en un sueño psicodélico: paredes con franjas de arcoíris, un horizonte curvo, colores cambiantes y una puntuación gigante. El botón de vista del héroe (K) pone la cámara baja detrás de tu héroe; la dirección sigue a la cámara y al arrastrar giras la vista. De noche, abatir asaltantes rápido llena el medidor de Frenesí. Cuando se llena, el mundo entra en Espejismo diez segundos, tu héroe golpea el doble, corre más y recupera ambas habilidades, y cada baja alarga el frenesí.",
+"Mirage":"Espejismo",
+"Classic":"Clásico",
+"The canyon dreams in color":"El cañón sueña en color",
+"Top view (K)":"Vista superior (K)",
+"Hero view (K)":"Vista del héroe (K)",
+"Fever!":"¡Frenesí!",
+"Your hero strikes twice as hard and runs faster":"Tu héroe golpea el doble y corre más rápido",
+"The fever fades.":"El frenesí se apaga.",
+"Fever {{n}}s":"Frenesí {{n}}s",
+"Fever":"Frenesí",
+"Best {{n}}":"Récord {{n}}"
 };
 
 let lang='en';
@@ -2170,7 +2192,7 @@ function stepAnimals(dt){
     if(passHero(Math.round(x),Math.round(y))&&(a.kind!=='crab'||!isSea(Math.round(x),Math.round(y)))) a.goal=[x,y]; else a.t=.4;
   }
 }
-const heroMax=()=>12+gearHp()+S.mods.hero*6+((S&&S.hl)||1)*2-2+((S&&S.plate)||0)*3, heroDmg=()=>2+((S&&S.banner)||0)+(Object.values((S&&S.council)||{}).some(m=>m.trait==='brave')?1:0)+gearDmg()+S.mods.hero*2+Math.floor((((S&&S.hl)||1)-1)/2), unitMax=()=>4+skill('marshal')+S.mods.drill*2+((S&&S.plate)||0)*2, unitDmg=()=>1+S.mods.drill+((S&&S.iron)||0)+(hasEdict('militia')?1:0);
+const heroMax=()=>12+gearHp()+S.mods.hero*6+((S&&S.hl)||1)*2-2+((S&&S.plate)||0)*3, heroDmg=()=>(S&&S.fever>0?2:1)*(2+((S&&S.banner)||0)+(Object.values((S&&S.council)||{}).some(m=>m.trait==='brave')?1:0)+gearDmg()+S.mods.hero*2+Math.floor((((S&&S.hl)||1)-1)/2)), unitMax=()=>4+skill('marshal')+S.mods.drill*2+((S&&S.plate)||0)*2, unitDmg=()=>1+S.mods.drill+((S&&S.iron)||0)+(hasEdict('militia')?1:0);
 function mkHero(){ return {x:C,y:C+1,tx:C,ty:C+1,hp:12+((S&&S.mods.hero)||0)*6,max:12+((S&&S.mods.hero)||0)*6,dead:false,respawn:0,atk:0,dir:-Math.PI/2,queue:[],moving:false,age:0,hit:0,swing:0}; }
 function spawnUnits(i){
   const b=S.grid[i].b; if(!b||(b.type!=='barr'&&b.type!=='range')||b.unpaid) return;
@@ -2294,8 +2316,9 @@ function stepHero(dt){
     if(h.respawn<=0){ h.dead=false; h.hp=h.max=heroMax(); h.x=C; h.y=C+.8; h.tx=C; h.ty=C+1.1; h.pathKey=null; floatText(C,C,'Hero returns',CSS.ink); } return; }
   let foe=null,fd=9;
   for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-h.x,e.y-h.y); if(d<fd){fd=d;foe=e} }
-  const SPD=3*(hasPerk('swift')?1.3:1)*(gearOn('seacoat')?1.15:1)*(wxNight('snow')?.85:1)*(onRoad(h)?1.4:1);
-  const mx=(KD.d?1:0)-(KD.a?1:0)+JOY.x, my=(KD.s?1:0)-(KD.w?1:0)+JOY.y, ml=Math.hypot(mx,my);
+  const SPD=3*(hasPerk('swift')?1.3:1)*(gearOn('seacoat')?1.15:1)*(wxNight('snow')?.85:1)*(onRoad(h)?1.4:1)*(S.fever>0?1.45:1);
+  let mx=(KD.d?1:0)-(KD.a?1:0)+JOY.x, my=(KD.s?1:0)-(KD.w?1:0)+JOY.y; const ml=Math.hypot(mx,my);
+  if(heroCam&&ml>.12){ const f=[Math.cos(chYaw),Math.sin(chYaw)], rt=[-Math.sin(chYaw),Math.cos(chYaw)], a=mx, b=-my; mx=rt[0]*a+f[0]*b; my=rt[1]*a+f[1]*b; }
   if(ml>.12){
     const k=Math.min(1,ml); tryStep(h,mx/ml*SPD*k*dt,my/ml*SPD*k*dt); h.dir=Math.atan2(my,mx); h.moving=true;
     h.tx=h.x; h.ty=h.y; h.tstop=0; h.pathKey=null; camFree=null;
@@ -2376,7 +2399,7 @@ function enemyStats(type){
     default: return {hp:Math.ceil(h*DIFF[S.diff].hp),spd:s,dmg:1,pay:1};
   }
 }
-function startNight(){
+function startNight(){ S.fever=0; S.feverM=0; S.streak=0;
   if(S.phase!=='day'||S.over||S.modal) return;
   closeRealm(); closeWorld();
   if(S.raid!==S.cur) enterRegion(S.raid,false);
@@ -2618,6 +2641,7 @@ function upgradeSel(){
   say(`${DEF[b.type].name} raised to level ${b.lvl}.`); save(); ui();
 }
 function step(dt){
+  stepFever(dt);
   S.t+=dt;
   stepHero(dt);
   stepWalkers(dt);
@@ -2662,7 +2686,7 @@ function hurt(e,d,src){
   if(e.hp<=0){
     e.gone=true; e.died=true; const pay=(e.pay+S.mods.tax+(src==='hero'&&hasPerk('bounty')?2:0))*(S.blood&&S.phase==='night'?2:1);
     if(src==='hero') gainXP(e.pay*3);
-    S.res.gold+=pay; S.kills++; S.nightKills++; S.nightGold=(S.nightGold||0)+pay; const nr=S.nr||(S.nr={}); nr[src||'other']=(nr[src||'other']||0)+1;
+    S.res.gold+=pay; S.kills++; S.nightKills++; feverKill(); S.nightGold=(S.nightGold||0)+pay; const nr=S.nr||(S.nr={}); nr[src||'other']=(nr[src||'other']||0)+1;
     if(e.type==='warlord'||e.type==='captain'){ addRenown(10); S.lootPending=(S.lootPending||0)+1; shiftHost(facOf(S.cur),-15,true); }
     if(src==='hero'&&gearOn('coin')){ S.res.gold+=2; }
     if(e.type==='knight'&&e.king&&S.crowns&&S.crowns[e.king]){ const k=S.crowns[e.king]; k.army=Math.max(5,k.army-1); k.ws=(k.ws||0)+.25; }
@@ -2777,7 +2801,9 @@ try{ renderer=new THREE.WebGLRenderer({canvas:glc,antialias:true,powerPreference
 catch(e){ $('board').insertAdjacentHTML('beforeend','<div class="nogl">This device could not start 3D graphics.</div>'); return; }
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 const scene=new THREE.Scene(); scene.background=new THREE.Color(0x7A3A2B);
-const camera=new THREE.OrthographicCamera(-7,7,6,-6,.1,100);
+const orthoCam=new THREE.OrthographicCamera(-7,7,6,-6,.1,100), chaseCam=new THREE.PerspectiveCamera(62,1.6,.1,90);
+let camera=orthoCam, renderPassRef=null;
+scene.fog=new THREE.Fog(0x7A3A2B,500,900);
 const CAM_DIR=new THREE.Vector3(0,Math.sin(58*Math.PI/180),Math.cos(58*Math.PI/180)).multiplyScalar(40);
 const camTarget=new THREE.Vector3(0,0,.35);
 const hemi=new THREE.HemisphereLight(0xFFF2DE,0xB2644A,.62); scene.add(hemi);
@@ -4065,7 +4091,7 @@ function syncLight(t){
   hemi.intensity=.62-.1*k; hemi.color.copy(DAY.sky).lerp(NIGHT.sky,k); hemi.groundColor.copy(DAY.gnd).lerp(NIGHT.gnd,k);
   if(waterMesh&&waterMesh.material.uniforms){ const U=waterMesh.material.uniforms; U.sunColor.value.setHex(0xFFF1DA).lerp(new THREE.Color(0x5A6AA0),k); U.waterColor.value.setHex(0x1E6A78).lerp(new THREE.Color(0x0C2240),k); }
   sun.position.set(camTarget.x+10-k*16+dk*6,16-k*4-dk*10.5,camTarget.z+5-dk*3); sun.target.position.set(camTarget.x,0,camTarget.z);
-  const sr=curHH*Math.max(aspect,1)*1.2+3, sc=sun.shadow.camera;
+  const sr=camera===chaseCam?13:curHH*Math.max(aspect,1)*1.2+3, sc=sun.shadow.camera;
   if(Math.abs(sc.right-sr)>.1){ sc.left=-sr; sc.right=sr; sc.top=sr; sc.bottom=-sr; sc.updateProjectionMatrix(); }
   const srcs=[]; each((b,x,y)=>{ if(b.type==='keep'||b.type==='tower'||b.type==='cata') srcs.push([b.type,x,y]); });
   srcs.sort((a,b)=>Math.hypot(a[1]-C,a[2]-C)-Math.hypot(b[1]-C,b[2]-C));
@@ -4090,7 +4116,7 @@ function updateCamera(raw){
   const lim=C+.5; tx=Math.max(-lim,Math.min(lim,tx)); tz=Math.max(-lim,Math.min(lim,tz));
   const k=Math.min(1,raw*(reduce?30:camFree?12:3.5));
   camTarget.x+=(tx-camTarget.x)*k; camTarget.z+=(tz-camTarget.z)*k;
-  camera.left=-curHH*aspect; camera.right=curHH*aspect; camera.top=curHH; camera.bottom=-curHH; camera.updateProjectionMatrix();
+  orthoCam.left=-curHH*aspect; orthoCam.right=curHH*aspect; orthoCam.top=curHH; orthoCam.bottom=-curHH; orthoCam.updateProjectionMatrix();
 }
 function toggleView(){ viewNear=!viewNear; camFree=null; $('view').setAttribute('aria-pressed',!viewNear); $('view').setAttribute('aria-label',viewNear?'Show whole valley':'Follow hero'); }
 // falling specks and embers live in screen space over the 3D view
@@ -4120,7 +4146,8 @@ function drawMini(){
   for(const e of S.enemies) dot(e.x,e.y,Math.max(1.6*dpr,cs*(e.type==='warlord'?.3:.18)),'#FF4A3D');
   for(const u of S.units) dot(u.x,u.y,Math.max(1.4*dpr,cs*.15),'#5E8DFF');
   if(S.hero&&!S.hero.dead&&heroHere()){ dot(S.hero.x,S.hero.y,Math.max(2.4*dpr,cs*.26),'#1A1A24'); dot(S.hero.x,S.hero.y,Math.max(1.7*dpr,cs*.19),'#FFFFFF'); }
-  if(viewNear){ const hw=curHH*aspect, hd=curHH/SIN58;
+  if(camera===chaseCam&&S.hero){ const a=chYaw; mx.strokeStyle='rgba(255,255,255,.8)'; mx.lineWidth=Math.max(1.5,dpr*1.5); mx.beginPath(); mx.moveTo(P(S.hero.x),P(S.hero.y)); mx.lineTo(P(S.hero.x+Math.cos(a-.5)*4),P(S.hero.y+Math.sin(a-.5)*4)); mx.moveTo(P(S.hero.x),P(S.hero.y)); mx.lineTo(P(S.hero.x+Math.cos(a+.5)*4),P(S.hero.y+Math.sin(a+.5)*4)); mx.stroke(); }
+  else if(viewNear){ const hw=curHH*aspect, hd=curHH/SIN58;
     mx.strokeStyle='rgba(255,255,255,.7)'; mx.lineWidth=Math.max(1,dpr);
     mx.strokeRect(P(camTarget.x-hw+C),P(camTarget.z-hd+C),hw*2*cs,hd*2*cs); }
 }
@@ -4196,7 +4223,7 @@ function drawHud(){
   hctx.globalAlpha=1;
   if(flash>0){ const g=hctx.createRadialGradient(BW/2,BH/2,Math.min(BW,BH)*.25,BW/2,BH/2,Math.max(BW,BH)*.75); g.addColorStop(0,'rgba(200,40,30,0)'); g.addColorStop(1,`rgba(200,40,30,${flash*.7})`); hctx.fillStyle=g; hctx.fillRect(0,0,BW,BH); }
   if(nightA>.02){ const g=hctx.createRadialGradient(BW/2,BH/2,Math.min(BW,BH)*.35,BW/2,BH/2,Math.max(BW,BH)*.8); g.addColorStop(0,'rgba(10,12,30,0)'); g.addColorStop(1,`rgba(8,12,40,${nightA*.32})`); hctx.fillStyle=g; hctx.fillRect(0,0,BW,BH); }
-  drawDanger(); drawEdgeMarks(); drawHudBanner();
+  drawDanger(); drawBigScore(); drawEdgeMarks(); drawHudBanner();
   if(paused&&!S.modal&&!S.over){ hctx.fillStyle='rgba(28,23,20,.45)'; hctx.fillRect(0,0,BW,BH); hctx.fillStyle=CSS.ink; hctx.font=`800 ${Math.round(u*.9)}px "Bricolage Grotesque", system-ui, sans-serif`; hctx.fillText('Paused',BW/2,BH/2); }
 }
 function initBloom(){
@@ -4205,7 +4232,7 @@ function initBloom(){
     const w=Math.max(1,Math.round(BW*dpr)), h=Math.max(1,Math.round(BH*dpr));
     const rt=renderer.capabilities.isWebGL2&&THREE.WebGLMultisampleRenderTarget?new THREE.WebGLMultisampleRenderTarget(w,h,{format:THREE.RGBAFormat}):undefined;
     composer=new THREE.EffectComposer(renderer,rt); composer.setPixelRatio(dpr); composer.setSize(BW,BH);
-    composer.addPass(new THREE.RenderPass(scene,camera));
+    renderPassRef=new THREE.RenderPass(scene,camera); composer.addPass(renderPassRef);
     bloom=new THREE.UnrealBloomPass(new THREE.Vector2(BW,BH),0,.45,.84); composer.addPass(bloom);
     finish=new THREE.ShaderPass({uniforms:{tDiffuse:{value:null},res:{value:new THREE.Vector2(BW*dpr,BH*dpr)},tilt:{value:.8},vig:{value:.32},warm:{value:.3},sat:{value:1.08}},
       vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }',
@@ -4219,6 +4246,7 @@ function initBloom(){
           float d=distance(vUv,vec2(.5,.47)); col*=1.-vig*smoothstep(.32,.86,d);
           gl_FragColor=vec4(col,c.a); }`});
     composer.addPass(finish);
+    mirPass=new THREE.ShaderPass(MIR_POST); mirPass.enabled=false; composer.addPass(mirPass);
   }catch(e){ composer=null; quality='low'; }
 }
 function applyQuality(){
@@ -4231,7 +4259,7 @@ let hudKey='', hudBanner=null, abReady={c:true,r:true};
 function syncHud(){
   const h=S.hero, night=S.phase==='night', left=S.enemies.length+S.queue.length, tot=Math.max(1,S.nightTotal||0,left);
   const kf=Math.max(0,S.keep)/Math.max(1,S.keepMax), hf=h&&!h.dead?h.hp/h.max:0;
-  const key=[S.keep,S.keepMax,night,left,tot,Math.round(hf*40),h&&h.dead,speed,paused,lang,S.day,S.won,S.phase].join('|'); if(key===hudKey) return; hudKey=key;
+  const key=[S.keep,S.keepMax,night,left,tot,Math.round(hf*40),h&&h.dead,speed,paused,lang,S.day,S.won,S.phase,Math.ceil(S.fever||0),Math.round((S.feverM||0)*40)].join('|'); if(key===hudKey) return; hudKey=key;
   const kp=$('kpf'); kp.style.width=(kf*100)+'%'; kp.style.background=kf<=.3?'#E8604F':kf<=.6?'#E0904A':'';
   $('cHp').classList.toggle('low',night&&kf<=.3&&S.keep>0);
   $('cHp').title=T('Keep {{a}} of {{b}}',{a:Math.max(0,S.keep),b:S.keepMax});
@@ -4239,6 +4267,7 @@ function syncHud(){
   $('wbar').hidden=!night;
   $('day').textContent=night?T('Night {{n}}',{n:S.day})+' · '+T('{{n}} left',{n:left}):(S.phase==='night'?T('Night {{n}}',{n:S.day}):T('Day {{n}}',{n:S.day}))+(S.won?'':T(' of {{n}}',{n:WIN_NIGHTS}));
   if(night) $('wpf').style.width=(100*(1-left/tot))+'%';
+  { const fv=$('cFever'), on=S.fever>0; fv.hidden=!(S.phase==='night'&&(on||(S.feverM||0)>0)); fv.classList.toggle('on',on); $('fvt').textContent=on?T('Fever {{n}}s',{n:Math.ceil(S.fever)}):T('Fever'); $('fvf').style.width=(on?S.fever/10*100:(S.feverM||0)*100)+'%'; }
   $('cSpd').hidden=!(paused||speed>1); $('spd').textContent=paused?T('Paused'):speed+'×';
 }
 function showHudBanner(title,sub,col){ hudBanner={t:clock,title,sub,col:col||CSS.ink}; }
@@ -4281,6 +4310,108 @@ function drawDanger(){
   const a=(reduce?.6:.6+.4*Math.sin(clock*5))*(.32+(.3-kf)*1.2), g=hctx.createRadialGradient(BW/2,BH/2,Math.min(BW,BH)*.38,BW/2,BH/2,Math.max(BW,BH)*.72);
   g.addColorStop(0,'rgba(220,40,30,0)'); g.addColorStop(1,`rgba(220,40,30,${a})`); hctx.fillStyle=g; hctx.fillRect(0,0,BW,BH);
 }
+// ---------- Mirage: psychedelic art style, hero view and fever ----------
+let artStyle='classic', heroCam=false, mirK=0, mirSpeed=0, mirOn=false, mirPatchT=0, chYaw=-Math.PI/2, chHold=0, mirPass=null, bigScore={v:0,t:-9,shown:0,bump:0};
+const MIRU={uMir:{value:0},uMirT:{value:0},uBend:{value:0},uMirC:{value:new THREE.Vector2()}};
+const MIR_D=renderer.capabilities.isWebGL2;
+const MIR_PROJ=`vec4 mvPosition = vec4( transformed, 1.0 );
+#ifdef USE_INSTANCING
+mvPosition = instanceMatrix * mvPosition;
+#endif
+vec4 mirWP = modelMatrix * mvPosition; vMirW = mirWP.xyz;
+vec2 mirD = mirWP.xz - uMirC; mirWP.y -= uBend * dot(mirD, mirD);
+mvPosition = viewMatrix * mirWP;
+gl_Position = projectionMatrix * mvPosition;`;
+const MIR_FRAG=`if(uMir>0.001){
+  vec3 mBase=gl_FragColor.rgb; float mL=dot(mBase,vec3(.299,.587,.114));
+  float mV=${MIR_D?'1.0-abs(normalize(cross(dFdx(vMirW),dFdy(vMirW))).y)':'0.5'};
+  float mB=vMirW.y*2.4*(0.35+mV)+(vMirW.x*0.55-vMirW.z*0.35)*(0.4+mV*0.8)+uMirT*0.32;
+  float mF=fract(mB*1.15), mS=smoothstep(0.40,0.47,mF)*(1.0-smoothstep(0.90,0.97,mF));
+  vec3 mP1=0.5+0.5*cos(6.2831*(vec3(0.0,0.33,0.67)+mB*0.21));
+  vec3 mP2=0.5+0.5*cos(6.2831*(vec3(0.62,0.12,0.9)+mB*0.17+0.5));
+  vec3 mPsy=mix(mP1,mP2,mS)*(0.3+1.1*mL)+0.06;
+  gl_FragColor.rgb=mix(mBase,mPsy,uMir*(0.5+0.45*mV));
+}
+#include <fog_fragment>`;
+function patchMat(m){
+  if(!m||m.userData.mirP||!(m.isMeshLambertMaterial||m.isMeshStandardMaterial||m.isMeshPhongMaterial||m.isMeshBasicMaterial||m.isLineBasicMaterial)) return;
+  const prev=m.onBeforeCompile!==THREE.Material.prototype.onBeforeCompile?m.onBeforeCompile:null, key='mir|'+(prev?prev.toString():'');
+  m.onBeforeCompile=(sh,r)=>{ if(prev) prev.call(m,sh,r); Object.assign(sh.uniforms,MIRU);
+    sh.vertexShader='uniform float uBend; uniform vec2 uMirC; varying vec3 vMirW;\n'+sh.vertexShader.replace('#include <project_vertex>',MIR_PROJ);
+    sh.fragmentShader='uniform float uMir; uniform float uMirT; varying vec3 vMirW;\n'+sh.fragmentShader.replace('#include <fog_fragment>',MIR_FRAG); };
+  m.customProgramCacheKey=()=>key; m.userData.mirP=1; m.needsUpdate=true; }
+function patchWater(){ const m=waterMesh&&waterMesh.material; if(!m||!m.isShaderMaterial||m.userData.mirP) return; m.userData.mirP=1;
+  m.uniforms.uBend=MIRU.uBend; m.uniforms.uMirC=MIRU.uMirC;
+  m.vertexShader='uniform float uBend; uniform vec2 uMirC;\n'+m.vertexShader.replace(/gl_Position\s*=\s*projectionMatrix\s*\*\s*mvPosition\s*;/,'{ vec4 mw=modelMatrix*vec4(position,1.0); vec2 md=mw.xz-uMirC; mw.y-=uBend*dot(md,md); gl_Position=projectionMatrix*viewMatrix*mw; }'); m.needsUpdate=true; }
+function patchScene(){ scene.traverse(o=>{ const m=o.material; if(!m) return; if(Array.isArray(m)) m.forEach(patchMat); else patchMat(m); }); patchWater(); }
+const MIR_POST={uniforms:{tDiffuse:{value:null},uK:{value:0},uTime:{value:0},uSpeed:{value:0}},
+  vertexShader:'varying vec2 vUv; void main(){ vUv=uv; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }',
+  fragmentShader:`uniform sampler2D tDiffuse; uniform float uK,uTime,uSpeed; varying vec2 vUv;
+    void main(){ vec2 c=vUv-.5; vec2 uv=vUv+uK*.0035*vec2(sin(vUv.y*16.+uTime*2.1),cos(vUv.x*13.+uTime*1.6));
+      vec3 col=vec3(0.); for(int i=0;i<6;i++){ float f=1.-float(i)*.014*uSpeed; col+=texture2D(tDiffuse,.5+(uv-.5)*f).rgb; } col/=6.;
+      float ca=uK*.012*length(c); col.r=mix(col.r,texture2D(tDiffuse,uv+c*ca).r,uK); col.b=mix(col.b,texture2D(tDiffuse,uv-c*ca).b,uK);
+      vec3 q=mat3(.299,.596,.211,.587,-.274,-.523,.114,-.322,.312)*col; float a=uK*(sin(uTime*.4)*.5+length(c)*1.2); float cs=cos(a),sn=sin(a); q.yz=mat2(cs,-sn,sn,cs)*q.yz;
+      col=mat3(1.,1.,1.,.956,-.272,-1.106,.621,-.647,1.703)*q;
+      float l=dot(col,vec3(.299,.587,.114)); col=mix(vec3(l),col,1.+.65*uK); col=mix(col,(col-.5)*1.12+.5,uK);
+      gl_FragColor=vec4(clamp(col,0.,1.),1.); }`};
+const MBG=new THREE.Color();
+const skyDome=new THREE.Mesh(new THREE.SphereGeometry(70,32,16),new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,fog:false,
+  uniforms:{uK:{value:0},uT:{value:0},uNight:{value:0},uTop:{value:new THREE.Color(0x6FA2D6)},uHor:{value:new THREE.Color(0xF2C08A)}},
+  vertexShader:'varying vec3 vDir; void main(){ vDir=position; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.); }',
+  fragmentShader:`uniform float uK,uT,uNight; uniform vec3 uTop,uHor; varying vec3 vDir;
+    void main(){ vec3 d=normalize(vDir); float h=clamp(d.y,0.,1.); vec3 base=mix(uHor,uTop,pow(h,.55));
+      float a=atan(d.z,d.x), rays=.5+.5*sin(a*14.+uT*.9+h*7.);
+      vec3 psy=.5+.5*cos(6.2831*(vec3(0.,.33,.67)+h*1.6-uT*.09+rays*.3));
+      psy=mix(psy,psy.gbr,smoothstep(.45,.55,fract(h*7.-uT*.25))*.55);
+      float sunD=max(0.,1.-length(d.xz)*1.2-abs(d.y-.25));
+      gl_FragColor=vec4(mix(base,psy*(1.-.5*uNight)+sunD*.25,uK),1.); }`}));
+skyDome.renderOrder=-10; skyDome.frustumCulled=false; skyDome.visible=false; scene.add(skyDome);
+const SKY_TOP=new THREE.Color(0x6FA2D6), SKY_HOR=new THREE.Color(0xF2C08A), SKY_NT=new THREE.Color(0x0E1636), SKY_NH=new THREE.Color(0x3A3C7A);
+function syncMirage(raw,t){
+  const night=S.phase==='night', want=artStyle==='mirage'||S.fever>0?1:0;
+  mirK+=(want-mirK)*Math.min(1,raw*(reduce?30:1.6)); if(mirK<.002) mirK=0;
+  const chase=heroCam&&S.hero&&heroHere()&&!S.over;
+  if(chase&&BW){ const h=S.hero, hx=W2(h.x), hz=W2(h.y);
+    if(chHold>0) chHold-=raw; else if(h.moving||h.dash){ let d=h.dir-chYaw; d=Math.atan2(Math.sin(d),Math.cos(d)); chYaw+=d*Math.min(1,raw*(h.dash?6:2.4)); }
+    const cx=Math.cos(chYaw), cz=Math.sin(chYaw), back=2.9+(S.fever>0?.5:0);
+    chaseCam.aspect=BW/BH; chaseCam.fov=62+mirSpeed*10; chaseCam.updateProjectionMatrix();
+    chaseCam.position.set(hx-cx*back,2.1,hz-cz*back); if(shake>0&&!reduce){ chaseCam.position.x+=(Math.random()-.5)*shake*.4; chaseCam.position.y+=(Math.random()-.5)*shake*.3; }
+    chaseCam.lookAt(hx+cx*2.8,.1,hz+cz*2.8); camera=chaseCam; }
+  else camera=orthoCam;
+  const bend=(camera===chaseCam?.012:0)+mirK*(camera===chaseCam?.024:.006);
+  const sp=S.hero&&(S.hero.dash?1.2:S.hero.moving?(camera===chaseCam?.55:.15):0)*(S.fever>0?1.6:1)||0; mirSpeed+=(sp*mirK-mirSpeed)*Math.min(1,raw*4);
+  if(!mirOn&&(mirK>0||bend>0)) mirOn=true;
+  if(mirOn){ mirPatchT-=raw; if(mirPatchT<=0){ mirPatchT=1; patchScene(); } }
+  MIRU.uMir.value=mirK; MIRU.uMirT.value=reduce?0:t; MIRU.uBend.value=bend;
+  if(camera===chaseCam) MIRU.uMirC.value.set(chaseCam.position.x,chaseCam.position.z); else MIRU.uMirC.value.set(camTarget.x,camTarget.z);
+  if(mirK>0){ MBG.setHSL(((reduce?0:t)*.05)%1,.75,night?.28:.5); scene.background.lerp(MBG,mirK*.85); }
+  skyDome.visible=camera===chaseCam;
+  if(skyDome.visible){ const U=skyDome.material.uniforms; skyDome.position.copy(chaseCam.position); U.uK.value=mirK; U.uT.value=reduce?0:t; U.uNight.value=nightA;
+    U.uTop.value.copy(SKY_TOP).lerp(SKY_NT,nightA); U.uHor.value.copy(S.kind==='mountain'?BGM:SKY_HOR).lerp(SKY_NH,nightA).lerp(DUSK,goldK*.4);
+    if(mirK<.5) scene.background.copy(U.uHor.value); }
+  scene.fog.color.copy(scene.background);
+  if(camera===chaseCam){ scene.fog.near=7+(1-mirK)*4; scene.fog.far=24+(1-mirK)*8; } else { scene.fog.near=500; scene.fog.far=900; }
+}
+function setArtStyle(v){ artStyle=v; $('style').textContent=T(v==='mirage'?'Mirage':'Classic'); $('style').setAttribute('aria-pressed',v==='mirage'); savePrefs(); if(v==='mirage') showHudBanner(T('Mirage'),T('The canyon dreams in color'),'#F0BE4E'); }
+function toggleHeroCam(){ heroCam=!heroCam; $('cam').setAttribute('aria-pressed',heroCam); $('cam').title=T(heroCam?'Top view (K)':'Hero view (K)'); if(heroCam&&S.hero){ chYaw=S.hero.dir??-Math.PI/2; if(!viewNear) toggleView(); camFree=null; } savePrefs(); }
+function feverKill(){ if(S.fever>0) { S.fever=Math.min(14,S.fever+.35); return; }
+  const fast=S.t-(S.lastKillT||-9)<3; S.lastKillT=S.t; S.streak=fast?(S.streak||0)+1:1;
+  S.feverM=Math.min(1,(S.feverM||0)+(fast?.11:.06));
+  if(S.feverM>=1){ S.fever=10; S.feverM=0; if(S.hero){ S.hero.cdC=0; S.hero.cdR=0; } sfx('up'); shake=Math.max(shake,.25); showHudBanner(T('Fever!'),T('Your hero strikes twice as hard and runs faster'),'#F0BE4E'); bump('cFever','bump'); } }
+function stepFever(dt){ if(S.phase!=='night'){ S.fever=0; S.feverM=0; return; } if(S.fever>0){ S.fever=Math.max(0,S.fever-dt); if(!S.fever) say(T('The fever fades.')); } else if(S.feverM>0) S.feverM=Math.max(0,S.feverM-dt*.025); }
+// a giant wobbling score in the Mirage style
+function drawBigScore(){
+  if(mirK<.25||S.modal||S.over) return;
+  if(clock-bigScore.t>.5){ bigScore.t=clock; const v=score(); if(v!==bigScore.v){ if(bigScore.v) bigScore.bump=1; bigScore.v=v; } }
+  bigScore.shown+=(bigScore.v-bigScore.shown)*Math.min(1,FR*6); bigScore.bump=Math.max(0,bigScore.bump-FR*2.5);
+  const u=Math.max(26,BW/16), txt=String(Math.round(bigScore.shown)), y=chipsBottom()+u*1.05, wob=reduce?0:Math.sin(clock*1.7)*.07, sc=1+bigScore.bump*.18;
+  hctx.save(); hctx.globalAlpha=Math.min(1,(mirK-.25)*2); hctx.translate(BW/2,y); hctx.rotate(-.05+wob); hctx.scale(sc,sc);
+  hctx.font=`italic 900 ${Math.round(u*1.25)}px "Bricolage Grotesque", system-ui, sans-serif`; hctx.textAlign='center'; hctx.textBaseline='middle';
+  for(let i=6;i>0;i--){ hctx.fillStyle=`hsl(${(clock*60+i*28)%360},85%,${22+i*3}%)`; hctx.fillText(txt,i*1.4,i*1.6); }
+  const g=hctx.createLinearGradient(-u*2,-u*.6,u*2,u*.6); for(let i=0;i<=4;i++) g.addColorStop(i/4,`hsl(${(clock*80+i*70)%360},95%,65%)`);
+  hctx.fillStyle=g; hctx.fillText(txt,0,0); hctx.lineWidth=2; hctx.strokeStyle='rgba(255,255,255,.7)'; hctx.strokeText(txt,0,0);
+  hctx.font=`700 ${Math.round(Math.max(10,u*.28))}px Inter, system-ui, sans-serif`; hctx.fillStyle='rgba(255,255,255,.85)'; hctx.fillText(T('Best {{n}}',{n:Math.max(bestScore,bigScore.v)}),0,u*.85);
+  hctx.restore(); }
 let abilKey='';
 function syncAbil(){
   const h=S.hero; if(!h) return;
@@ -4298,15 +4429,19 @@ function render(raw,t){
   syncBuildings(); animateBuildings(t); syncEnemies(); syncHero(t,raw); syncShots(); syncPuffs(); syncRoutes(t); syncSpawns(t); syncSelection(); syncGhost(); syncLight(t);
   if(gridLines){ const want=(S.phase==='day'&&!S.over&&!S.modal&&DEF[S.tool])?(nightA>.3?0:.2):0, mt=gridLines.material; mt.opacity+=(want-mt.opacity)*Math.min(1,raw*8); gridLines.visible=mt.opacity>.01; }
   updateCamera(raw);
-  camera.position.copy(camTarget).add(CAM_DIR);
-  if(shake>0&&!reduce){ camera.position.x+=(Math.random()-.5)*shake*.5; camera.position.z+=(Math.random()-.5)*shake*.5; }
-  camera.lookAt(camera.position.clone().sub(CAM_DIR));
+  syncMirage(raw,t);
+  if(camera===orthoCam){
+    camera.position.copy(camTarget).add(CAM_DIR);
+    if(shake>0&&!reduce){ camera.position.x+=(Math.random()-.5)*shake*.5; camera.position.z+=(Math.random()-.5)*shake*.5; }
+    camera.lookAt(camera.position.clone().sub(CAM_DIR)); }
   glowMat.opacity=nightA*.6;
   if(!paused) stepBurn(raw,t);
   syncAmbient(raw,t); syncHud();
-  if(quality==='high') initBloom();
-  const post=!!(composer&&quality==='high'); $('board').classList.toggle('post',post);
-  if(post){ bloom.enabled=nightA>.03; bloom.strength=nightA*.75;
+  if(quality==='high'||mirK>.01) initBloom();
+  const post=!!(composer&&(quality==='high'||mirK>.01)); $('board').classList.toggle('post',post);
+  if(post){ bloom.enabled=nightA>.03||mirK>.05; bloom.strength=Math.max(nightA*.75,mirK*.55);
+    if(mirPass){ mirPass.enabled=mirK>.01; const U=mirPass.uniforms; U.uK.value=mirK; U.uTime.value=reduce?0:clock; U.uSpeed.value=reduce?0:mirSpeed; }
+    if(renderPassRef) renderPassRef.camera=camera;
     if(finish){ const U=finish.uniforms; U.tilt.value=reduce?0:(viewNear?Math.min(1,.55+.12*(zoomHH-2.2)):.35); U.warm.value=.32*(1-nightA)+goldK*1.15; U.sat.value=1.1-nightA*.18+goldK*.08; U.vig.value=.3+nightA*.12; }
     composer.render(); }
   else renderer.render(scene,camera);
@@ -5640,12 +5775,14 @@ function applyLang(){
   if(S){ ui(); if(!$('realm').hidden) renderRealm(); }
   $('qual').textContent=T(quality==='high'?'High':'Low');
 }
-function savePrefs(){ try{ localStorage.setItem(PREF,JSON.stringify({lang,slot,speed,zoom:+zoomHH.toFixed(2),sound,music:musicOn,quality,qualityChosen})); }catch(e){} }
+function savePrefs(){ try{ localStorage.setItem(PREF,JSON.stringify({lang,slot,speed,zoom:+zoomHH.toFixed(2),sound,music:musicOn,quality,qualityChosen,artStyle,heroCam})); }catch(e){} }
 function loadPrefs(){ lang=/^es/i.test(navigator.language||'')?'es':'en'; try{ const p=JSON.parse(localStorage.getItem(PREF)||'{}');
   if(p.lang==='es'||p.lang==='en') lang=p.lang; if(p.slot>=1&&p.slot<=4) slot=p.slot;
   if([1,2,3].includes(p.speed)){ speed=p.speed; $('speed').textContent=speed+'×'; }
   if(p.zoom>=ZMIN&&p.zoom<20) zoomHH=p.zoom;
   if(p.quality==='low'||p.quality==='high'){ quality=p.quality; qualityChosen=!!p.qualityChosen; }
+  if(p.artStyle==='mirage'){ artStyle='mirage'; $('style').textContent=T('Mirage'); $('style').setAttribute('aria-pressed','true'); }
+  if(p.heroCam){ heroCam=true; $('cam').setAttribute('aria-pressed','true'); }
   if(p.sound){ sound=true; musicOn=!!p.music; $('sound').setAttribute('aria-pressed',true); $('sndwave').setAttribute('opacity','1'); if(musicOn) setTimeout(()=>setAudio(2,true),0); }
 }catch(e){} }
 addEventListener('pointerdown',()=>{ if(sound&&!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } },true);
@@ -5761,6 +5898,7 @@ glc.addEventListener('pointermove',ev=>{
   if(!drag||ev.pointerId!==drag.id) return;
   const dx=ev.clientX-drag.x, dy=ev.clientY-drag.y;
   if(!dragged&&Math.hypot(dx,dy)>8){ dragged=true; if(!viewNear) toggleView(); }
+  if(dragged&&camera===chaseCam){ chYaw+=(ev.clientX-drag.lx)*.008; chHold=1.6; drag.lx=ev.clientX; hover=null; return; }
   if(dragged){
     const wpp=(2*curHH*aspect)/BW; camFree={x:drag.cx-dx*wpp,y:drag.cz-dy*wpp/SIN58}; hover=null;
     const now=performance.now(), dt=Math.max(1,now-drag.lt)/1000;
@@ -5783,6 +5921,8 @@ mc.addEventListener('pointerdown',ev=>{
   if(!viewNear) toggleView(); camFree={x:tx-C,y:ty-C}; camVel=null;
 });
 $('view').addEventListener('click',toggleView);
+$('style').addEventListener('click',()=>setArtStyle(artStyle==='mirage'?'classic':'mirage'));
+$('cam').addEventListener('click',toggleHeroCam);
 $('realmBtn').addEventListener('click',toggleRealm);
 $('worldBtn').addEventListener('click',()=>{ if($('world').hidden) openWorld(); else closeWorld(); });
 initWorldUI();
@@ -5808,6 +5948,8 @@ addEventListener('keydown',ev=>{
   else if(k==='u') upgradeSel();
   else if(k==='escape'){ sel=null; closeRealm(); closeWorld(); renderInsp(); }
   else if(k==='v') toggleView();
+  else if(k==='i') setArtStyle(artStyle==='mirage'?'classic':'mirage');
+  else if(k==='k') toggleHeroCam();
   else if(k==='m') toggleRealm();
   else if(k==='q') useCharge();
   else if(k==='e') useRally();
