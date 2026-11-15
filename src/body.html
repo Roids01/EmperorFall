@@ -1,0 +1,164 @@
+
+
+<main>
+<div class="playcol">
+  <header>
+    <h1><svg class="crest" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 12.5V6l3 3 3-5.5 3 5.5 3-3v6.5z" fill="#F0BE4E"/><rect x="2" y="13.2" width="12" height="1.4" rx=".4" fill="#D99A60"/><circle cx="2" cy="6" r=".9" fill="#E8604F"/><circle cx="8" cy="3.5" r=".9" fill="#E8604F"/><circle cx="14" cy="6" r=".9" fill="#E8604F"/></svg>Small <span>Crown</span></h1>
+    <span id="best"></span>
+  </header>
+
+  <div class="res" id="res" aria-live="polite"></div>
+  <div class="goods" id="goods" hidden></div>
+  <div class="board" id="board">
+    <canvas id="gl" aria-label="Canyon valley. Tap a tile to build or inspect. Drag to look around."></canvas>
+    <div class="grade" id="grade"></div>
+    <div class="vig" aria-hidden="true"></div>
+    <div class="toasts" id="toasts" aria-live="polite"></div>
+    <canvas id="hud" aria-hidden="true"></canvas>
+    <canvas id="mini" aria-label="Minimap. Tap to look at that part of the valley."></canvas>
+    <div class="joy" id="joy" hidden><span class="lab" data-t>Ride</span></div>
+    <button class="fs" id="realmBtn" type="button" style="right:54px" aria-label="Realm map (M)" title="Realm map (M)"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 3l4.5-1.5 5 2L15 2v11l-4.5 1.5-5-2L1 14z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M5.5 1.5v11M10.5 3.5v11" stroke="currentColor" stroke-width="1.2"/></svg></button>
+    <div class="realm" id="realm" hidden></div>
+    <button class="fs" id="worldBtn" type="button" style="right:98px" aria-label="Map of Ashkara" title="Map of Ashkara"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.3" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M3 6c2 .5 3-1 4.5 0s1 2.5 3 2.5S13 7 13.8 9M5 12.5c.5-1.5 2-1.5 2.5-3" fill="none" stroke="currentColor" stroke-width="1.2"/></svg></button>
+    <div class="world" id="world" hidden>
+      <div class="wbar"><h2 data-t>The map of Ashkara</h2><span class="wtools"><button type="button" class="x" id="wStyle" aria-pressed="true">Terrain</button><button type="button" class="x" id="wOut" aria-label="Zoom out">−</button><button type="button" class="x" id="wIn" aria-label="Zoom in">+</button><button type="button" class="x" id="wClose" data-t>Close</button></span></div>
+      <div class="wbody"><canvas id="wmap" aria-label="Map of the continent. Tap a land to see it."></canvas><div class="wpanel" id="wpanel"></div></div>
+    </div>
+    <button class="fs" id="fs" type="button" hidden aria-label="Full screen" title="Full screen"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M1 5V1h4M11 1h4v4M15 11v4h-4M5 15H1v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+    <div class="chips" aria-live="polite">
+      <div class="chip" id="cHp"><i><svg viewBox="0 0 12 12"><path d="M2 11V5l1.5-1.5L5 5V3l1-1 1 1v2l1.5-1.5L10 5v6z" fill="#F2EADD"/></svg></i><span id="hp">10</span><b class="mb kb"><b id="kpf"></b></b></div>
+      <span class="brk" aria-hidden="true"></span>
+      <div class="chip" id="cDay"><i><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="2.6" fill="#D99A60"/><path d="M6 .8v1.6M6 9.6v1.6M.8 6h1.6M9.6 6h1.6M2.3 2.3l1.1 1.1M8.6 8.6l1.1 1.1M2.3 9.7l1.1-1.1M8.6 3.4l1.1-1.1" stroke="#D99A60" stroke-width="1.1"/></svg></i><span id="day">Day 1</span><b class="mb wave" id="wbar" hidden><b id="wpf"></b></b></div>
+      <div class="chip" id="cRegion"><i><svg viewBox="0 0 12 12"><path d="M6 1a3.5 3.5 0 0 1 3.5 3.5C9.5 7 6 11 6 11S2.5 7 2.5 4.5A3.5 3.5 0 0 1 6 1z" fill="#D99A60"/><circle cx="6" cy="4.5" r="1.3" fill="#28201C"/></svg></i><span id="region">The Valley</span></div>
+      <div class="chip" id="cSeason"><i><svg viewBox="0 0 12 12"><circle id="seaDot" cx="6" cy="6" r="3.4" fill="#8FCB7E"/></svg></i><span id="season">Spring</span></div>
+      <div class="chip" id="cHero" title="Your hero's level. Felling raiders earns experience."><i><svg viewBox="0 0 12 12"><path d="M6 1l1.5 3.2 3.5.4-2.6 2.4.7 3.5L6 8.8 2.9 10.5l.7-3.5L1 4.6l3.5-.4z" fill="#F0BE4E"/></svg></i><span id="hlv">Lv 1</span><span class="bars"><b class="mb hpb" title="Health"><b id="hhpf"></b></b><b class="mb" title="Experience"><b id="xpf" style="width:0"></b></b></span></div>
+      <div class="chip fever" id="cFever" hidden title="Fever: fell raiders quickly to fill it"><i><svg viewBox="0 0 12 12"><path d="M6 1c1 2 3 3 3 6a3 3 0 0 1-6 0c0-1.3.6-2 1.2-2.6C4.4 6 5 6.4 5.6 6 5.2 4.4 5.4 2.6 6 1z" fill="#F0BE4E"/></svg></i><span id="fvt"></span><b class="mb fv"><b id="fvf"></b></b></div>
+      <div class="chip coop" id="cCoop" hidden><i><svg viewBox="0 0 12 12"><circle cx="4" cy="4.5" r="2" fill="#C77DFF"/><circle cx="8.5" cy="4.5" r="2" fill="#86B6FF"/><path d="M1 11c.4-2.4 1.6-3.5 3-3.5s2.6 1.1 3 3.5M5 11c.4-2.4 1.8-3.5 3.5-3.5S11.6 8.6 12 11" fill="#C9BCE8"/></svg></i><span id="coopT"></span></div>
+      <div class="chip spd" id="cSpd" hidden><span id="spd">2×</span></div>
+      <div class="chip" id="cLoad"><i><svg viewBox="0 0 12 12"><circle cx="6" cy="6" r="4" fill="none" stroke="#B5A795" stroke-width="1.4" stroke-dasharray="6 4"/></svg></i><span data-t>Loading models</span></div>
+    </div>
+    <div class="abil" id="abil">
+      <button class="ab" id="aCharge" type="button" aria-label="Charge (Q)" title="Charge (Q): your hero dashes forward, cutting down raiders in his path"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M3 15l7-4-2-2 9-6-5 8 2 2-11 2z" fill="currentColor"/></svg><span class="cdn"></span><span class="kk">Q</span></button>
+      <button class="ab" id="aRally" type="button" aria-label="Rally (E)" title="Rally (E): every soldier rushes to your hero and fights harder for 8 seconds"><svg viewBox="0 0 22 22" aria-hidden="true"><path d="M3 9h3l8-5v14l-8-5H3z" fill="currentColor"/><path d="M16.5 8a4 4 0 0 1 0 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span class="cdn"></span><span class="kk">E</span></button>
+    </div>
+    <div class="over" id="over" hidden></div>
+  </div>
+
+  <div class="coopbar" id="coopbar" hidden></div>
+  <div class="quest" id="quest" aria-live="polite"></div>
+  <div class="req petition" id="petition" hidden aria-live="polite"></div>
+  <div class="req" id="req" hidden aria-live="polite"></div>
+  <div class="req trader" id="trader" hidden></div>
+
+  <div class="insp" id="insp" aria-live="polite"></div>
+  <p id="msg"></p>
+
+  <div class="tcats" id="tcats" role="tablist" aria-label="Building groups"></div>
+  <div class="tools" id="tools" role="group" aria-label="Build tools"></div>
+
+  <div class="row">
+    <button class="bell" id="bell" type="button"></button>
+    <div class="ctl">
+    <button class="ic" id="pause" type="button" aria-label="Pause" aria-pressed="false" title="Pause (P)">
+      <svg viewBox="0 0 18 18" aria-hidden="true"><rect x="4" y="3" width="3.5" height="12" rx="1" fill="currentColor"/><rect x="10.5" y="3" width="3.5" height="12" rx="1" fill="currentColor"/></svg></button>
+    <button class="ic" id="speed" type="button" aria-label="Game speed" title="Speed (F)">1×</button>
+    <button class="ic" id="view" type="button" aria-label="Show whole valley" aria-pressed="false" title="Whole valley (V)">
+      <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M2 6V2h4M12 2h4v4M16 12v4h-4M6 16H2v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg></button>
+    <button class="ic" id="cam" type="button" aria-pressed="false" aria-label="Hero view" title="Hero view (K)"><svg viewBox="0 0 18 18" aria-hidden="true"><path d="M2 14l7-10 7 10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><circle cx="9" cy="11" r="2" fill="currentColor"/></svg></button>
+    <button class="ic" id="sound" type="button" aria-label="Sound" aria-pressed="false" title="Sound">
+      <svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 7h3l4-3v10l-4-3H3z" fill="currentColor"/><path id="sndwave" d="M12.5 6.5a3.5 3.5 0 0 1 0 5M14.5 4.5a6.5 6.5 0 0 1 0 9" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" opacity=".3"/></svg></button>
+    <button class="ic" id="setBtn" type="button" aria-label="Settings" aria-expanded="false" aria-controls="setmenu" title="Settings"><svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="2.4" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M9 1.8v2.4M9 13.8v2.4M1.8 9h2.4M13.8 9h2.4M3.9 3.9l1.7 1.7M12.4 12.4l1.7 1.7M3.9 14.1l1.7-1.7M12.4 5.6l1.7-1.7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg></button>
+    <div class="setmenu" id="setmenu" hidden role="dialog" aria-label="Settings">
+      <div class="srow"><span data-t>Art style</span><button class="seg" id="style" type="button" aria-pressed="false" title="Art style (I)">Classic</button></div>
+      <div class="srow"><span data-t>Graphics</span><button class="seg" id="qual" type="button" aria-label="Graphics quality" title="High adds night glow and sharper shadows">High</button></div>
+      <div class="srow"><span data-t>Language</span><button class="seg" id="lang" type="button" aria-label="Language: English. Switch to Spanish" title="Español / English">EN</button></div>
+      <div class="srow" id="installRow"><span data-t>App</span><button class="seg" id="install" type="button" hidden title="Install Small Crown on this device">Install</button></div>
+      <div class="srow"><span data-t>Kingdom code</span><button class="seg" id="shareBtn" type="button">Share</button></div>
+      <div class="srow"><span></span><button class="seg" id="codeBtn" type="button">Load a code</button></div>
+      <div class="srow"><span data-t>Two players</span><button class="seg" id="coopBtn" type="button">Play together</button></div>
+      <p class="skeys" data-t>Keys: P pause, F speed, V whole valley, K hero view, I art style, M realm map.</p>
+    </div>
+    </div>
+  </div>
+
+</div>
+<aside class="side" id="side" aria-label="Kingdom">
+  <div class="tabs" id="tabs" role="tablist" aria-label="Kingdom panels"></div>
+  <details class="ledger throne" id="throneD" open>
+    <summary><span data-t>The throne</span><span class="achsum" id="thronesum"></span></summary>
+    <div id="throne"></div>
+  </details>
+
+  <details class="ledger" id="marketD">
+    <summary><span data-t>Market and stores</span><span class="achsum" id="mktsum"></span></summary>
+    <div id="mkt"></div>
+  </details>
+
+  <details class="ledger" id="treasD" open>
+    <summary data-t>Treasury at dawn</summary>
+    <div class="charts" id="charts"></div>
+    <div id="ledger"></div>
+  </details>
+
+  <details class="ledger" id="chronD">
+    <summary data-t>Chronicle</summary>
+    <div class="chron" id="chron"></div>
+  </details>
+
+  <details class="ledger" id="achD">
+    <summary><span data-t>Achievements</span><span class="achsum" id="achsum"></span></summary>
+    <div class="ach" id="ach"></div>
+  </details>
+
+  <details class="ledger" id="heroD">
+    <summary><span data-t>Hero</span><span class="achsum" id="herosum"></span></summary>
+    <div class="gear" id="gear"></div>
+  </details>
+
+  <details class="ledger" id="edictD">
+    <summary><span data-t>Edicts</span><span class="achsum" id="edictsum"></span></summary>
+    <div class="upg" id="edicts"></div>
+  </details>
+
+  <details class="ledger" id="upgD" open>
+    <summary data-t>Kingdom upgrades</summary>
+    <div class="upg" id="upg"></div>
+  </details>
+
+  <details id="helpD">
+    <summary data-t>How to rule</summary>
+    <p data-th="help1"><b>The goal</b> is to hold the keep through 20 nights. Your score counts nights held, raiders felled, villagers and buildings, and Hard raises it. After night 20 you can keep ruling in endless mode. Quests along the way teach the basics and pay out goods.</p>
+    <p data-th="help2"><b>The realm.</b> From day 3 your scouts find Saltreach Cove on the coast. Open the realm map (<kbd>M</kbd>, or the map button on the valley) to travel there. Your hero can only be in one region at a time. Each dawn announces which region tonight's raid will hit, so ride there in time; a region without your hero stands on its own. If the cove's fort falls, raiders plunder a third of your gold and food. If the valley's keep falls, the kingdom falls.</p>
+    <p data-th="help3"><b>Harbor and trade.</b> Build a harbor (<kbd>N</kbd>) on the cove's shore. It fishes for food and berths a ship. Tap the harbor to send ships to foreign ports: the Salt Isles buy stone, Qasr Amber buys food and sends back spices that lift the mood, Ironhold buys wood and sends back iron for your blacksmith, and Far Cathay turns gold into more gold. Longer voyages pay more but risk more, especially in winter. Pirates raid the cove from the sea.</p>
+    <p data-th="help20"><b>Ironpeak Pass.</b> On day 7 your scouts find a snowy pass to the north. Mines there dig iron instead of stone, and pines stand in for palm groves. From day 9 raiders may come down from its northern heights. In winter or snow, avalanches can bury buildings beside the cliffs.</p>
+    <p data-th="help21"><b>Iron and the blacksmith.</b> Iron comes from the mines of Ironpeak Pass and from voyages to Ironhold. Build one blacksmith (<kbd>G</kbd>) anywhere and tap it to forge arms (+1 damage for your hero and soldiers) or plate (+2 health for soldiers, +3 for your hero), three times each.</p>
+    <p data-th="help22"><b>Taverns, roads and the sea.</b> A tavern (<kbd>T</kbd>) lifts the mood and earns 2 gold a dawn; tap it to hire three sellswords who guard the raided region's keep for one night. Roads (<kbd>Y</kbd>) cost 1 stone: your hero rides 40% faster on them, and farms, lumber camps and mines next to one yield 1 more. At the cove, a lighthouse (<kbd>L</kbd>) weakens landing pirates, and warships built from a harbor's panel sail out to sink pirate boats before they land.</p>
+    <p data-th="help23"><b>Chapters, achievements and the daily challenge.</b> The story unfolds in five chapters across the 20 nights. Achievements are kept on this device. The daily challenge, chosen from the save menu, gives everyone the same valley and the same twist for the day.</p>
+    <p data-th="help24"><b>Requests, traders and feasts.</b> Now and then a villager asks for something, like a well, roads or a full granary. Fulfill it within three days for gold and a better mood, or they give up and grumble. A wandering trader sometimes sets up by the keep for a day with rare goods. Once each season, tap the keep to hold a feast. New raiders join over time: wolf packs run down from Ironpeak Pass, sappers from night 10 blow up whatever they reach, and pirate captains lead some raids on the cove and carry a sea chest of gold.</p>
+    <p data-th="help25"><b>Edicts, neighbors and gear.</b> Proclaim up to two edicts (three from day 10) for 5 gold each; every one helps somewhere and costs somewhere else. Three neighbors raid you: the Sand Wolves ride on The Valley, the Red Brotherhood on the cove and the Iron Clans on the pass. The angrier a neighbor, the bigger and more frequent its raids. Calm them with gifts from the realm map, beat their raids without losses, or kill their champions; once calm, offer a trade pact. Furious neighbors may demand tribute. Warlords and pirate captains drop gear for your hero's weapon, armor and charm slots. A watchtower at level 3 can become a ballista or a fire-arrow tower.</p>
+    <p data-th="help26"><b>The throne.</b> Your realm grows in rank from hamlet to village, town, city and capital as it earns renown. Renown comes from defending without losses, slaying warlords and pirate captains, feasts, fulfilled requests and some petitions. Each rank opens a council seat; a town can raise the keep into a castle and a city into a citadel. Set taxes from low to crushing: more gold, unhappier villagers. Appoint a steward, marshal, treasurer, chaplain and spymaster from three candidates each, and watch their loyalty, since disloyal councillors may flee with your gold. Most days a petition reaches the throne: choose one of two answers and live with it.</p>
+    <p data-th="help27"><b>Goods and living standards.</b> Beyond the basics, your villagers want cloth, ale and salt. Goat pastures (<kbd>J</kbd>) give wool, weavers (<kbd>O</kbd>) turn it into cloth, breweries (<kbd>I</kbd>) turn food into ale, and salt pans (<kbd>,</kbd>) on the cove's shore make salt. Meeting those wants lifts their living standard from poor to modest, comfortable and prosperous, which raises mood and multiplies taxes. Workshops (<kbd>.</kbd>) turn iron and wood into tools; with enough tools every producer yields 1 more. Food spoils a little each dawn (less in winter, half with salt), every store holds up to 80 of each good, and storehouses (<kbd>K</kbd>) add 60 more. Idle villagers pay half taxes. Market prices follow the seasons and drop when your stores are full; trade everything from the Market and stores panel. Vellmar buys cloth and Kharum buys salt by sea.</p>
+    <p data-th="help28"><b>Ashkara and its crowns.</b> Your realm sits in the south of Ashkara, a continent of deserts, steppes, forests and mountains divided into some two dozen lands. Open the map with the globe button. Three rival crowns hold their own capitals and lands: King Harun of Qadir (warlike), Queen Ysolde of Merrow (cunning) and King Osric of Hallowmere (pious). Every dawn they grow, claim free land on their borders, feud and go to war with each other, and may form a coalition if you grow too strong. Prestige counts renown, gold, army, people and lands. You can settle, buy or conquer only lands that border yours. In each crown's court you can send envoys, sign trade agreements, pacts of peace and military alliances, marry into their house, request aid from allies, demand tribute, impose an embargo, sabotage them through your spymaster, denounce them or declare war; at war you can offer peace, demand surrender or call your allies in. Take a rival's capital and their crown falls. Finish 20 nights at the top to be named High King.</p>
+    <p data-th="help29"><b>Placement, caravans and wonders.</b> Where you build matters: a farm beside two other farms or near a well grows more, mines and workshops near the smith work faster, lumber camps crowd each other, markets and taverns earn more among houses, and houses like wells, markets and shrines nearby but hate mines and breweries next door. The bonus shows while you place a building. With a trade agreement, send a daily caravan of goods to another crown from the Market and stores panel; each crown pays well for what it lacks, but prices fall the more you send. The Merchant Guild lends gold with interest and takes investments. From the throne, begin one of five wonders; each needs several dawns of work and a daily delivery of goods, and gives a lasting bonus.</p>
+    <p data-th="help30"><b>Mirage, hero view and fever.</b> The Mirage button (I) turns the canyon into a psychedelic dream: rainbow-striped walls, a curving horizon, shifting colors and a giant score. The hero view button (K) puts the camera low behind your hero; steering follows the camera, and dragging turns the view. At night, felling raiders quickly fills the Fever meter. When it is full, the world goes Mirage for ten seconds, your hero hits twice as hard, runs faster and gets both abilities back, and every kill stretches the fever.</p>
+    <p data-th="help31"><b>Court audiences, maps and friends.</b> Every few days a visitor asks for an audience: a bard, a noblewoman, a desert prophet, a smuggler, a scholar, refugees or a secret envoy. Your choices change gold, food, mood, renown and relations, and some visitors come back later remembering what you did. The map of Ashkara is drawn on parchment by hand; the Terrain button switches back. Raider captains and warlords now think: they rally nearby raiders, go after weak walls, slip around your towers and fall back to heal when hurt. In Settings you can share your kingdom as a code, load a friend's code, or play together: one player hosts, the other joins with a four-letter code and sends build orders, trades, pings and quick signals. Playing together works on the web version at smallcrown.netlify.app.</p>
+    <p data-th="help4"><b>Seasons</b> turn every 5 days. Spring rains add 1 food per farm, summer heat costs 1, harvest adds 2 and lifts markets, and winter costs 2 while every house burns 1 wood a dawn to stay warm. Weather is rolled each dawn: rain stops fires, sandstorms slow raiders but shorten your towers' sight, snow slows everyone.</p>
+    <p data-th="help5"><b>Mood.</b> Villagers are happier with wells and shrines nearby, full granaries and a good harvest, and unhappier after hunger, cold houses and buildings lost to raiders. Content villagers pay extra taxes; unhappy ones pay less, stop moving in, and below 20 they start to leave. Wells also keep fire off the buildings around them.</p>
+    <p data-th="help6"><b>Hero levels.</b> Raiders your hero fells, and every night survived, earn experience. Each level adds health, every second level adds damage, and each one lets you pick a perk.</p>
+    <p data-th="help7"><b>Hero abilities.</b> <b>Charge</b> (<kbd>Q</kbd>) sends your hero dashing ahead, cutting down every raider in his path. <b>Rally</b> (<kbd>E</kbd>) blows a horn: every soldier rushes to his side and fights harder for 8 seconds.</p>
+    <p data-th="help8"><b>Your hero</b> rides a white horse. Pick a build tool and tap tiles to give him orders: he rides to each spot and builds it there, up to 8 orders in a row. Tap an order again to cancel it. With <b>Ride</b>, or at any time at night, tapping the ground sends him there. He fights any raider within reach, and if he falls he returns to the keep a few seconds later.</p>
+    <p data-th="help9"><b>Your village</b> runs on gold, food, wood and stone. Villagers live in the keep (room for 4) and in houses (3 each). Every dawn each villager pays 1 gold in taxes and eats 1 food, and each soldier eats 1 food too. With food to spare and room in your houses, new villagers move in. If food runs out, some of them leave.</p>
+    <p data-th="help10"><b>Producers need a villager to work them.</b> Farms grow 4 food, lumber camps in a palm grove cut 4 wood, mines on ore dig 3 stone, and a market (day 3) earns 3 gold and lets you buy and sell goods. Workers fill farms first, then harbors, mines, lumber camps and the market. Pause a producer from its panel to move its worker elsewhere. Catapults and barracks cost 1 gold upkeep each dawn, and if the treasury can't pay, they sit out the night.</p>
+    <p data-th="help11"><b>Market prices</b> rise as you buy and fall as you sell, then drift back toward normal each dawn. Caravans, droughts, festivals and migrants can turn up at dawn and shake things up.</p>
+    <p data-th="help12"><b>Defenses.</b> Red dots trace the road each war band will take through the canyon. Palisades are cheap and stubborn. Traps wound and slow whoever crosses and reset each dawn. Watchtowers shoot whoever is closest to your keep. Catapults (day 4) hit everyone near where the stone lands but can't fire up close. Barracks (day 2) field soldiers who hold the ground around them. Runners slip past soldiers. Anything built today refunds in full.</p>
+    <p data-th="help13"><b>By night</b> raiders take the easiest road and smash anything blocking it. Runners appear from night 3, brutes from night 6, and a warlord every fifth night. Shamans appear from night 7 and heal the raiders around them, so strike them first. Some nights bring a blood moon: half again as many raiders, but every kill pays double. Archers appear from night 4 and shoot from range at your hero, soldiers and buildings. Battering rams roll in from night 8, ignore soldiers and smash buildings fast. Beat a warlord and you choose a boon. Kingdom upgrades are permanent improvements you buy with your goods at any time. Progress saves after every build and each dawn.</p>
+    <p data-th="help14"><b>The view</b> follows your hero. Drag the board to look around, scroll or pinch to zoom, tap the minimap to jump anywhere, and use the frame button (<kbd>V</kbd>) to see the whole valley at once.</p>
+    <p data-th="help15"><b>Moving and building.</b> Your hero rides around buildings and cliffs on his own. Right-click anywhere to send him there. With the palisade or trap tool, drag across the ground to lay a whole line of orders at once. Right-click an order to cancel it.</p>
+    <p data-th="help16">Keys: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> ride the hero, arrow keys pan the view, <kbd>H</kbd> back to the hero, <kbd>+</kbd> <kbd>−</kbd> zoom, <kbd>1</kbd>–<kbd>0</kbd>, <kbd>Z</kbd>, <kbd>C</kbd>, <kbd>B</kbd>, <kbd>N</kbd>, <kbd>L</kbd>, <kbd>G</kbd>, <kbd>T</kbd>, <kbd>Y</kbd> build tools, <kbd>X</kbd> clear, <kbd>M</kbd> realm map, <kbd>R</kbd> ride, <kbd>Space</kbd> ring the bell, <kbd>U</kbd> upgrade, <kbd>P</kbd> pause, <kbd>F</kbd> speed, <kbd>Esc</kbd> deselect. Speed, zoom, sound and graphics quality are remembered.</p>
+    <p data-th="help17"><b>On a phone or tablet</b>, steer your hero with the joystick in the bottom-left corner of the valley. Tapping tiles still builds and selects.</p>
+    <p data-th="help18"><b>Sound</b> button: tap once for sound effects, twice to add music, a third time for silence. <button class="linkbtn" id="tourBtn" type="button">Take the guided tour</button></p>
+    <p data-th="help19"><b>Damage</b> shows: buildings smoke when hurt and burn when badly hurt. Tap one and use <b>Repair</b> during the day, or wait for dawn to patch them slowly. Destroyed buildings leave rubble that clears after two days.</p>
+  </details>
+</aside>
+</main>
+

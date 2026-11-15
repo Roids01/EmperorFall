@@ -6,6 +6,18 @@ A minimalist kingdom build-and-defend game in a low-poly desert canyon. Ride you
 
 Runs in any modern browser, in English or Spanish. No build step. On the live site you can install it as an app and play offline after the first visit.
 
+## Project layout and building
+
+The game used to be one 670 KB HTML file. It now lives in small source files and a build step puts it together:
+
+- `src/game/` — the game code, split into 15+ numbered files by system (rules and economy, combat, 3D world, HUD, kingdom, crowns, world map, and so on). The build joins them in order into one script, so they share one scope.
+- `src/style.css`, `src/head.html`, `src/body.html` — the page shell.
+- `src/i18n-es.js` — the Spanish text, shipped as its own cacheable file.
+- `src/ink/` — the court audiences, written in Ink; the build compiles them to `data/*.json`, which the game fetches only when an audience starts.
+- `build.mjs` — run `npm install` once, then `npm run build`. It writes `index.html`, `game.js` (minified), `i18n-es.js` and `data/` at the repo root for Netlify, `dist/artifact.html` for the claude.ai page, and `dist/dev.html`, one unminified file used by the tests.
+
+To change the game, edit files in `src/` and rebuild; the files at the root are generated.
+
 ## Play locally
 
 The game loads its models with `fetch`, so open it through a local web server rather than double-clicking the file:

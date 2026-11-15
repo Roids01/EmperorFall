@@ -1,0 +1,13 @@
+{
+  "name": "small-crown",
+  "private": true,
+  "description": "Small Crown: a minimalist kingdom build-and-defend game. The source lives in src/; `npm run build` writes the playable files.",
+  "scripts": {
+    "build": "node build.mjs",
+    "dev": "node build.mjs --dev"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.0",
+    "inkjs": "2.4.0"
+  }
+}
