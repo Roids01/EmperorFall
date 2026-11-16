@@ -129,14 +129,16 @@ function stepAnimals(dt){
     if(passHero(Math.round(x),Math.round(y))&&(a.kind!=='crab'||!isSea(Math.round(x),Math.round(y)))) a.goal=[x,y]; else a.t=.4;
   }
 }
-const heroMax=()=>12+gearHp()+S.mods.hero*6+((S&&S.hl)||1)*2-2+((S&&S.plate)||0)*3, heroDmg=()=>(S&&S.fever>0?2:1)*(2+((S&&S.banner)||0)+(Object.values((S&&S.council)||{}).some(m=>m.trait==='brave')?1:0)+gearDmg()+S.mods.hero*2+Math.floor((((S&&S.hl)||1)-1)/2)), unitMax=()=>4+skill('marshal')+S.mods.drill*2+((S&&S.plate)||0)*2, unitDmg=()=>1+S.mods.drill+((S&&S.iron)||0)+(hasEdict('militia')?1:0);
+const heroMax=()=>12+gearHp()+S.mods.hero*6+((S&&S.hl)||1)*2-2+((S&&S.plate)||0)*3, heroDmg=()=>(S&&S.fever>0?2:1)*(2+((S&&S.banner)||0)+(Object.values((S&&S.council)||{}).some(m=>m.trait==='brave')?1:0)+gearDmg()+S.mods.hero*2+Math.floor((((S&&S.hl)||1)-1)/2)), unitMax=()=>4+skill('marshal')+S.mods.drill*2+((S&&S.plate)||0)*2+(hasTier('warlord',3)?2:0), unitDmg=()=>1+S.mods.drill+((S&&S.iron)||0)+(hasEdict('militia')?1:0)+(hasTier('warlord',3)?1:0);
 function mkHero(){ return {x:C,y:C+1,tx:C,ty:C+1,hp:12+((S&&S.mods.hero)||0)*6,max:12+((S&&S.mods.hero)||0)*6,dead:false,respawn:0,atk:0,dir:-Math.PI/2,queue:[],moving:false,age:0,hit:0,swing:0}; }
 function spawnUnits(i){
-  const b=S.grid[i].b; if(!b||(b.type!=='barr'&&b.type!=='range')||b.unpaid) return;
-  const want=b.lvl+1+S.mods.muster+(hasEdict('conscription')?1:0), have=S.units.filter(u=>u.home===i);
+  const b=S.grid[i].b; if(!b||(b.type!=='barr'&&b.type!=='range'&&b.type!=='warcamp')||b.unpaid) return;
+  const kind=b.type==='range'?'archer':b.type==='warcamp'||b.train==='spear'?'spear':'soldier';
+  for(const u of S.units) if(u.home===i&&unitKind(u)!==kind) u.hp=0; S.units=S.units.filter(u=>u.hp>0);
+  const want=(b.type==='warcamp'?3:b.lvl+1)+S.mods.muster+(hasEdict('conscription')?1:0), have=S.units.filter(u=>u.home===i);
   for(let k=0;k<want;k++){ if(have.some(u=>u.slot===k)) continue;
     const x=i%N,y=(i/N)|0, a=k*2.1+.6;
-    S.units.push({home:i,slot:k,x:x+Math.cos(a)*.48,y:y+Math.sin(a)*.48,hp:unitMax(),max:unitMax(),atk:0,dir:Math.atan2(C-y,C-x),target:null,age:0,hit:0,swing:0,moving:false,ranged:b.type==='range'}); }
+    const mx=Math.round(unitMax()*(kind==='spear'?1.25:1)); S.units.push({home:i,slot:k,x:x+Math.cos(a)*.48,y:y+Math.sin(a)*.48,hp:mx,max:mx,atk:0,dir:Math.atan2(C-y,C-x),target:null,age:0,hit:0,swing:0,moving:false,ranged:b.type==='range',kind}); }
 }
 function removeBuilding(x,y){
   const i=idx(x,y); G(x,y).b=null; S.units=S.units.filter(u=>u.home!==i);
@@ -208,10 +210,11 @@ function jobSpot(job,h){
   job.spot=best; return best;
 }
 function damageAlly(a,d){
+  if(a!==S.hero&&(S.order||'guard')==='fallback') d*=.67;
   if(a===S.hero&&hasPerk('shield')) d=Math.max(0,d-1);
   a.hp-=d; a.hit=.14;
   if(a===S.hero){
-    if(a.hp<=0&&!a.dead){ a.dead=true; a.respawn=6; a.queue=[]; puff(a.x,a.y,COL.plank,14); sfx('hurt'); say('<b>Your hero is down.</b> He will ride out from the keep again in 6 seconds.'); }
+    if(a.hp<=0&&!a.dead){ a.dead=true; a.respawn=hasTier('holy',3)?3:6; a.queue=[]; puff(a.x,a.y,COL.plank,14); sfx('hurt'); say('<b>Your hero is down.</b> He will ride out from the keep again in 6 seconds.'); }
   }else if(a.hp<=0){ puff(a.x,a.y,0x2F5D9E,8); }
 }
 function rideTo(x,y){
@@ -284,24 +287,28 @@ function stepHero(dt){
   if(hasPerk('secondwind')&&h.hp<h.max){ h.regT=(h.regT??3)-dt; if(h.regT<=0){ h.regT=3; h.hp++; } }
 }
 function stepUnits(dt){
+  templeHeal(dt);
   for(const u of S.units){
     u.age+=dt; u.hit=Math.max(0,u.hit-dt); u.swing=Math.max(0,u.swing-dt);
     if(u.hp<=0) continue;
     if(u.rally>0) u.rally-=dt;
-    const rl=u.rally>0&&!S.hero.dead&&heroHere(), hx=rl?S.hero.x:u.home%N, hy=rl?S.hero.y:(u.home/N)|0, sp=rl?2.6:1.9;
+    const ord=S.order||'guard', rl=u.rally>0&&!S.hero.dead&&heroHere(), fa=u.slot*1.3+(u.home%7);
+    let hx=rl?S.hero.x:u.home%N, hy=rl?S.hero.y:(u.home/N)|0; if(!rl&&ord==='fallback'){ hx=C+Math.cos(fa)*1.25; hy=C+Math.sin(fa)*1.25; }
+    const sp=(rl?2.6:1.9)*(ord==='charge'&&!rl?1.2:1), acq=rl?2.2:ord==='hold'?1.1:ord==='charge'?7:ord==='fallback'?1.6:1.8, leash=rl?2.6:ord==='hold'?1.5:ord==='charge'?99:ord==='fallback'?2:2.6;
     if(u.ranged){
       let t=null,bd=2.7-wxRange(); for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-u.x,e.y-u.y); if(d<bd){bd=d;t=e} }
+      if(!t&&ord==='charge'&&!rl){ let nb=6,ne=null; for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-u.x,e.y-u.y); if(d<nb){ nb=d; ne=e; } } if(ne){ navTo(u,ne.x,ne.y,2.2,sp,dt); continue; } }
       u.atk-=dt; u.aiming=!!t;
-      if(t){ u.moving=false; u.dir=Math.atan2(t.y-u.y,t.x-u.x); if(u.atk<=0){ u.atk=rl?.9:1.2; u.swing=.25; S.shots.push({kind:'arrow',src:'soldier',x:u.x,y:u.y,e:t,dmg:unitDmg()+(rl?1:0),h0:.4,h:.4,d0:Math.max(.5,bd),dir:u.dir}); sfx('shot'); } }
-      else{ const a=u.slot*2.1+.6+(u.home%5), r=rl?.75:.5; navTo(u,hx+Math.cos(a)*r,hy+Math.sin(a)*r,0,rl?2.6:1.6,dt); if(!u.moving&&!rl) u.dir=Math.atan2(C-hy,C-hx); }
+      if(t){ u.moving=false; u.dir=Math.atan2(t.y-u.y,t.x-u.x); if(u.atk<=0){ u.atk=rl?.9:1.2; u.swing=.25; S.shots.push({kind:'arrow',src:'soldier',x:u.x,y:u.y,e:t,dmg:matchDmg(u,t,unitDmg()+(rl?1:0)),h0:.4,h:.4,d0:Math.max(.5,bd),dir:u.dir}); sfx('shot'); } }
+      else{ const a=u.slot*2.1+.6+(u.home%5), r=rl?.75:ord==='fallback'?.15:.5; navTo(u,hx+Math.cos(a)*r,hy+Math.sin(a)*r,0,rl?2.6:1.6,dt); if(!u.moving&&!rl) u.dir=Math.atan2(u.y-C,u.x-C)+Math.PI; }
       continue;
     }
-    if(u.target&&(u.target.gone||Math.hypot(u.target.x-hx,u.target.y-hy)>2.6)) u.target=null;
-    if(!u.target){ let bd=rl?2.2:1.8; for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-hx,e.y-hy); if(d<bd){bd=d;u.target=e} } }
+    if(u.target&&(u.target.gone||Math.hypot(u.target.x-hx,u.target.y-hy)>leash)) u.target=null;
+    if(!u.target){ let bd=acq; const ox=ord==='charge'&&!rl?u.x:hx, oy=ord==='charge'&&!rl?u.y:hy; for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-ox,e.y-oy); if(d<bd){bd=d;u.target=e} } }
     if(u.target){
       const d=navTo(u,u.target.x,u.target.y,.42,sp,dt);
-      u.atk-=dt; if(d<=.56&&u.atk<=0){ u.atk=rl?.6:.8; u.swing=.25; u.dir=Math.atan2(u.target.y-u.y,u.target.x-u.x); hurt(u.target,unitDmg()+(rl?1:0),'soldier'); }
-    }else{ const a=u.slot*2.1+.6+(u.home%5), r=rl?.55:.48; navTo(u,hx+Math.cos(a)*r,hy+Math.sin(a)*r,0,rl?2.6:1.6,dt); if(!u.moving&&!rl) u.dir=Math.atan2(C-hy,C-hx); }
+      u.atk-=dt; if(d<=.56&&u.atk<=0){ u.atk=rl?.6:.8; u.swing=.25; u.dir=Math.atan2(u.target.y-u.y,u.target.x-u.x); hurt(u.target,matchDmg(u,u.target,unitDmg()+(rl?1:0)),'soldier'); }
+    }else{ const a=u.slot*2.1+.6+(u.home%5), r=rl?.55:ord==='fallback'?.15:.48; navTo(u,hx+Math.cos(a)*r,hy+Math.sin(a)*r,0,rl?2.6:1.6,dt); if(!u.moving&&!rl) u.dir=ord==='fallback'?Math.atan2(u.y-C,u.x-C):Math.atan2(C-hy,C-hx); }
   }
   S.units=S.units.filter(u=>u.hp>0);
   for(let i=0;i<S.units.length;i++)for(let j=i+1;j<S.units.length;j++){   // keep soldiers from stacking
@@ -325,7 +332,7 @@ function enemyStats(type){
   switch(type){
     case 'runner': return {hp:Math.max(1,Math.ceil(h*.55*DIFF[S.diff].hp)),spd:s*1.55,dmg:1,pay:1};
     case 'brute': return {hp:Math.ceil(h*2.6*DIFF[S.diff].hp),spd:s*.68,dmg:2,pay:2};
-    case 'warlord': return {hp:Math.ceil(h*6*DIFF[S.diff].hp),spd:.62,dmg:3,pay:8};
+    case 'warlord': return {hp:Math.ceil(h*5.2*DIFF[S.diff].hp),spd:.62,dmg:3,pay:8};
     case 'archer': return {hp:Math.max(1,Math.ceil(h*.75*DIFF[S.diff].hp)),spd:s*.9,dmg:1,pay:2,range:1.9};
     case 'ram': return {hp:Math.ceil(h*4.5*DIFF[S.diff].hp),spd:s*.42,dmg:3,bdmg:7,pay:5};
     case 'shaman': return {hp:Math.ceil(h*.9*DIFF[S.diff].hp),spd:s*.78,dmg:1,pay:3,heal:2};
@@ -337,6 +344,7 @@ function enemyStats(type){
   }
 }
 function startNight(){ S.fever=0; S.feverM=0; S.streak=0;
+  if(S.phase==='day'&&!S.modal&&!S.over&&hasTier('merchant',3)&&S.cur==='home'){ const n=Math.min(5,Math.floor(S.res.gold/30)); for(let k=0;k<n&&S.res.gold>=3;k++){ S.res.gold-=3; const a=k*1.57+.4; S.units.push({home:idx(C,C),slot:20+k,x:C+Math.cos(a)*.9,y:C+Math.sin(a)*.9,hp:unitMax(),max:unitMax(),atk:0,dir:0,target:null,age:0,hit:0,swing:0,moving:false,kind:'soldier',temp:true}); } if(n) say(`<b>${n} sellswords</b> take their pay and man the keep tonight.`); }
   if(S.phase!=='day'||S.over||S.modal) return;
   closeRealm(); closeWorld();
   if(S.raid!==S.cur) enterRegion(S.raid,false);
@@ -361,6 +369,7 @@ function spawnNext(){
 function dawn(){
   const REP={day:S.day,region:S.cur,kills:S.nightKills||0,total:Math.max(S.nightTotal||0,S.nightKills||0),keep:Math.max(0,(S.keepAtDusk??S.keep)-S.keep),lost:S.lostTonight||0,gold:S.nightGold||0,by:{...(S.nr||{})},sunk:S.sunkTonight||0}; S.sunkTonight=0;
   if(S.heroAt&&S.cur!==S.heroAt) enterRegion(S.heroAt,false);
+  S.units=S.units.filter(u=>!u.temp);
   const E=econ();
   eachAll((b,x,y,t,here,rid)=>{
     if(b.type==='keep') return;
@@ -430,7 +439,9 @@ function dawn(){
   if(E.popD) bump('r-people',E.popD>0?'bump':'hurt');
   const ch=CHAPTERS.find(c=>c.day===S.day); if(ch) setTimeout(()=>showChapter(ch),600);
   factionDawn(REP); routesDawn(E.shipped||[]);
-  { const kn=[]; if(REP.total&&Math.random()<.3) kn.push('<i>'+trace('ballad')+'</i>'); kingdomDawn(kn,REP); crownsDawn(kn); guildDawn(kn); wonderDawn(kn); if(kn.length) $('msg').innerHTML+=' '+kn.join('. ')+'.'; }
+  { const kn=[]; if(REP.total&&Math.random()<.3) kn.push('<i>'+trace('ballad')+'</i>');
+    pathDawn(kn); campaignDawn(kn); victoryDawn();
+    if(S.res.gold>=60&&(S.res.wood<10||S.res.stone<6)&&count('market')&&S.day>=3) kn.push(T('<b>Steward’s advice:</b> the treasury is full but {{r}} is short. Buy it at the market (Market tab) and keep building',{r:T(S.res.wood<10?'wood':'stone')})); kingdomDawn(kn,REP); crownsDawn(kn); guildDawn(kn); wonderDawn(kn); if(kn.length) $('msg').innerHTML+=' '+kn.join('. ')+'.'; }
   recordHist(); planAudience(); recordDaily(); checkAch(); if(REP.total) setTimeout(()=>showReport(REP),300);
   dawnExtras();
   if(justWon) offerVictory(wasBoss); else if(wasBoss) offerBoons();
@@ -521,6 +532,7 @@ function buildError(tool,x,y,planning){
   if(d.need==='shore'&&S.kind!=='coast') return `there is no sea here. Build ${tool==='lighthouse'?'lighthouses':tool==='saltpan'?'salt pans':'harbors'} at Saltreach Cove.`;
   if(d.need==='shore'&&tool==='lighthouse'&&count('lighthouse')>=1) return 'one lighthouse lights the whole cove.';
   if(tool==='smith'&&count('smith')>=1) return 'one blacksmith is enough for the whole realm.';
+  if(d.path&&S.path!==d.path) return `only a realm sworn to the ${PATHS[d.path].name} can build this.`;
   if(d.wonder&&count(tool)>=1) return 'every wonder can be built only once.';
   if(d.wonder&&S.cur!=='home') return 'wonders rise only in The Valley.';
   if(d.wonder&&rankIdx()<d.rank) return `the ${d.name} needs your realm to be a ${RANKS[d.rank].name.toLowerCase()}.`;
@@ -540,7 +552,7 @@ function doBuild(tool,x,y){
   G(x,y).b={type:tool,hp:max,max,lvl:1,cd:0,day:S.day,spent:0,born:S.t};
   if(d.wonder){ G(x,y).b.prog=0; G(x,y).b.done=false; say(`<b>The ${d.name} is begun.</b> It needs ${d.days} dawns of work, a villager on site and ${costStr(d.daily)} each dawn.`); }
   if(tool==='trap') G(x,y).b.charges=trapMax();
-  if(tool==='barr'||tool==='range') spawnUnits(idx(x,y));
+  if(tool==='barr'||tool==='range'||tool==='warcamp') spawnUnits(idx(x,y));
   puff(x,y,COL.sand,10); dustRing(x,y);
   field(); sfx('build'); save(); ui();
   if(tool==='mine'||tool==='farm') say(`${d.name} built. It produces at dawn once a villager works it.`);
@@ -626,7 +638,7 @@ function hurt(e,d,src){
   if(e.hp<=0){
     e.gone=true; e.died=true; if(e.type==='warlord'||e.type==='captain') S.bossAt=[e.x,e.y]; const pay=(e.pay+S.mods.tax+(src==='hero'&&hasPerk('bounty')?2:0))*(S.blood&&S.phase==='night'?2:1);
     if(src==='hero') gainXP(e.pay*3);
-    S.res.gold+=pay; S.kills++; S.nightKills++; feverKill(); S.nightGold=(S.nightGold||0)+pay; const nr=S.nr||(S.nr={}); nr[src||'other']=(nr[src||'other']||0)+1;
+    if(hasTier('warlord',2)) S.res.gold+=1; S.res.gold+=pay; S.kills++; S.nightKills++; feverKill(); S.nightGold=(S.nightGold||0)+pay; const nr=S.nr||(S.nr={}); nr[src||'other']=(nr[src||'other']||0)+1;
     if(e.type==='warlord'&&S.warName) toast(T('Warlord slain'),S.warName,'⚔');
     if(e.type==='warlord'||e.type==='captain'){ addRenown(10); S.lootPending=(S.lootPending||0)+1; shiftHost(facOf(S.cur),-15,true); }
     if(src==='hero'&&gearOn('coin')){ S.res.gold+=2; }
@@ -685,7 +697,7 @@ function moveEnemy(e,dt){
       return; }
   }
   if(e.moving){
-    const dx=e.tx-e.x,dy=e.ty-e.y,d=Math.hypot(dx,dy),v=e.spd*(e.slow>0?.5:1)*(e.rallyT>0?1.25:1)*wxSlow()*dt;
+    const dx=e.tx-e.x,dy=e.ty-e.y,d=Math.hypot(dx,dy),v=e.spd*(e.slow>0?.5:1)*(e.rallyT>0?1.25:1)*(hasTier('warlord',4)&&Math.hypot(e.x-C,e.y-C)<4?.85:1)*wxSlow()*dt;
     if(d>1e-4) e.dir=Math.atan2(dy,dx);
     if(d<=v){
       e.x=e.tx;e.y=e.ty;e.cx=e.tx;e.cy=e.ty;e.moving=false;

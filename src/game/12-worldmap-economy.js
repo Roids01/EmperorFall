@@ -66,20 +66,23 @@ function drawWorld(){
   x.setTransform(v.s,0,0,v.s,v.x,v.y); x.imageSmoothingEnabled=true;
   if(parch){ x.drawImage(wParch.c,0,0); x.globalCompositeOperation='multiply'; x.globalAlpha=.5; x.drawImage(wOver,0,0); x.globalAlpha=1; x.globalCompositeOperation='source-over'; x.drawImage(wParch.ink,0,0); }
   else { x.drawImage(wBase.c,0,0); x.drawImage(wOver,0,0); }
+  drawFog(x,parch);
   const W=WORLD;
   if(wSel){ const k=PROV[wSel].k, cw=WMW/W.GW, ch=WMH/W.GH; x.fillStyle='rgba(255,248,230,.28)'; for(let j=0;j<W.GH;j++)for(let i=0;i<W.GW;i++) if(W.pg[j*W.GW+i]===k) x.fillRect(i*cw,j*ch,cw+.4,ch+.4); }
   x.setTransform(1,0,0,1,0,0); x.textAlign='center'; x.textBaseline='middle';
   const P2=(px,py)=>[v.x+px*WMW*v.s,v.y+py*WMH*v.s], fs=Math.max(9,Math.min(14,v.s*4.2))*dp;
   const placed=[], fits=(cx,cy,w,h)=>{ for(const r of placed) if(Math.abs(r[0]-cx)<(r[2]+w)/2&&Math.abs(r[1]-cy)<(r[3]+h)/2) return false; placed.push([cx,cy,w,h]); return true; };
   const order=W.ids.slice().sort((a,b)=>(PROV[b].cap?1:0)-(PROV[a].cap?1:0)||(b===wSel)-(a===wSel));
-  for(const id of order){ const P=PROV[id], [sx,sy]=P2(P.x,P.y), o=S.prov[id].owner;
+  const vis=visibleProvs();
+  for(const id of order){ const P=PROV[id], [sx,sy]=P2(P.x,P.y), o=seenOwner(id,vis);
     if(P.cap){ x.fillStyle=P.cap==='me'?'#F0BE4E':KINGS[P.cap].color; x.strokeStyle='#1C1714'; x.lineWidth=2*dp; const s=7*dp; x.beginPath(); x.moveTo(sx-s,sy+s*.6); x.lineTo(sx-s,sy-s*.3); x.lineTo(sx-s*.5,sy); x.lineTo(sx,sy-s*.8); x.lineTo(sx+s*.5,sy); x.lineTo(sx+s,sy-s*.3); x.lineTo(sx+s,sy+s*.6); x.closePath(); x.fill(); x.stroke(); if(K(P.cap)&&K(P.cap).dead&&P.cap!=='me'){ x.strokeStyle='#E8604F'; x.beginPath(); x.moveTo(sx-s,sy-s); x.lineTo(sx+s,sy+s); x.stroke(); } }
     else { x.fillStyle=o==='me'?'#F0BE4E':o?KINGS[o].color:'#E8DCC8'; x.beginPath(); x.arc(sx,sy,2.6*dp,0,6.29); x.fill(); }
     const f2=P.cap?fs:fs*.86; x.font=`${P.cap?700:500} ${f2}px Inter,system-ui,sans-serif`; const ty=sy+(P.cap?13:9)*dp, tw=x.measureText(T(P.name)).width; if(!fits(sx,ty,tw+4*dp,f2*1.1)&&id!==wSel) continue; x.lineWidth=3*dp; x.strokeStyle=parch?'rgba(240,228,198,.85)':'rgba(24,18,14,.75)'; x.strokeText(T(P.name),sx,ty); x.fillStyle=parch?(P.cap?'#2A1A10':'#4A3626'):P.cap?'#FFF4E0':'#F2EADD'; x.fillText(T(P.name),sx,ty); }
   // crown names over their territory
   const owners=['me',...Object.keys(KINGS)];
-  for(const o of owners){ const L=landsOf(o); if(!L.length||(o!=='me'&&K(o).dead)) continue; let cx=0,cy=0; L.forEach(p=>{ cx+=PROV[p].x; cy+=PROV[p].y; }); cx/=L.length; cy/=L.length; const [sx,sy]=P2(cx,cy-.045);
+  for(const o of owners){ const L=landsOf(o).filter(p=>vis.has(p)); if(!L.length||(o!=='me'&&K(o).dead)) continue; let cx=0,cy=0; L.forEach(p=>{ cx+=PROV[p].x; cy+=PROV[p].y; }); cx/=L.length; cy/=L.length; const [sx,sy]=P2(cx,cy-.045);
     x.font=`800 ${Math.round(fs*1.35)}px "Bricolage Grotesque",system-ui,sans-serif`; const name=o==='me'?T('Small Crown'):T(CAPNAME[o]).toUpperCase(); x.lineWidth=4*dp; x.strokeStyle=parch?'rgba(240,228,198,.8)':'rgba(24,18,14,.6)'; x.strokeText(o==='me'?name.toUpperCase():name,sx,sy); x.fillStyle=o==='me'?'#F0BE4E':KINGS[o].color; x.fillText(o==='me'?name.toUpperCase():name,sx,sy); }
+  drawArmies(x,P2,dp);
   x.font=`800 ${Math.round(fs*2)}px "Bricolage Grotesque",system-ui,sans-serif`; if(parch){ const [tx,ty]=P2(.045,.075); x.font=`800 ${Math.round(fs*2.2)}px "Bricolage Grotesque",Georgia,serif`; x.fillStyle='rgba(60,40,26,.78)'; x.textAlign='left'; x.fillText(CONT_NAME.toUpperCase(),tx,ty); } else { x.fillStyle='rgba(242,234,221,.5)'; x.textAlign='left'; x.fillText(CONT_NAME.toUpperCase(),14*dp,22*dp); }
 }
 let mapStyle='parchment', wParch=null; try{ if(localStorage.getItem('smallcrown-mapstyle')==='terrain') mapStyle='terrain'; }catch(e){}
@@ -128,17 +131,19 @@ function wZoom(f,cx,cy){ const cv=$('wmap'); cx=cx??cv.width/2; cy=cy??cv.height
 function renderWorldPanel(){
   const box=$('wpanel'); crowns(); const night=S.phase!=='day', btn=(cls,attr,label,dis,cost)=>`<button type="button" class="${cls}" ${attr} ${dis?'disabled':''}>${label}${cost?` <span class="c">${cost}</span>`:''}</button>`;
   let h='';
-  if(wMode==='prov'&&wSel){ const P=PROV[wSel], sp=S.prov[wSel], o=sp.owner, od=battleOdds(wSel), near=bordersMe(wSel);
+  if(wMode==='army'&&armies().some(x=>x.id===wArmy&&x.o==='me')) h=campaignArmyHtml(btn,night);
+  else if(wMode==='prov'&&wSel&&!visibleProvs().has(wSel)){ const P=PROV[wSel]; h=`<h3>${T(P.name)}</h3><div class="pd">${T(TERR_NAME[P.terr])}</div>`+campaignProvHtml(wSel,btn,night)+`<button type="button" class="link" data-w="legend">← ${T('All crowns')}</button>`; }
+  else if(wMode==='prov'&&wSel){ const P=PROV[wSel], sp=S.prov[wSel], o=sp.owner, od=battleOdds(wSel), near=bordersMe(wSel);
     h=`<h3>${T(P.name)}</h3><div class="pd">${o==='me'?T('Yours'):o?T(KINGS[o].name):T('Unclaimed, held by bandits')}${P.cap?' · '+T('capital'):''}</div>
       <div class="pd">${T(TERR_NAME[P.terr])}${P.coastal?' · '+T('coastal'):''} · ${T('yields {{y}} each dawn',{y:yieldStr(wSel)})} · ${T('garrison {{g}}',{g:o&&o!=='me'?od.def:sp.gar})}</div>
       <div class="pd">${near||o==='me'?'':T('Not on your border.')}</div><div class="pa">`;
     if(!o) h+=btn('hot','data-w="settle"',T('Settle'),night||!near,`20g 15f, 2 ${T('villagers')}`)+(near?`<span class="pd">${T('Your army {{a}} vs bandits {{g}}',{a:armyPower(),g:sp.gar})}</span>`:'');
     else if(o==='me') h+=P.cap?`<span class="pd">${T('Your capital, home of The Valley, Saltreach Cove and Ironpeak Pass.')}</span>`:btn('','data-w="reinf"',T('Reinforce'),night,'12g');
-    else{ if(K(o).war) h+=btn('hot','data-w="march"',`${T('March')} · ${od.pct}%`,night||!near||S.marched===S.day,'10g 10f');
+    else{ if(K(o).war) h+=`<span class="pd">${T('At war: send an army to besiege it.')}</span>`;
       else if(!P.cap) h+=btn('','data-w="buy"',T('Offer to buy'),night||!near||K(o).rel<0,`${landPrice(wSel)}g`);
       h+=btn('','data-w="court"',T('Court of {{k}}',{k:kn(o)}),false); }
     if(o==='me'&&!P.cap){ for(const id of liveKings()) if(P.adj.some(a=>S.prov[a].owner===id)) h+=btn('','data-cede="'+id+'"',T('Cede to {{k}}',{k:kn(id)}),night); }
-    h+=`</div><button type="button" class="link" data-w="legend">← ${T('All crowns')}</button>`; }
+    h+=`</div>`+campaignProvHtml(wSel,btn,night)+`<button type="button" class="link" data-w="legend">← ${T('All crowns')}</button>`; }
   else if(wMode==='court'&&wCourt&&!K(wCourt).dead){ const id=wCourt, k=K(id), KG=KINGS[id], gc=15+Math.max(0,Math.round(-k.rel/5));
     const others=liveKings().filter(o=>o!==id).map(o=>`${kn(o)}: ${T(kwar(id,o)?'at war':relWord(krel(id,o)))}`).join(' · ');
     h=`<h3 style="color:${KG.color}">${T(KG.name)}</h3><div class="pd">${T(KG.desc)}</div>
@@ -155,12 +160,14 @@ function renderWorldPanel(){
     h=`<h3>${T('The crowns of {{c}}',{c:CONT_NAME})}</h3><div class="pd">${T('Tap a land on the map to see it. Lands on your border can be settled, bought or conquered.')}</div>`+st.map((r,i)=>{ if(r.id==='me') return `<div class="lg me"><b>${i+1}.</b> <span class="sw" style="background:#F0BE4E"></span> ${T('Your realm')} · ${r.p} <span class="pd">${landsTxt(landsOf('me').length)} · ${T('army')} ${armyPower()}</span></div>`;
       const k=K(r.id); return `<button type="button" class="lg" data-court="${r.id}"><b>${i+1}.</b> <span class="sw" style="background:${KINGS[r.id].color}"></span> ${T(KINGS[r.id].name)} · ${r.p} <span class="pd">${landsTxt(landsOf(r.id).length)} · ${T(relWord(k.rel))}${k.war?' · '+T('at war'):''}</span></button>`; }).join('')
       +`<div class="pa" style="margin-top:6px">${btn('hot','data-w="levy"',T('Raise levies'),night||(S.levy&&S.levy.until>=S.day),'20g 10f')}${btn('','data-w="host"',T('Host a tournament'),night||S.hosted===seasonIdx(),'40g')}</div>`
+      +campaignLegendHtml(btn,night)
       +((S.newsLog||[]).length?`<h4>${T('News from the courts')}</h4>`+(S.newsLog||[]).slice(0,6).map(n=>`<div class="pd">${T('Day {{n}}',{n:n.d})}: ${n.t}</div>`).join(''):''); }
   box.innerHTML=h;
   box.querySelectorAll('[data-w]').forEach(b=>b.addEventListener('click',()=>{ const a=b.dataset.w;
     if(a==='legend'){ wMode='legend'; wSel=null; } else if(a==='settle') settle(wSel); else if(a==='reinf') reinforce(wSel); else if(a==='march'){ march(wSel); }
     else if(a==='buy') buyLand(wSel); else if(a==='court'){ wMode='court'; wCourt=S.prov[wSel].owner; } else if(a==='levy') raiseLevy(); else if(a==='host') hostTourney();
     renderWorldPanel(); drawWorld(); }));
+  campaignWire(box);
   box.querySelectorAll('[data-court]').forEach(b=>b.addEventListener('click',()=>{ wMode='court'; wCourt=b.dataset.court; renderWorldPanel(); }));
   box.querySelectorAll('[data-cede]').forEach(b=>b.addEventListener('click',()=>{ cedeLand(wSel,b.dataset.cede); renderWorldPanel(); drawWorld(); }));
   box.querySelectorAll('[data-ask]').forEach(b=>b.addEventListener('click',()=>{ askJoinWar(b.dataset.ask,wCourt); renderWorldPanel(); }));
@@ -172,7 +179,10 @@ function initWorldUI(){
   const cv=$('wmap');
   cv.addEventListener('pointerdown',e=>{ wDrag={x:e.clientX,y:e.clientY,vx:wView.x,vy:wView.y,moved:false}; cv.setPointerCapture(e.pointerId); });
   cv.addEventListener('pointermove',e=>{ if(!wDrag) return; const dp=cv.width/cv.getBoundingClientRect().width, dx=(e.clientX-wDrag.x)*dp, dy=(e.clientY-wDrag.y)*dp; if(Math.abs(dx)+Math.abs(dy)>6) wDrag.moved=true; if(wDrag.moved){ wView.x=wDrag.vx+dx; wView.y=wDrag.vy+dy; drawWorld(); } });
-  cv.addEventListener('pointerup',e=>{ if(wDrag&&!wDrag.moved){ const p=worldPick(e); if(p){ wSel=p; wMode='prov'; } else { wSel=null; wMode='legend'; } renderWorldPanel(); drawWorld(); } wDrag=null; });
+  cv.addEventListener('pointerup',e=>{ if(wDrag&&!wDrag.moved){ const r=cv.getBoundingClientRect(), dp=cv.width/r.width, ah=armyHit((e.clientX-r.left)*dp,(e.clientY-r.top)*dp), p=worldPick(e);
+    if(wPick&&p){ const a=armies().find(x=>x.id===wPick); if(a) orderArmy(a,p); wPick=null; wMode='army'; wArmy=a&&a.id; save(); }
+    else if(ah!=null&&armies().find(x=>x.id===ah&&x.o==='me')){ wMode='army'; wArmy=ah; }
+    else if(p){ wSel=p; wMode='prov'; } else { wSel=null; wMode='legend'; } renderWorldPanel(); drawWorld(); } wDrag=null; });
   cv.addEventListener('wheel',e=>{ e.preventDefault(); const r=cv.getBoundingClientRect(), dp=cv.width/r.width; wZoom(Math.exp(-e.deltaY*.0015),(e.clientX-r.left)*dp,(e.clientY-r.top)*dp); },{passive:false});
   $('wIn').addEventListener('click',()=>wZoom(1.4)); $('wOut').addEventListener('click',()=>wZoom(1/1.4)); $('wClose').addEventListener('click',closeWorld);
   new ResizeObserver(()=>{ if($('world').hidden) return; wView.fit=false; fitWorld(); drawWorld(); }).observe(cv);
@@ -184,14 +194,14 @@ const ROUTE_GOODS=['food','wood','stone','iron','wool','cloth','ale','salt','too
 const routeOk=id=>{ const k=S.crowns&&S.crowns[id]; return !!k&&!k.dead&&k.pact&&!k.war&&!((k.emb||0)>=S.day); };
 const satOf=(id,g)=>((S.sat||{})[id+':'+g])||0;
 const unitPrice=(id,g,extra=0)=>{ const d=(DEMAND[id]||{})[g]||.9; return BASEP[g]*d/(1+(satOf(id,g)+extra)/30)*(hasWonder('w_bazaar')?1.15:1); };
-function routeQuote(id,g,amt){ let gold=0; for(let i=0;i<amt;i++) gold+=unitPrice(id,g,i); return Math.round(gold*.85); }
+function routeQuote(id,g,amt){ let gold=0; for(let i=0;i<amt;i++) gold+=unitPrice(id,g,i)*(hasTier('merchant',1)?1.25:1); return Math.round(gold*.85); }
 function routesEcon(L,avail){ const out=[]; for(const id in (S.routes||{})){ const r=S.routes[id]; if(!r||!routeOk(id)) continue; const n=Math.min(r.amt,Math.floor(avail(r.good))); if(n<=0) continue;
     const g=routeQuote(id,r.good,n); L[r.good].push([`Caravan to ${CAPNAME[id]}`,-n]); L.gold.push([`${n} ${r.good} sold in ${CAPNAME[id]}`,g]); out.push([id,r.good,n]); } return out; }
 function routesDawn(shipped){ S.sat=S.sat||{}; for(const k in S.sat) S.sat[k]*=.75; for(const [id,g,n] of shipped){ S.sat[id+':'+g]=(S.sat[id+':'+g]||0)+n; if(S.crowns[id]) relShift(id,1); } }
 function setRoute(id,g,amt){ S.routes=S.routes||{}; if(!g||!amt){ delete S.routes[id]; } else S.routes[id]={good:g,amt}; mktKey=''; save(); ui(); }
 // ---------- the merchant guild ----------
 const LOANS=[{id:'small',amt:50,back:60,days:6},{id:'large',amt:120,back:150,days:8}];
-function takeLoan(id){ const l=LOANS.find(x=>x.id===id); if(!l||S.loan||(S.guildBan||0)>S.day||S.phase!=='day') return; S.loan={back:l.back,due:S.day+l.days}; S.res.gold+=l.amt; sfx('up'); say(`<b>The Merchant Guild lends you ${l.amt} gold.</b> Repay ${l.back} by day ${S.day+l.days}.`); mktKey=''; save(); ui(); }
+function takeLoan(id){ const l=LOANS.find(x=>x.id===id); if(!l||S.loan||(S.guildBan||0)>S.day||S.phase!=='day') return; S.loan={back:hasTier('merchant',2)?l.amt:l.back,due:S.day+l.days}; S.res.gold+=l.amt; sfx('up'); say(`<b>The Merchant Guild lends you ${l.amt} gold.</b> Repay ${l.back} by day ${S.day+l.days}.`); mktKey=''; save(); ui(); }
 function repayLoan(){ if(!S.loan) return; if(S.res.gold<S.loan.back){ say(`You need ${S.loan.back} gold to repay the guild.`); sfx('no'); return; } S.res.gold-=S.loan.back; S.loan=null; addRenown(1); say('<b>Loan repaid early.</b> The guild thinks well of you.'); mktKey=''; save(); ui(); }
 function invest(){ if(S.inv||S.res.gold<50||S.phase!=='day') return; S.res.gold-=50; S.inv={back:58,due:S.day+6}; say('<b>You invest 50 gold</b> in a guild caravan. It should return 58 by day '+(S.day+6)+'.'); mktKey=''; save(); ui(); }
 function guildDawn(notes){

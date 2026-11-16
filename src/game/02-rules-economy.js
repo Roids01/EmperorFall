@@ -58,7 +58,7 @@ function pickSpawns(){
 }
 const isSpawn=(x,y)=>S.spawns.some(p=>p[0]===x&&p[1]===y);
 function planWave(){
-  const d=S.day, n=Math.max(2,Math.round((3+2*(d-1))*DIFF[S.diff].wave*(S.blood?1.5:1)*raidMult(S.raid||'home')));
+  const d=S.day, n=Math.max(2,Math.round((d<=10?3+2*(d-1):21+1.7*(d-10))*DIFF[S.diff].wave*(S.blood?1.5:1)*raidMult(S.raid||'home')));
   const run=d>=3?Math.floor(n*.25):0, bru=d>=6?Math.floor(n*.15)+(d>=10?1:0):0, arc=d>=4?Math.max(1,Math.floor(n*.18)):0;
   const q=[]; for(let i=0;i<Math.max(1,n-run-bru-arc);i++)q.push('raider'); for(let i=0;i<run;i++)q.push('runner'); for(let i=0;i<bru;i++)q.push('brute'); for(let i=0;i<arc;i++)q.push('archer');
   if(d>=8) for(let i=0;i<1+Math.floor((d-8)/4);i++) q.push('ram');
@@ -187,6 +187,10 @@ function econ(){
   if(hasWonder('w_bazaar')) L.gold.push(['Grand Bazaar',6]);
   if(spoil>0) L.food.push([`Food spoils${met.salt>=1?' (salted, halved)':''}`,-spoil]);
   const shipped=routesEcon(L,avail);
+  { let cg=0; eachAll((b,x,y,t,here,rid,g)=>{ if(b.type==='counting') cg+=5+Math.min(3,nearCount(g,x,y,['market','house'],1)); }); if(cg) L.gold.push(['Counting houses',cg]);
+    if(hasTier('holy',2)){ let n=0; eachAll(b=>{ if(b.type==='shrine'||b.type==='temple') n++; }); if(n) L.gold.push(['Pilgrims',n*2]); }
+    if(hasTier('merchant',4)){ const pc=liveKings().filter(k=>K(k).pact).length; if(pc) L.gold.push(['Trade league',pc*4]); }
+    armyUpkeep(L); }
   const capS=storeCap(); for(const r of ALLR){ if(r==='gold') continue; const after=avail(r); if(after>capS) L[r].push([`No room in the stores (${capS})`,capS-after]); }
   const net={}; ALLR.forEach(r=>net[r]=L[r].reduce((a,l)=>a+l[1],0));
   const cap=housing(), foodAfter=S.res.food+net.food;
@@ -208,8 +212,8 @@ function updatePrices(){ ensureEco(); const sn=season().name;
   for(const r of TRADE){ const sf=(SEASONF[r]||{})[sn]||1, st=Math.max(.7,Math.min(1.3,1.25-(S.res[r]||0)/REF[r]*.3)), tg=BASEP[r]*sf*st;
     S.price[r]+=(tg-S.price[r])*.3; S.price[r]*=.93+Math.random()*.14; }
   clampPrices(); for(const r of TRADE){ const h=S.ph[r]||(S.ph[r]=[]); h.push(buyCost(r)); if(h.length>14) h.shift(); } }
-const buyCost=r=>Math.max(1,Math.round(S.price[r]*LOT*(hasWonder('w_bazaar')?.85:1)));
-const sellGain=r=>Math.max(1,Math.floor(S.price[r]*LOT*.6*(hasWonder('w_bazaar')?1.15:1)));
+const buyCost=r=>Math.max(1,Math.round(S.price[r]*LOT*(hasWonder('w_bazaar')?.85:1)*(hasTier('merchant',2)?.85:1)));
+const sellGain=r=>Math.max(1,Math.floor(S.price[r]*LOT*.6*(hasWonder('w_bazaar')?1.15:1)*(hasTier('merchant',2)?1.15:1)));
 const marketOpen=()=>S.grid.some(t=>t.b&&t.b.type==='market'&&t.b.worked);
 function trade(r,buy){
   if(NET.role==='guest'&&!NET.applying){ netSend({t:'trade',r,buy}); say(T('Trade request sent to your co-ruler.')); return; }
@@ -217,7 +221,7 @@ function trade(r,buy){
   if(buy){ const c=buyCost(r); if(S.res.gold<c){ say(`Buying ${LOT} ${r} costs ${c} gold. You have ${S.res.gold}.`); sfx('no'); return; }
     S.res.gold-=c; S.res[r]+=LOT; S.price[r]*=1.12; say(`Bought ${LOT} ${r} for ${c} gold.`); }
   else{ if(S.res[r]<LOT){ say(`You need ${LOT} ${r} to sell.`); sfx('no'); return; }
-    const g=sellGain(r); S.res[r]-=LOT; S.res.gold+=g; S.price[r]*=.9; say(`Sold ${LOT} ${r} for ${g} gold.`); }
+    const g=sellGain(r); S.res[r]-=LOT; S.res.gold+=g; S.tradeGold=(S.tradeGold||0)+g; S.price[r]*=.9; say(`Sold ${LOT} ${r} for ${g} gold.`); }
   clampPrices(); sfx('order'); save(); ui();
 }
 function rollEvent(){

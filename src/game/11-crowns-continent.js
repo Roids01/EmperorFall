@@ -80,9 +80,9 @@ const krel=(a,b)=>S.krel[pairKey(a,b)]||0;
 const kwar=(a,b)=>!!S.kwar[pairKey(a,b)];
 function krelShift(a,b,d){ const k=pairKey(a,b); S.krel[k]=Math.max(-100,Math.min(100,(S.krel[k]||0)+d)); }
 function allUnits(){ let n=S.units.length; for(const id in S.R) if(id!==S.cur&&S.R[id].units) n+=S.R[id].units.length; return n; }
-function armyPower(){ const lv=S.levy&&S.levy.until>=S.day?S.levy.p:0; return Math.round(allUnits()*(unitDmg()+unitMax()/3)+heroDmg()*2+S.hl*2+(S.warships||0)*4+lv); }
+function armyPower(){ const lv=S.levy&&S.levy.until>=S.day?S.levy.p:0; return Math.round(fieldMen('me')*.6+allUnits()*(unitDmg()+unitMax()/3)+heroDmg()*2+S.hl*2+(S.warships||0)*4+lv); }
 function myPrestige(){ let regions=1+(S.coastUnlocked?1:0)+(S.mtnUnlocked?1:0); return Math.round((S.renown||0)+S.res.gold/10+armyPower()/2+S.pop/2+(landsOf('me').length-1)*12+regions*10+(keepLvl()-1)*10); }
-function kPrestige(id){ const k=K(id); if(k.dead) return 0; return Math.round(k.renown+k.gold/10+k.army/2+k.pop/2+(landsOf(id).length-1)*12+20); }
+function kPrestige(id){ const k=K(id); if(k.dead) return 0; return Math.round(k.renown+k.gold/10+(k.army+fieldMen(id))/2+k.pop/2+(landsOf(id).length-1)*12+20); }
 function standings(){ crowns(); const rows=[{id:'me',p:myPrestige()}].concat(liveKings().map(id=>({id,p:kPrestige(id)}))); rows.sort((a,b)=>b.p-a.p); return rows; }
 const myPlace=()=>standings().findIndex(r=>r.id==='me')+1;
 function relWord(r){ return r>=60?'Devoted':r>=30?'Friendly':r>=0?'Cordial':r>=-30?'Cool':r>=-60?'Hostile':'Hateful'; }
@@ -153,8 +153,8 @@ function settle(p){ const P=S.prov[p]; if(P.owner||S.phase!=='day') return; cons
   say(`<b>${T(PROV[p].name)} is yours.</b> Two families settle there. It yields ${yieldStr(p)} each dawn.`); afterDiplo(); }
 const yieldStr=p=>[costStr(PROV[p].yield),PROV[p].yield.renown?`${PROV[p].yield.renown} ${T('renown')}`:''].filter(Boolean).join(', ');
 function battleOdds(p){ const P=S.prov[p], o=P.owner, def=(o&&o!=='me'?K(o).army*(PROV[p].cap?.6:.4):0)+P.gar; return {me:armyPower(),def:Math.round(def),pct:Math.round(100/(1+Math.pow(def/Math.max(1,armyPower()),2.2)))}; }
-function fallOfCrown(o){ const k=K(o); k.dead=true; k.war=false; for(const p of landsOf(o)) if(S.prov[p].owner===o){ S.prov[p].owner=null; S.prov[p].gar=6; }
-  for(const key in S.kwar) if(key.includes(o)) delete S.kwar[key]; addRenown(30); news(`The crown of ${CAPNAME[o]} has fallen`); S.kingslayer=true; }
+function fallOfCrown(o,by){ const k=K(o); k.dead=true; k.war=false; for(const p of landsOf(o)) if(S.prov[p].owner===o){ S.prov[p].owner=null; S.prov[p].gar=6; } if(S.armies) S.armies=S.armies.filter(a=>a.o!==o);
+  for(const key in S.kwar) if(key.includes(o)) delete S.kwar[key]; news(`The crown of ${CAPNAME[o]} has fallen`); if(!by||by==='me'){ addRenown(30); S.kingslayer=true; } }
 function march(p){ const P=S.prov[p], o=P.owner; if(!o||o==='me'||!K(o).war||S.phase!=='day'||S.marched===S.day||!bordersMe(p)) return;
   const c={gold:10,food:10}; if(!canPay(c)){ say('A campaign needs 10 gold and 10 food in supplies.'); sfx('no'); return; }
   spend(c); S.marched=S.day; const od=battleOdds(p), win=Math.random()*100<od.pct; const k=K(o), cap=PROV[p].cap;
@@ -179,18 +179,18 @@ function crownsDawn(notes){
     krelShift(a,b,(Math.random()-.55)*4);
     if(!S.kwar[key]&&krel(a,b)<-45&&Math.random()<.18){ S.kwar[key]=S.day; news(`${KINGS[a].short} and ${KINGS[b].short} went to war`); notes.push(`<b>${kn(a)} and ${kn(b)}</b> are at war`); }
     else if(S.kwar[key]&&S.day-S.kwar[key]>5&&Math.random()<.2){ delete S.kwar[key]; krelShift(a,b,25); news(`${KINGS[a].short} and ${KINGS[b].short} made peace`); }
-    if(S.kwar[key]){ const [w,l]=K(a).army>=K(b).army?[a,b]:[b,a]; const tgt=landsOf(l).filter(p=>PROV[p].adj.some(x=>S.prov[x].owner===w));
+    if(false){ const [w,l]=K(a).army>=K(b).army?[a,b]:[b,a]; const tgt=landsOf(l).filter(p=>PROV[p].adj.some(x=>S.prov[x].owner===w));
       if(tgt.length&&Math.random()<.35){ const p=tgt.find(x=>!PROV[x].cap)||tgt[0]; const att=K(w).army*.5*(.8+Math.random()*.4), def=S.prov[p].gar+K(l).army*(PROV[p].cap?.6:.3);
         if(att>def){ S.prov[p].owner=w; S.prov[p].gar=8; K(l).army=Math.round(K(l).army*.85); news(`${KINGS[w].short} took ${PROV[p].name} from ${KINGS[l].short}`); notes.push(`<b>${kn(w)}</b> took ${T(PROV[p].name)} from ${kn(l)}`); if(PROV[p].cap) fallOfCrown(l); }
         else K(w).army=Math.round(K(w).army*.9); } } }
   // expansion into free land on their borders
-  for(const id of liveKings()){ const k=K(id); if(Math.random()>.4) continue; const free=frontier(id).filter(p=>!S.prov[p].owner);
+  for(const id of []){ const k=K(id); if(Math.random()>.4) continue; const free=frontier(id).filter(p=>!S.prov[p].owner);
     if(free.length&&k.army>S.prov[free[0]].gar*1.6){ const p=free[(Math.random()*free.length)|0]; S.prov[p].owner=id; S.prov[p].gar=8; k.army-=3; news(`${KINGS[id].short} claimed ${PROV[p].name}`); if(bordersMe(p)) notes.push(`<b>${kn(id)}</b> claimed ${T(PROV[p].name)} on your border`); } }
   // war with you
   for(const id of liveKings()){ const k=K(id);
     if(!k.war&&!k.wed&&!napOn(k)&&k.rel<=-45&&k.army>armyPower()*.9&&S.day>=6&&Math.random()<(KINGS[id].style==='warlike'?.5:.2)){ startWar(id,true); notes.push(`<b>${T(KINGS[id].name)} has declared war on you</b>`); }
     if(k.war){ const mine=landsOf('me').filter(p=>!PROV[p].cap&&PROV[p].adj.some(x=>S.prov[x].owner===id));
-      if(mine.length&&Math.random()<.35){ const p=mine[(Math.random()*mine.length)|0], P=S.prov[p], def=P.gar+armyPower()*.3, att=k.army*.5*(.8+Math.random()*.4);
+      if(false){ const p=mine[(Math.random()*mine.length)|0], P=S.prov[p], def=P.gar+armyPower()*.3, att=k.army*.5*(.8+Math.random()*.4);
         if(att>def){ P.owner=id; P.gar=8; news(`${KINGS[id].short} took ${PROV[p].name} from you`); notes.push(`<b>${kn(id)} took ${T(PROV[p].name)}</b> from you`); addRenown(-5); }
         else { k.army=Math.max(5,Math.round(k.army*.92)); k.ws--; notes.push(`<b>Your garrison at ${T(PROV[p].name)}</b> threw back ${kn(id)}`); addRenown(3); } }
       S.royalRaid=S.royalRaid||{}; S.royalRaid[id]=Math.min(8,2+Math.floor(k.army/15));

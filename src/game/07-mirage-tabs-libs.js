@@ -81,7 +81,7 @@ function syncMirage(raw,t){
   if(camera===chaseCam){ scene.fog.near=7+(1-mirK)*4; scene.fog.far=24+(1-mirK)*8; } else { scene.fog.near=500; scene.fog.far=900; }
 }
 function setArtStyle(v){ artStyle=v; $('style').textContent=T(v==='mirage'?'Mirage':'Classic'); $('style').setAttribute('aria-pressed',v==='mirage'); savePrefs(); if(v==='mirage') showHudBanner(T('Mirage'),T('The canyon dreams in color'),'#F0BE4E'); }
-function toggleHeroCam(){ heroCam=!heroCam; $('cam').setAttribute('aria-pressed',heroCam); $('cam').title=T(heroCam?'Top view (K)':'Hero view (K)'); if(heroCam&&S.hero){ chYaw=S.hero.dir??-Math.PI/2; if(!viewNear) toggleView(); camFree=null; } savePrefs(); }
+function toggleHeroCam(){ heroCam=!heroCam; $('cam').setAttribute('aria-pressed',heroCam); $('cam').title=T(heroCam?'Top view ([)':'Hero view ([)'); if(heroCam&&S.hero){ chYaw=S.hero.dir??-Math.PI/2; if(!viewNear) toggleView(); camFree=null; } savePrefs(); }
 function feverKill(){ if(S.fever>0) { S.fever=Math.min(14,S.fever+.35); return; }
   const fast=S.t-(S.lastKillT||-9)<3; S.lastKillT=S.t; S.streak=fast?(S.streak||0)+1:1;
   S.feverM=Math.min(1,(S.feverM||0)+(fast?.11:.06));
@@ -138,8 +138,8 @@ function syncTabs(){
     const pb=document.querySelector(`[data-pb="${id}"]`); if(pb) pb.textContent=id==='upgD'&&buy?T('{{n}} you can buy',{n:buy}):badge[id]; }
 }
 // ---------- build tool groups ----------
-const TGROUPS=[['all','All',null],['settle','Settle',['farm','house','lumber','mine','market','well','shrine','road','storehouse','tavern','harbor']],
-  ['defend','Defend',['wall','trap','tower','cata','barr','range','lighthouse','smith']],['craft','Craft',['pasture','brewery','weaver','saltpan','workshop','smith','harbor']]];
+const TGROUPS=[['all','All',null],['settle','Settle',['farm','house','lumber','mine','market','well','shrine','road','storehouse','tavern','harbor','counting','temple']],
+  ['defend','Defend',['wall','trap','tower','cata','barr','range','lighthouse','smith','warcamp']],['craft','Craft',['pasture','brewery','weaver','saltpan','workshop','smith','harbor']]];
 let toolGroup='all'; try{ const v=localStorage.getItem('smallcrown-tgroup'); if(TGROUPS.some(g=>g[0]===v)) toolGroup=v; }catch(e){}
 function renderTcats(){
   const box=$('tcats'); if(!box.dataset.built){ box.innerHTML=TGROUPS.map(([id,n])=>`<button type="button" class="tcat" role="tab" data-g="${id}"><span class="gn"></span><span class="ct"></span></button>`).join(''); box.dataset.built=1;

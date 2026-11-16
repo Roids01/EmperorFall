@@ -472,6 +472,26 @@ function modelFor(b,x,y){
     if(ASSET.ready){ put(dock,'props_crate_01',.2,.09,-.12,.3,.33); put(dock,'props_barrel_01',.32,.09,.12,0,.3); put(dock,'props_sack_01',-.02,.09,.14,0,.3); }
     else add(dock,BX(.14,.14,.14),COL.woodLight,.2,.16,-.12);
     break;}
+  case 'counting':{
+    add(g,BX(.86,.06,.86),COL.stone,0,.03,0); add(g,BX(.6,.42,.5),COL.plank,0,.27,0); add(g,BX(.66,.06,.56),COL.woodLight,0,.5,0);
+    add(g,CY(.16,.16,.16,10),COL.gold,0,.62,0); add(g,BX(.14,.22,.02),COL.dark,0,.17,.26);
+    for(const a of [-.2,.2]) add(g,BX(.1,.1,.02),0x6A8AD8,a,.32,.26);
+    add(g,CY(.09,.09,.03,10),COL.gold,.34,.16,.3,Math.PI/2,0,0); add(g,BX(.02,.3,.02),COL.wood,.34,.15,.3);
+    break;}
+  case 'warcamp':{
+    add(g,BX(.9,.02,.9),0xB98A5A,0,.01,0);
+    for(const [a,c,s] of [[-.2,-.18,1],[.22,.12,.85]]){ add(g,CN(.24*s,.36*s,4),0x9A3B2E,a,.18*s,c,0,Math.PI/4,0); add(g,BX(.08*s,.12*s,.01),COL.dark,a,.07*s,c+.17*s); }
+    add(g,BX(.02,.7,.02),COL.wood,.3,.35,-.3); const fl=new THREE.Group(); fl.position.set(.3,.62,-.3); g.add(fl); add(fl,BX(.2,.12,.01),COL.foe,.1,0,0); g.userData.flag=fl;
+    for(let i=0;i<3;i++) add(g,BX(.02,.36,.02),COL.steel,-.32+i*.07,.18,.32,0,0,.15);
+    add(g,CY(.06,.07,.06,8),COL.dark,-.05,.03,.3);
+    break;}
+  case 'temple':{
+    add(g,BX(.9,.07,.8),COL.stone,0,.035,0); add(g,BX(.78,.07,.68),0xE8DCC8,0,.1,0);
+    for(let i=0;i<3;i++) for(const c of [-.24,.24]) add(g,CY(.045,.05,.42,8),0xF4F1EA,-.26+i*.26,.34,c);
+    add(g,BX(.78,.06,.66),0xE8DCC8,0,.58,0);
+    { const pr=geo('tprism',()=>{ const p=new THREE.CylinderGeometry(.3,.3,.78,3,1); p.rotateZ(Math.PI/2); p.scale(1,.42,1.05); return p; }); add(g,pr,0xEDE3CE,0,.67,0); }
+    add(g,CY(.1,.1,.02,12),COL.gold,0,.69,.35,Math.PI/2,0,0); g.userData.flame=add(g,CN(.05,.12,5),0,0,.22,.16,0,0,0,flameMat);
+    break;}
   case 'w_granary': case 'w_bazaar': case 'w_academy': case 'w_cathedral': case 'w_colossus':{
     const done=b.done, f=done?1:Math.max(.25,((b.prog||0)+1)/((DEF[b.type].days||3)+1));
     add(g,BX(.96,.06,.96),COL.stone,0,.03,0);

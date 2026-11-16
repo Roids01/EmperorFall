@@ -28,7 +28,7 @@ function ui(){
   $('region').textContent=T(regionName(S.cur))+(heroHere()?'':T(' · hero away')); if(!$('realm').hidden) renderRealm();
   const sea=season(); $('season').textContent=T(sea.name)+(S.weather!=='clear'?` · ${T(WX[S.weather].name)}`:'')+(S.blood?' · '+T('Blood moon'):''); $('seaDot').setAttribute('fill',sea.col); $('cSeason').classList.toggle('blood',!!S.blood);
   $('hlv').textContent=T(innerWidth<=520?'Lv {{n}}':'Hero Lv {{n}}',{n:S.hl}); $('cSeason').title=$('season').textContent; $('xpf').style.width=Math.round(100*S.hx/xpNeed(S.hl))+'%';
-  checkRequest(); renderReq(); renderPetition(); renderThrone(); syncTabs(); renderCharts();
+  checkRequest(); renderReq(); renderPetition(); renderThrone(); syncTabs(); renderCharts(); renderOrders();
   if(S.phase==='day'&&!S.modal&&!S.over&&S.perkPending>0) offerPerk();
   if(S.phase==='day'&&!S.modal&&!S.over&&S.lootPending>0) offerLoot();
   if(S.phase==='day'&&!S.modal&&!S.over&&S.demand) offerDemand();
@@ -65,7 +65,7 @@ function renderTools(){
   renderTcats();
   box.querySelectorAll('.tool').forEach(b=>{
     const t=b.dataset.tool, d=DEF[t];
-    b.classList.toggle('hid',!!grp&&!grp.includes(t)&&t!=='clear'&&t!=='ride'&&t!==S.tool);
+    b.classList.toggle('hid',(!!grp&&!grp.includes(t)&&t!=='clear'&&t!=='ride'&&t!==S.tool)||(!!d&&!!d.path&&S.path!==d.path));
     b.setAttribute('aria-pressed',t===S.tool); b.disabled=night&&t!=='ride';
     if(d){ const locked=d.unlock&&S.day<d.unlock;
       b.classList.toggle('locked',!!locked); b.classList.toggle('poor',!locked&&!canPay(d.cost));
@@ -173,6 +173,9 @@ function renderInsp(){
     case 'weaver': det=`${hp} · ${work} · 2 wool into 2 cloth at dawn`; break;
     case 'saltpan': det=`${hp} · ${work} · +3 salt at dawn`; break;
     case 'workshop': det=`${hp} · ${work} · 1 iron and 1 wood into 2 tools at dawn`; break;
+    case 'counting': det=`${hp} · +${5+Math.min(3,nearCount(S.grid,sel[0],sel[1],['market','house'],1))} ${T('gold each dawn')} · ${T('+1 for each market or house beside it, up to +3')}`; break;
+    case 'warcamp': det=`${hp} · ${S.units.filter(u=>u.home===i).length}/${3+S.mods.muster} ${T('spearmen')} · ${T('double damage against runners, wolves and knights')} · ${T('1 gold upkeep')}`; break;
+    case 'temple': det=`${hp} · ${T('+6 mood, +2 renown each dawn, heals your hero and soldiers within two tiles at night')}`; break;
     case 'w_granary': case 'w_bazaar': case 'w_academy': case 'w_cathedral': case 'w_colossus': det=b.done?`${T('Wonder')} · ${T(d.desc)}`:`${T('Under construction')}: ${b.prog||0}/${d.days} · ${work} · ${costStr(d.daily)} ${T('each dawn')}`; break;
     case 'road': det=`${hp} · your hero rides 40% faster on roads · farms, lumber camps and mines next to a road yield 1 more`; break;
     case 'lighthouse': det=`${hp} · pirates land with a quarter less health · warships are more likely to find pirate boats`; break;
@@ -181,7 +184,7 @@ function renderInsp(){
     case 'harbor': det=`${hp} · ${work} · +3 food from fishing · ${shipsFree()} of ${shipsTotal()} ship${shipsTotal()===1?'':'s'} in port`; break;
     case 'tower': det=`${hp}${b.spec==='ballista'?' · ballista':b.spec==='fire'?' · fire arrows':b.lvl===3?' · ready to specialize':''}`; break;
     case 'trap': det=`${b.charges}/${trapMax()} charges · ${1+S.mods.trap} damage and slows`; break;
-    case 'barr': det=`${hp} · ${S.units.filter(u=>u.home===i).length}/${b.lvl+1+S.mods.muster} soldiers · ${unitDmg()} damage each · 1 gold upkeep, soldiers eat 1 food each`+(b.unpaid?' · unpaid, idle tonight':''); break;
+    case 'barr': det=`${hp} · ${S.units.filter(u=>u.home===i).length}/${b.lvl+1+S.mods.muster} ${b.train==='spear'?T('spearmen'):T('soldiers')} · ${T(b.train==='spear'?'double damage against runners, wolves and knights':'half again as much damage against archers, shamans and sappers')} · ${unitDmg()} damage each · 1 gold upkeep, soldiers eat 1 food each`+(b.unpaid?' · unpaid, idle tonight':''); break;
     case 'house': det=`${hp} · room for ${3+S.mods.housing+((b.lvl||1)>1?2:0)} villagers${(b.lvl||1)>1?' · a manor':''} · ${S.pop}/${housing()} housed`; break;
     case 'farm': det=`${hp} · ${work} · +${farmOut()} food at dawn`; break;
     case 'well': det=`${hp} · +4 mood (up to 3 wells) · keeps fire off the buildings around it`; break;
@@ -202,6 +205,7 @@ function renderInsp(){
   const rc=repairCost(b);
   if(rc&&S.phase==='day') acts+=`<button class="up" id="iFix" type="button" ${!canPay(rc)||S.over?'disabled':''}>Repair <span class="c">${costShort(rc)}</span></button>`;
   if(d.work) acts+=`<button id="iOff" type="button">${b.off?'Resume':'Pause'}</button>`;
+  if(b.type==='barr'&&S.phase==='day') acts+=`<button id="iTrain" type="button" title="${T('Spearmen deal double damage to runners, wolves and knights. Soldiers deal more to archers, shamans and sappers.')}">${b.train==='spear'?T('Train soldiers'):T('Train spearmen')}</button>`;
   if(b.type==='keep'&&S.cur==='home'&&S.phase==='day') acts+=`<button class="up" id="iFeast" type="button" ${S.feastSeason===seasonIdx()||!canPay({food:20,gold:10})?'disabled':''}>${S.feastSeason===seasonIdx()?T('Feast held this season'):`${T('Hold a feast')} <span class="c">${costShort({food:20,gold:10})}</span>`}</button>`;
   if(b.type!=='keep') acts+=`<button id="iClr" type="button" ${S.phase!=='day'?'disabled':''}>Clear <span class="c">${costShort(refundOf(b))}</span></button>`;
   let extra='';
@@ -230,6 +234,7 @@ function renderInsp(){
   $('iFeast')?.addEventListener('click',holdFeast);
   const spec=k=>{ const sc={stone:8,gold:12}; if(!canPay(sc)||b.spec) return; spend(sc); b.spec=k; b.spent=addC(spentOf(b),sc); puff(sel[0],sel[1],COL.gold,12); sfx('up'); say(k==='ballista'?'<b>Ballista mounted.</b> Heavy bolts hit 3 harder from further away, but more slowly.':'<b>Fire arrows.</b> Raiders hit by this tower burn for 3 seconds.'); S.ver++; save(); ui(); };
   $('iSpecB')?.addEventListener('click',()=>spec('ballista')); $('iSpecF')?.addEventListener('click',()=>spec('fire'));
+  $('iTrain')?.addEventListener('click',()=>{ b.train=b.train==='spear'?null:'spear'; spawnUnits(sel[1]*N+sel[0]); S.ver++; save(); ui(); renderInsp(); say(b.train==='spear'?T('The barracks now trains spearmen.'):T('The barracks now trains soldiers.')); });
   $('iOff')?.addEventListener('click',()=>{ b.off=!b.off; save(); ui(); say(b.off?`${d.name} paused. Its worker is free for other jobs.`:`${d.name} back to work.`); });
   box.querySelectorAll('[data-port]').forEach(el=>el.addEventListener('click',()=>sendVoyage(el.dataset.port)));
   box.querySelectorAll('[data-forge]').forEach(el=>el.addEventListener('click',()=>forge(el.dataset.forge)));
@@ -500,15 +505,17 @@ addEventListener('keydown',ev=>{
   if(ev.target.closest&&ev.target.closest('input,textarea,select')) return;
   const k=ev.key.toLowerCase();
   if(HELD.has(k)){ KD[k]=true; if(k.startsWith('arrow')) ev.preventDefault(); return; }
-  const kk=ev.key.toUpperCase(), tk=TOOLS.find(t=>KEYS[t]===kk); if(tk){ setTool(tk); return; }
+  const kk=ev.key.toUpperCase();
+  if(S.phase==='night'&&'1234'.includes(kk)&&S.units.length){ setOrder(Object.keys(ORDERS)['1234'.indexOf(kk)]); return; }
+  const tk=TOOLS.find(t=>KEYS[t]===kk); if(tk){ setTool(tk); return; }
   if(ev.key===' '&&!(ev.target instanceof HTMLButtonElement)){ ev.preventDefault(); startNight(); }
   else if(k==='p') togglePause();
   else if(k==='f') toggleSpeed();
   else if(k==='u') upgradeSel();
   else if(k==='escape'){ sel=null; closeRealm(); closeWorld(); renderInsp(); }
   else if(k==='v') toggleView();
-  else if(k==='i') setArtStyle(artStyle==='mirage'?'classic':'mirage');
-  else if(k==='k') toggleHeroCam();
+  else if(k===']') setArtStyle(artStyle==='mirage'?'classic':'mirage');
+  else if(k==='[') toggleHeroCam();
   else if(k==='m') toggleRealm();
   else if(k==='q') useCharge();
   else if(k==='e') useRally();

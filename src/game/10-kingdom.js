@@ -129,7 +129,7 @@ function kingdomDawn(notes,rep){
 }
 let throneKey='';
 function renderThrone(){
-  const key=[S.renown,taxLvl(),JSON.stringify(council()),keepLvl(),S.phase,lang,S.res.gold,S.res.stone,S.res.wood,S.res.iron,S.day,S.ver,S.cur].join('|'); if(key===throneKey) return; throneKey=key;
+  const key=[S.renown,taxLvl(),JSON.stringify(council()),keepLvl(),S.phase,lang,S.res.gold,S.res.stone,S.res.wood,S.res.iron,S.day,S.ver,S.cur,S.path,(S.vics||[]).join(),S.tradeGold|0].join('|'); if(key===throneKey) return; throneKey=key;
   const ri=rankIdx(), nx=RANKS[ri+1], rn=S.renown||0, pct=nx?Math.round((rn-RANKS[ri].at)/(nx.at-RANKS[ri].at)*100):100, night=S.phase!=='day';
   $('thronesum').textContent=T(rankName());
   const up=KEEP_UP[keepLvl()];
@@ -143,10 +143,11 @@ function renderThrone(){
     <div class="tc"><h4>${T('Taxes')}</h4><div class="seg">${TAXES.map((t,i)=>`<button type="button" data-tax="${i}" aria-pressed="${taxLvl()===i}" ${night?'disabled':''}>${T(t.name)}</button>`).join('')}</div><span class="sub">${T('Each villager pays {{g}} gold a dawn',{g:TAXES[taxLvl()].mult})} · ${TAXES[taxLvl()].mood?`${T('mood')} ${TAXES[taxLvl()].mood>0?'+':''}${TAXES[taxLvl()].mood}`:T('no effect on mood')}${taxLvl()===3?' · '+T('families leave when unhappy'):''}</span>
       <h4 style="margin-top:6px">${T('The keep')}</h4><span class="big" style="font-size:16px">${T(['Keep','Castle','Citadel'][keepLvl()-1])}</span>
       ${up?`<span class="sub">${T('Raise it into a {{n}}: +6 health, +1 damage and range for its archers, room for 4 more villagers, +15 renown.',{n:T(up.name).toLowerCase()})}${ri<up.rank?' '+T('Needs a {{r}}.',{r:T(RANKS[up.rank].name).toLowerCase()}):''}</span><button type="button" id="raiseKeep" ${night||ri<up.rank||!canPay(up.cost)?'disabled':''}>${T('Raise the {{n}}',{n:T(up.name).toLowerCase()})} <span class="c">${costShort(up.cost)}</span></button>`:`<span class="sub">${T('Your citadel is complete.')}</span>`}</div>
-    <div class="tc"><h4>${T('Royal council')}</h4>${seats}</div>${wondersHtml()}</div>`;
+    <div class="tc"><h4>${T('Royal council')}</h4>${seats}</div>${pathHtml()}${victoryHtml()}${wondersHtml()}</div>`;
   $('throne').querySelectorAll('[data-tax]').forEach(b=>b.addEventListener('click',()=>setTax(+b.dataset.tax)));
   $('throne').querySelectorAll('[data-appoint]').forEach(b=>b.addEventListener('click',()=>appoint(b.dataset.appoint)));
   $('throne').querySelectorAll('[data-dismiss]').forEach(b=>b.addEventListener('click',()=>dismiss(b.dataset.dismiss)));
   $('raiseKeep')?.addEventListener('click',raiseKeep);
+  $('throne').querySelectorAll('[data-path]').forEach(b=>b.addEventListener('click',()=>{ const id=b.dataset.path; showOver(T('Swear to the {{p}}?',{p:T(PATHS[id].name)}),T('This cannot be undone. The other paths close for this kingdom.'),[{label:T('Swear the oath'),primary:true,fn:()=>{ hideOver(); choosePath(id); }},{label:T('Not yet'),fn:()=>hideOver()}]); }));
   $('throne').querySelectorAll('[data-wonder]').forEach(b=>b.addEventListener('click',()=>{ if(S.cur!=='home'){ say('Wonders rise only in The Valley. Ride home first.'); return; } setTool(b.dataset.wonder); say(`<b>Choose a site for the ${DEF[b.dataset.wonder].name}.</b> Tap a free tile and your hero will lay the foundations.`); document.getElementById('board').scrollIntoView({behavior:'smooth',block:'center'}); }));
 }

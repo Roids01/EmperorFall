@@ -108,6 +108,8 @@ function moodInfo(){
   if(S.stdTier) add(`${STD[S.stdTier].name} living`,STD[S.stdTier].mood);
   if(S.adjMood) add('Neighborhoods',S.adjMood);
   if(hasWonder('w_cathedral')) add('Cathedral of the Sun',12);
+  if(count('temple')) add('Temples',6*Math.min(2,count('temple')));
+  if(hasTier('holy',2)) add('Pilgrims',3);
   if(skill('chaplain')) add('Chaplain',skill('chaplain')*3);
   for(const k in (S.council||{})) if(S.council[k].trait==='pious') add(`${S.council[k].name} is pious`,2);
   if(S.res.food>=15) add('Full granaries',5);
@@ -143,7 +145,7 @@ function offerPerk(){
 }
 const DIFF={easy:{label:'Easy',sub:'Smaller raids and a fuller treasury. Score ×0.7',wave:.75,hp:.85,res:1.35,mult:.7},
   normal:{label:'Normal',sub:'The intended challenge',wave:1,hp:1,res:1,mult:1},
-  hard:{label:'Hard',sub:'Bigger, tougher raids and a lean start. Score ×1.5',wave:1.3,hp:1.2,res:.8,mult:1.5}};
+  hard:{label:'Hard',sub:'Bigger, tougher raids and a lean start. Score ×1.5',wave:1.22,hp:1.15,res:.85,mult:1.5}};
 const UPGS=[
   {id:'irrigation',branch:'Economy',name:'Irrigation',desc:'Farms grow +1 food each dawn.',cost:{gold:10,wood:6},apply:()=>{S.mods.harvest++}},
   {id:'tools',branch:'Economy',name:'Iron tools',desc:'Lumber camps cut +1 wood and mines dig +1 stone.',cost:{gold:12,stone:4},apply:()=>{S.mods.wood++;S.mods.stone++}},

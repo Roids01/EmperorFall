@@ -1,0 +1,4 @@
+[build]
+  # The playable files are prebuilt and committed (run `npm run build` after editing src/), so Netlify serves the repo root as is.
+  publish = "."
+  command = ""

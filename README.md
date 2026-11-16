@@ -51,7 +51,7 @@ three.js r128 and every library load from the jsDelivr and cdnjs CDNs, pinned to
 - **Night:** ring the bell. Raiders follow the red dotted routes and smash anything in the way. Watchtowers, catapults, soldiers and your hero fight back.
 - **Damage:** hurt buildings smoke and burn; tap one and choose Repair, or let dawn patch it slowly.
 - **Goal:** hold the keep through 20 nights, then keep going in endless mode. Pick Easy, Normal or Hard at the start; your score counts nights, kills, villagers, buildings and upgrades.
-- **Hero abilities:** Charge (Q) dashes through raiders; Rally (E) pulls every soldier to the hero and makes them fight harder.
+- **Hero abilities:** Charge (Q) dashes through raiders; Rally (E) pulls every soldier to the hero and makes them fight harder. Hero view is on [ and the Mirage art style on ].
 - **Growth:** quests teach the basics and pay out goods, and twelve kingdom upgrades improve your economy, defenses, army and hero.
 - **Raiders:** bandits, runners, brutes, archers who shoot from range, battering rams that smash buildings, shamans who heal the others, and a warlord every fifth night. Some nights bring a blood moon.
 - **Seasons and weather:** spring, summer, harvest and winter turn every 5 days and change farm output and heating; rain, sandstorms and snow change how a night plays.
@@ -89,6 +89,11 @@ three.js r128 and every library load from the jsDelivr and cdnjs CDNs, pinned to
 - **Charts, physics and motion:** the Treasury tab charts stores, villagers, mood and the race between crowns over time (uPlot); destroyed buildings burst into tumbling debris (cannon-es); and the camera sweeps to finished wonders, slain warlords and a falling keep (GSAP).
 - **Share codes and co-op:** share your kingdom as a code or web link (lz-string), and play together with a friend (PeerJS): one hosts, the other joins with a four-letter code and sends build orders, trades, pings and quick signals. Co-op needs the web version at smallcrown.netlify.app.
 - **Engine:** three.js r162, loaded as ES modules.
+- **Crown paths:** from day 5, swear your realm to the Merchant Republic, the Iron Warlord or the Holy Kingdom. Each path has its own building (Counting House, War Camp, Temple) and four tiers that open as you earn renown, and choosing one closes the others.
+- **Five ways to win:** hold 20 nights (The Long Watch), take the rival capitals (Conquest), grow rich on trade (Merchant Prince), raise three wonders (Wonders of the World) or ally with every crown (Union of Crowns). Progress shows on the Throne tab.
+- **Troop orders and counter-units:** at night, order your troops to Guard, Hold, Charge or Fall back (buttons in the corner or keys 1–4). Spearmen beat runners, wolves and knights; soldiers beat archers, shamans and sappers; archers beat brutes and warlords. Barracks can train either soldiers or spearmen.
+- **The campaign:** raise armies on your lands of Ashkara and march them province by province; orders play out at dawn. Armies cost gold and food, starve outside your supply lines, fight in the field and besiege walls. Fog of war hides lands you cannot see; send scouts to look. Rival crowns raise and march armies by the same rules, and an enemy army at your capital storms your walls that night.
+- **Balance testing:** `tools/bot.js` is a strategy bot that plays whole games headlessly (balanced, turtle, economy and random strategies). It was used to tune the economy, the late waves, the paths and the difficulty levels.
 - **Save slots and language:** three kingdoms can be saved side by side, and the EN/ES button switches the interface to Spanish.
 
 - **Phones and tablets:** steer the hero with the on-screen joystick; a full-screen button appears where the browser supports it.
