@@ -1,2 +1,6 @@
 node_modules/
 dist/
+tools/.cdn/
+dist/bot.html
+bot-*.json
+shots/
