@@ -283,7 +283,9 @@ function roughSvg(svg){ if(!svg||!window.rough||svg.dataset.rough) return; svg.d
 // ---------- inkjs: court audiences written in Ink ----------
 const INK=window.SC_INK||{};
 const AUD=[{k:'bard',d:3},{k:'prophet',d:3},{k:'noble',d:4},{k:'orphans',d:4},{k:'smuggler',d:5},{k:'scholar',d:5},{k:'envoy',d:6}];
-const AUD_RET={bard:'bard_return',noble:'noble_return',prophet:'prophet_return',smuggler:'smuggler_return',scholar:'scholar_return'};
+const AUD_RET={bard:'bard_return',noble:'noble_return',prophet:'prophet_return',smuggler:'smuggler_return',scholar:'scholar_return',orphans:'orphans_return',envoy:'envoy_return'};
+// Court choices that keep paying (or costing) for several dawns. They show in the ledger with a countdown.
+const lingers=()=>(S&&S.aud&&S.aud.linger)||[];
 function planAudience(){ const A=S.aud||(S.aud={vars:{},seen:[],at:{},last:0,pend:null}); if(A.pend||S.over||S.day-A.last<3||Math.random()>.6) return;
   for(const k in AUD_RET){ const v=A.vars['m_'+k]; if(v>=1&&v<=3&&!A.seen.includes(AUD_RET[k])&&S.day-(A.at[k]||0)>=4){ A.pend=AUD_RET[k]; return; } }
   const c=AUD.filter(a=>!A.seen.includes(a.k)&&S.day>=a.d&&(a.k!=='envoy'||liveKings().length>=2)); if(c.length) A.pend=c[(Math.random()*c.length)|0].k; }
@@ -299,6 +301,7 @@ function openAudience(){
   for(const k in A.vars) try{ st.variablesState[k]=A.vars[k]; }catch(e){}
   try{ st.variablesState.king=T(KINGS[king].name); st.variablesState.rival=T(KINGS[rival].name); st.variablesState.day=S.day; }catch(e){}
   st.BindExternalFunction('gain',(w,n)=>{ audGain(w,n,fx); }); st.BindExternalFunction('can',(w,n)=>(w==='mood'?S.mood:(S.res[w]||0))>=n,true);
+  st.BindExternalFunction('over',(w,n,d)=>{ n=Math.round(n); d=Math.max(1,Math.round(d)); if(!n) return; const A2=S.aud; (A2.linger=A2.linger||[]).push({w,n,left:d,src:step.who||T('The court')}); fx.push([w,n,null,d]); });
   st.BindExternalFunction('rel',(who,n)=>{ const ids=who==='all'?liveKings():[who==='king'?king:rival]; ids.forEach(id=>relShift(id,n)); fx.push([who==='all'?T('all crowns'):kn(who==='king'?king:rival),n,'rel']); });
   try{ st.ChoosePathString(knot); }catch(e){ A.pend=null; return; }
   const finish=()=>{ for(const k of ['m_bard','m_noble','m_prophet','m_smuggler','m_scholar','m_orphans','m_envoy']){ try{ A.vars[k]=st.variablesState[k]; }catch(e){} }
@@ -309,7 +312,7 @@ function openAudience(){
     const ch=st.currentChoices, opts=ch.length?ch.map(c=>({label:c.text,fn:()=>{ fx.length=0; st.ChooseChoiceIndex(c.index); step(); }})):[{label:T('End the audience'),primary:true,fn:finish}];
     showOver(who,'',opts); const card=$('over').querySelector('.card'); card.classList.add('aud');
     card.querySelector('h2').outerHTML=`<div class="who"><span class="av">${who.replace(/^(the|el|la|un|una|a|lady|dama|sister|hermana)\s+/i,'').charAt(0)}</span><div><small>${T('Court audience')}</small><h2 style="margin:0">${who}</h2></div></div>`;
-    const p=card.querySelector('p'); p.outerHTML=`<div class="lines">${lines.map(l=>`<p class="${/^[“"]/.test(l)?'q':''}">${l.replace(/</g,'&lt;')}</p>`).join('')}</div>${fx.length?`<div class="fx">${fx.map(([w,n,r])=>`<span class="${n>0?'up':'dn'}">${n>0?'+':''}${n} ${r?T('with {{k}}',{k:w}):T(w)}</span>`).join('')}</div>`:''}`;
+    const p=card.querySelector('p'); p.outerHTML=`<div class="lines">${lines.map(l=>`<p class="${/^[“"]/.test(l)?'q':''}">${l.replace(/</g,'&lt;')}</p>`).join('')}</div>${fx.length?`<div class="fx">${fx.map(([w,n,r,d])=>`<span class="${n>0?'up':'dn'}">${d?T('{{n}} {{w}} a dawn for {{d}} dawns',{n:(n>0?'+':'')+n,w:T(w),d}):`${n>0?'+':''}${n} ${r?T('with {{k}}',{k:w}):T(w)}`}</span>`).join('')}</div>`:''}`;
     sfx('tap'); renderRes(); };
   step();
 }

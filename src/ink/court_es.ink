@@ -1,6 +1,7 @@
 EXTERNAL gain(what, amount)
 EXTERNAL can(what, amount)
 EXTERNAL rel(who, amount)
+EXTERNAL over(what, amount, days)
 VAR king = "Harun"
 VAR rival = "Osric"
 VAR day = 1
@@ -56,12 +57,14 @@ Una noble con sedas polvorientas está junto a un campesino que estruja su gorra
 "Este hombre ara tierras que fueron de mi abuelo. Las quiero de vuelta, con la cosecha que sacó de ellas."
 El campesino no dice nada. Le tiemblan las manos.
 * [Dar la razón a Dama Varenne]
-    ~ gain("gold", 15)
-    ~ gain("mood", -5)
+    ~ gain("gold", 10)
+    ~ over("gold", 2, 5)
+    ~ over("mood", -3, 4)
     ~ m_noble = 1
-    Deja una bolsa en manos de tu mayordomo. "Un juicio sabio, Majestad. Lo recordaré." El campesino se va sin decir palabra.
+    Deja una bolsa en manos de tu mayordomo. "Un juicio sabio, Majestad. Mis rentas vendrán detrás." El campesino se va sin decir palabra, y en los campos la gente deja de mirarte a los ojos.
 * [Dar la razón al campesino]
-    ~ gain("mood", 6)
+    ~ gain("mood", 4)
+    ~ over("food", 2, 5)
     ~ m_noble = 2
     La sala murmura con aprobación. La sonrisa de Dama Varenne no llega a sus ojos. "Por supuesto, Majestad."
 * [Repartir el campo entre los dos]
@@ -204,8 +207,9 @@ Una mujer cansada entra en la sala con seis niños. Su ropa huele a humo.
 "Unos asaltantes quemaron nuestra aldea junto a las salinas. Caminamos tres días. Por favor, Majestad. Pueden trabajar, o podrán pronto."
 * {can("food", 10)} [Acogerlos]
     ~ gain("food", -10)
-    ~ gain("mood", 6)
+    ~ gain("mood", 4)
     ~ gain("pop", 1)
+    ~ over("food", -1, 4)
     ~ m_orphans = 1
     La cocinera adopta a los seis en el acto. La hermana Maren se queda a ayudar.
 * [Darles pan para el camino]
@@ -213,9 +217,35 @@ Una mujer cansada entra en la sala con seis niños. Su ropa huele a humo.
     ~ m_orphans = 2
     Te dan las gracias y siguen hacia Hallowmere.
 * [Rechazarlos]
-    ~ gain("mood", -6)
+    ~ gain("mood", -3)
+    ~ over("mood", -2, 4)
     ~ m_orphans = 3
-    La sala queda muy callada cuando se van.
+    La sala queda muy callada cuando se van. Sigue callada durante días.
+- -> END
+
+=== orphans_return ===
+# speaker: Hermana Maren
+{ m_orphans == 1: La hermana Maren ha vuelto, con seis niños un palmo más altos y bastante más ruidosos.|{ m_orphans == 2: Un jinete de Hallowmere trae una carta sellada con la huella de la hermana Maren.|La hermana Maren está sola ante la puerta. No entra.}}
+{ m_orphans == 1: "Comen como lobos, Majestad, pero trabajan como bueyes. Dadles un campo y alimentarán la sala."|{ m_orphans == 2: "El pan que nos disteis nos llevó hasta Hallowmere. La abadesa no lo ha olvidado."|"Dos de los niños se fueron con los asaltantes. No tenían otro sitio adonde ir. Pensé que debíais saber quién les enseñó el camino hasta aquí."}}
+* { m_orphans == 1} [Darles un campo propio]
+    ~ over("food", 3, 6)
+    ~ gain("renown", 2)
+    Lo siembran en una sola tarde, mal y con enorme alegría.
+* { m_orphans == 1} [Ponerlos de aprendices con tus artesanos]
+    ~ over("gold", 2, 6)
+    Los herreros se quejan una semana y luego dejan de hacerlo.
+* { m_orphans == 2} [Responder con gratitud]
+    ~ rel("all", 3)
+    ~ gain("renown", 2)
+    La abadesa lee tu carta en voz alta en tres ciudades.
+* { m_orphans == 3 and can("gold", 12)} [Pagarle para que encuentre a los dos niños]
+    ~ gain("gold", -12)
+    ~ gain("mood", 4)
+    Encuentra a uno. Es más de lo que nadie esperaba.
+* { m_orphans == 3} [Cerrar la puerta]
+    ~ over("mood", -2, 3)
+    Los guardias la cierran despacio. Algunos tienen hijos.
+- ~ m_orphans = 9
 - -> END
 
 === envoy ===
@@ -226,8 +256,8 @@ Un visitante llega de noche y se baja la capucha. Debajo lleva el sello de {king
     ~ rel("king", 12)
     ~ rel("rival", -6)
     ~ m_envoy = 1
-    El enviado se va antes del alba. En una semana llega una bolsa de buena voluntad.
-    ~ gain("gold", 10)
+    El enviado se va antes del alba. Cada amanecer llegará una bolsa discreta mientras dure el acuerdo.
+    ~ over("gold", 3, 5)
 * [Desenmascarar al enviado ante la corte]
     ~ rel("king", -12)
     ~ rel("rival", 8)
@@ -237,4 +267,30 @@ Un visitante llega de noche y se baja la capucha. Debajo lleva el sello de {king
 * [Despedirlo sin respuesta]
     ~ m_envoy = 3
     "El silencio también es una respuesta", dice, y se marcha.
+- -> END
+
+=== envoy_return ===
+# speaker: Un enviado encapuchado
+{ m_envoy == 1: El enviado encapuchado ha vuelto, y esta vez tiene prisa.|{ m_envoy == 2: Un heraldo con los colores de {rival} llega a plena luz del día, con un cofre.|El enviado encapuchado regresa. Esta vez no se baja la capucha.}}
+{ m_envoy == 1: "{rival} ha encontrado una carta que debió quemarse. Mi señor pregunta qué pensáis decir al respecto."|{ m_envoy == 2: "Mi señor recuerda quién dijo la verdad sobre {king}. Os envía su gratitud, y a sus mercaderes."|"Mi señor os lo pidió dos veces. No lo pedirá una tercera."}}
+* { m_envoy == 1} [Negarlo todo]
+    ~ rel("rival", -8)
+    ~ gain("renown", -3)
+    Nadie te cree, pero nadie puede probarlo tampoco.
+* { m_envoy == 1 and can("gold", 15)} [Pagar para que la carta desaparezca]
+    ~ gain("gold", -15)
+    ~ rel("king", 4)
+    La carta arde. También un poco de tu tesoro.
+* { m_envoy == 2} [Abrir tus mercados a sus mercaderes]
+    ~ over("gold", 2, 6)
+    ~ rel("rival", 4)
+    A la mañana siguiente empiezan a llegar caravanas con los colores de {rival}.
+* { m_envoy == 3} [Dejarlo marchar]
+    ~ rel("king", -4)
+    Se marcha. Algunas respuestas cuestan más que otras.
+* { m_envoy == 3} [Ofrecerle un asiento a tu mesa]
+    ~ rel("king", 6)
+    ~ gain("gold", -5)
+    Come, bebe y se marcha un poco más cálido de lo que llegó.
+- ~ m_envoy = 9
 - -> END

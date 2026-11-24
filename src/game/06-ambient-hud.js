@@ -161,7 +161,7 @@ const pv=new THREE.Vector3();
 function scr(x,y,z){ pv.set(x,y,z).project(camera); return [(pv.x+1)/2*BW,(1-pv.y)/2*BH]; }
 
 const DAY={sun:new THREE.Color(0xFFF1DA),sky:new THREE.Color(0xFFF2DE),gnd:new THREE.Color(0xB2644A)};
-const NIGHT={sun:new THREE.Color(0xA9C0FF),sky:new THREE.Color(0x7C96E0),gnd:new THREE.Color(0x2C3870)};
+const NIGHT={sun:new THREE.Color(0xA9C0FF),sky:new THREE.Color(0x7385BE),gnd:new THREE.Color(0x2A2E52)};
 const BGM=new THREE.Color(0x56616E), BGD=new THREE.Color(0x7A3A2B), BGN=new THREE.Color(0x1C2A5E), DUSK=new THREE.Color(0xFF8A4A), DUSKBG=new THREE.Color(0x9A4630);
 let goldK=0;
 function syncLight(t){
@@ -171,7 +171,7 @@ function syncLight(t){
   goldK=dk;
   scene.background.lerp(DUSKBG,dk*.5);
   sun.intensity=.86-.44*k; sun.color.copy(DAY.sun).lerp(NIGHT.sun,k).lerp(DUSK,dk);
-  hemi.intensity=.62-.1*k; hemi.color.copy(DAY.sky).lerp(NIGHT.sky,k); hemi.groundColor.copy(DAY.gnd).lerp(NIGHT.gnd,k);
+  hemi.intensity=.62-.2*k; if(typeof FOE_RING_MAT!=='undefined') FOE_RING_MAT.opacity=.28+.42*k; hemi.color.copy(DAY.sky).lerp(NIGHT.sky,k); hemi.groundColor.copy(DAY.gnd).lerp(NIGHT.gnd,k);
   if(waterMesh&&waterMesh.material.uniforms){ const U=waterMesh.material.uniforms; U.sunColor.value.setHex(0xFFF1DA).lerp(new THREE.Color(0x5A6AA0),k); U.waterColor.value.setHex(0x1E6A78).lerp(new THREE.Color(0x0C2240),k); }
   sun.position.set(camTarget.x+10-k*16+dk*6,16-k*4-dk*10.5,camTarget.z+5-dk*3); sun.target.position.set(camTarget.x,0,camTarget.z);
   const sr=camera===chaseCam?13:curHH*Math.max(aspect,1)*1.2+3, sc=sun.shadow.camera;
@@ -182,7 +182,7 @@ function syncLight(t){
   torches.forEach((l,i)=>{ const s=srcs[i]; if(!s||k<.02){ l.intensity=0; return; }
     if(s[0]==='hero'){ l.position.set(W2(s[1]),.9,W2(s[2])); l.intensity=k*1.3; l.distance=2.6; return; }
     l.position.set(W2(s[1])+(s[0]==='tower'?.29:0),s[0]==='tower'?1.2:.9,W2(s[2])+(s[0]==='tower'?.29:.4));
-    l.intensity=k*(s[0]==='keep'?1.6:1.25)*(reduce?1:1+Math.sin(t*11+i*2)*.06); l.distance=s[0]==='keep'?4.2:3.2; });
+    l.intensity=k*(s[0]==='keep'?2.3:1.7)*(reduce?1:1+Math.sin(t*11+i*2)*.06); l.distance=s[0]==='keep'?5.4:3.9; });
 }
 function bar(x,y,w,f,col){ hctx.fillStyle='rgba(28,23,20,.75)'; hctx.fillRect(x-1,y-1,w+2,5); hctx.fillStyle=col; hctx.fillRect(x,y,w*Math.max(0,f),3); }
 let viewNear=true, camFree=null, aspect=1.6, farHH=8, curHH=0, drag=null, dragged=false;

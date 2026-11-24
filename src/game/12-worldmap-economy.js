@@ -228,6 +228,18 @@ function adjBonus(type,g,x,y){ const out=[];
   if(type==='house'){ const am=nearCount(g,x,y,['well','market','shrine','tavern'],2), ns=nearCount(g,x,y,['mine','smith','workshop','brewery'],1); if(am>=2) out.push(['Well served','mood',1]); if(ns) out.push(['Noisy neighbors','mood',-1]); }
   return out; }
 function bonusText(type,x,y){ return adjBonus(type,S.grid,x,y).map(([t,r,v])=>`${v>0?'+':''}${v} ${r==='mood'?T('mood'):T(r)} ${T(t).toLowerCase()}`).join(' · '); }
+// what dawn changed, and why: the two or three biggest ledger lines behind each shift
+function dawnHtml(e){ if(!e) return ''; const sg=v=>`<b class="${v<0?'neg':v>0?'pos':''}">${v>0?'+':''}${v}</b>`, why=a=>a.map(([t,v])=>`${t} ${v>0?'+':''}${v}`).join(' · ');
+  let E2=null; try{ E2=econ(); }catch(err){} const warn=[];
+  if(E2&&E2.foodAfter<0) warn.push(T('Food runs short next dawn by {{n}}. Build farms or buy food.',{n:-E2.foodAfter}));
+  if(E2&&E2.goldAfter<0) warn.push(T('Gold won’t cover upkeep next dawn.'));
+  if(S.mood<40&&e.mood<0) warn.push(T('Mood is sliding toward unrest. Open the ledger to see why.'));
+  return `<div class="rsec"><h4>${T('At dawn')}</h4>
+    <div class="rr"><span>${T('Gold')}</span>${sg(e.g)}</div>${e.gl.length?`<div class="why">${why(e.gl)}</div>`:''}
+    <div class="rr"><span>${T('Food')}</span>${sg(e.f)}</div>${e.fl.length?`<div class="why">${why(e.fl)}</div>`:''}
+    ${e.pop?`<div class="rr"><span>${T('Villagers')}</span>${sg(e.pop)}</div>`:''}
+    <div class="rr"><span>${T('Mood')}</span><span>${e.moodNow} ${sg(e.mood)}</span></div>${e.mc&&e.mood?`<div class="why">${T('Mostly: {{c}}',{c:e.mc})}</div>`:''}
+    ${warn.map(w=>`<div class="rwarn">${w}</div>`).join('')}</div>`; }
 function showReport(r){
   const box=$('board'); box.querySelectorAll('.report').forEach(e=>e.remove());
   const by=r.by, parts=[['hero',T('Your hero'),'#F2EADD'],['tower',T('Towers and keep'),'#F0BE4E'],['soldier',T('Soldiers'),'#5E8DFF'],['cata',T('Catapults'),'#E0904A'],['trap',T('Traps'),'#B9C6D8']].filter(p=>by[p[0]]);
@@ -240,9 +252,9 @@ function showReport(r){
     <div class="rr"><span>${T('Damage to the {{f}}',{f:T(REGIONS[r.region].fort).toLowerCase()})}</span><b>${r.keep}</b></div>
     <div class="rr"><span>${T('Buildings lost')}</span><b>${r.lost}</b></div>
     <div class="rr"><span>${T('Bounty earned')}</span><b>${r.gold}g</b></div>
-    ${mvp?`<div class="mvp">★ ${T('Best defender: {{w}}',{w:mvp[1].toLowerCase()})}</div>`:''}`;
+    ${mvp?`<div class="mvp">★ ${T('Best defender: {{w}}',{w:mvp[1].toLowerCase()})}</div>`:''}${dawnHtml(r.eco)}`;
   el.querySelector('button').addEventListener('click',()=>el.remove());
-  box.appendChild(el); setTimeout(()=>el.remove(),11000);
+  box.appendChild(el); setTimeout(()=>el.remove(),r.eco?16000:11000);
 }
 // ---------- villager requests ----------
 const REQS={

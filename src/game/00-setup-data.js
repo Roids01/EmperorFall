@@ -111,6 +111,7 @@ function moodInfo(){
   if(count('temple')) add('Temples',6*Math.min(2,count('temple')));
   if(hasTier('holy',2)) add('Pilgrims',3);
   if(skill('chaplain')) add('Chaplain',skill('chaplain')*3);
+  for(const l of lingers()) if(l.w==='mood') add(T('{{s}} ({{n}} dawns left)',{s:l.src,n:l.left}),l.n);
   for(const k in (S.council||{})) if(S.council[k].trait==='pious') add(`${S.council[k].name} is pious`,2);
   if(S.res.food>=15) add('Full granaries',5);
   if(season().name==='Harvest') add('Harvest festival',5);

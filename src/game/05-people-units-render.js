@@ -87,7 +87,10 @@ function wolfModel(){
   g.userData.legs=[[.08,.03],[.08,-.03],[-.08,.03],[-.08,-.03]].map(([x,z])=>{ const l=new THREE.Group(); l.position.set(x,.09,z); b.add(l); add(l,BX(.022,.09,.022),d,0,-.045,0); return l; });
   g.userData.tail=tl; g.userData.seed=Math.random()*9; scene.add(g); return g;
 }
-function enemyModel(e){
+// A faint red ring under every raider so they read against the sand, brighter at night (synced in syncLight).
+const FOE_RING_MAT=new THREE.MeshBasicMaterial({color:0xFF4A3A,transparent:true,opacity:.3,depthWrite:false,blending:THREE.AdditiveBlending});
+function enemyModel(e){ const g=enemyModel0(e); const r=new THREE.Mesh(geo('foeRing',()=>new THREE.RingGeometry(.15,.21,20)),FOE_RING_MAT); r.rotation.x=-Math.PI/2; r.position.y=.015; r.renderOrder=1; r.userData.noFlash=true; g.add(r); return g; }
+function enemyModel0(e){
   if(e.type==='ram') return ramModel();
   if(e.type==='wolf') return wolfModel();
   let g;

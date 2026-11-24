@@ -1,7 +1,7 @@
 // ================= CROWN PATHS: three exclusive ways to rule =================
 const PATHS={
   merchant:{name:'Merchant Republic',color:'#F0BE4E',icon:'⚖',desc:'Grow rich on trade. Gold buys what swords cannot.',tiers:[
-    {name:'Counting houses',desc:'Unlocks the Counting House: +5 gold each dawn, +1 for each market or house beside it (up to +3). Caravans earn a quarter more.'},
+    {name:'Counting houses',desc:'Unlocks the Counting House: +4 gold each dawn, +1 for each market or house beside it (up to +2). Counting houses after the second earn half. Caravans earn a quarter more.'},
     {name:'Guild charter',desc:'Market prices are 15% better and Merchant Guild loans cost no interest.'},
     {name:'Sellsword contracts',desc:'Each night, gold hires guards at the keep: one for every 30 gold in the treasury (up to 5), 3 gold each.'},
     {name:'Trade league',desc:'Every trade agreement adds 4 gold and 1 renown each dawn. The trade victory needs a third less gold.'}]},
@@ -30,7 +30,7 @@ function choosePath(id){ if(S.path||!PATHS[id]||!pathOpen()||S.phase!=='day') re
   toast(T('Path chosen'),T(PATHS[id].name),PATHS[id].icon); news(`Your realm swore to the ${PATHS[id].name}`); say(`<b>${T(PATHS[id].name)}.</b> ${T(PATHS[id].tiers[0].desc)}`); S.ver++; save(); ui(); }
 // path buildings
 Object.assign(DEF,{
-  counting:{name:'Counting House',cost:{wood:4,stone:2},hp:4,enter:8,path:'merchant'},
+  counting:{name:'Counting House',cost:{wood:6,stone:4,gold:4},hp:4,enter:8,path:'merchant'},
   warcamp:{name:'War Camp',cost:{wood:8,gold:6},hp:7,enter:10,upkeep:1,path:'warlord'},
   temple:{name:'Temple',cost:{stone:8,gold:4},hp:6,enter:9,path:'holy'}});
 TOOLS.splice(TOOLS.indexOf('clear'),0,'counting','warcamp','temple');

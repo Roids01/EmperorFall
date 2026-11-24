@@ -8,7 +8,7 @@ function addRenown(n,why){
     showChapter({n:'★',name:T('Your realm is now a {{r}}',{r:T(nm)}),text:T(RANK_TEXT[nm]||'')}); toast(T('New rank'),T(nm),'♛');
     if(nm==='Town'||nm==='City') say(`<b>Your realm is now a ${T(nm).toLowerCase()}.</b> ${T(RANK_TEXT[nm])}`); }
 }
-const RANK_TEXT={Village:'A second council seat opens: the Marshal.',Town:'The Treasurer and Chaplain may join your council, and the keep can be raised into a castle.',City:'The keep can become a citadel, and a third edict slot opens.',Capital:'The Spymaster joins your council. Bards across the desert sing your name.'};
+const RANK_TEXT={Village:'A second council seat opens: the Marshal, and the keep can be raised into a castle.',Town:'The Treasurer and Chaplain may join your council, and the castle can become a citadel.',City:'A third edict slot opens.',Capital:'The Spymaster joins your council. Bards across the desert sing your name.'};
 // taxes
 const TAXES=[{name:'Low',mult:.5,mood:8},{name:'Fair',mult:1,mood:0},{name:'High',mult:1.5,mood:-8},{name:'Crushing',mult:2,mood:-18}];
 const taxLvl=()=>S.tax??1;
@@ -90,7 +90,7 @@ function renderPetition(){
   for(const w of ['a','b']){ const b=box.querySelector(`[data-pt="${w}"]`); b.querySelector('span').textContent=T(pt[w][0]); b.querySelector('small').textContent=effText(pt[w][1]); b.addEventListener('click',()=>decide(w)); }
 }
 // the keep itself
-const KEEP_UP=[null,{name:'Castle',rank:2,cost:{stone:30,wood:20,gold:30}},{name:'Citadel',rank:3,cost:{stone:50,iron:10,gold:60}}];
+const KEEP_UP=[null,{name:'Castle',rank:1,cost:{stone:30,wood:20,gold:40}},{name:'Citadel',rank:2,cost:{stone:50,iron:10,gold:100}}];
 const keepLvl=()=>S.keepLvl||1;
 function raiseKeep(){
   const up=KEEP_UP[keepLvl()]; if(!up||rankIdx()<up.rank||S.phase!=='day') return;

@@ -1,6 +1,7 @@
 EXTERNAL gain(what, amount)
 EXTERNAL can(what, amount)
 EXTERNAL rel(who, amount)
+EXTERNAL over(what, amount, days)
 VAR king = "Harun"
 VAR rival = "Osric"
 VAR day = 1
@@ -56,12 +57,14 @@ A noblewoman in dusty silks stands beside a farmer clutching his cap.
 "This man plows land my grandfather held. I want it back, with the harvest he took from it."
 The farmer says nothing. His hands are shaking.
 * [Side with Lady Varenne]
-    ~ gain("gold", 15)
-    ~ gain("mood", -5)
+    ~ gain("gold", 10)
+    ~ over("gold", 2, 5)
+    ~ over("mood", -3, 4)
     ~ m_noble = 1
-    She presses a purse into your steward's hand. "A wise judgment, Majesty. I will remember it." The farmer walks out without a word.
+    She presses a purse into your steward's hand. "A wise judgment, Majesty. My rents will follow." The farmer walks out without a word, and in the fields people stop meeting your eye.
 * [Side with the farmer]
-    ~ gain("mood", 6)
+    ~ gain("mood", 4)
+    ~ over("food", 2, 5)
     ~ m_noble = 2
     The hall murmurs approval. Lady Varenne's smile does not reach her eyes. "Of course, Majesty."
 * [Split the field between them]
@@ -204,8 +207,9 @@ A tired woman leads six children into the hall. Their clothes smell of smoke.
 "Raiders burned our village by the salt flats. We walked three days. Please, Majesty. They can work, or they will, soon."
 * {can("food", 10)} [Take them in]
     ~ gain("food", -10)
-    ~ gain("mood", 6)
+    ~ gain("mood", 4)
     ~ gain("pop", 1)
+    ~ over("food", -1, 4)
     ~ m_orphans = 1
     The cook adopts all six on the spot. Sister Maren stays to help.
 * [Give them bread for the road]
@@ -213,9 +217,35 @@ A tired woman leads six children into the hall. Their clothes smell of smoke.
     ~ m_orphans = 2
     They thank you and walk on toward Hallowmere.
 * [Turn them away]
-    ~ gain("mood", -6)
+    ~ gain("mood", -3)
+    ~ over("mood", -2, 4)
     ~ m_orphans = 3
-    The hall is very quiet after they leave.
+    The hall is very quiet after they leave. It stays quiet for days.
+- -> END
+
+=== orphans_return ===
+# speaker: Sister Maren
+{ m_orphans == 1: Sister Maren is back, with six children who have grown a hand taller and a good deal louder.|{ m_orphans == 2: A rider from Hallowmere brings a letter sealed with Sister Maren's thumbprint.|Sister Maren stands at the gate alone. She does not come in.}}
+{ m_orphans == 1: "They eat like wolves, Majesty, but they work like oxen. Give them a field and they will feed the hall."|{ m_orphans == 2: "The bread you gave us lasted to Hallowmere. The abbess there has not forgotten it."|"Two of the children went with the raiders. They had nowhere else to go. I thought you should know who taught them the way here."}}
+* { m_orphans == 1} [Give them a field of their own]
+    ~ over("food", 3, 6)
+    ~ gain("renown", 2)
+    They plant it in a single afternoon, badly and with great joy.
+* { m_orphans == 1} [Apprentice them to your craftsmen]
+    ~ over("gold", 2, 6)
+    The smiths complain for a week, then stop.
+* { m_orphans == 2} [Write back with thanks]
+    ~ rel("all", 3)
+    ~ gain("renown", 2)
+    The abbess reads your letter aloud in three cities.
+* { m_orphans == 3 and can("gold", 12)} [Pay her to find the two children]
+    ~ gain("gold", -12)
+    ~ gain("mood", 4)
+    She finds one. That is more than anyone expected.
+* { m_orphans == 3} [Close the gate]
+    ~ over("mood", -2, 3)
+    The guards close it slowly. Some of them have children.
+- ~ m_orphans = 9
 - -> END
 
 === envoy ===
@@ -226,8 +256,8 @@ A visitor arrives after dark and lowers a hood. Under it is the seal of {king}.
     ~ rel("king", 12)
     ~ rel("rival", -6)
     ~ m_envoy = 1
-    The envoy leaves before dawn. A purse of goodwill follows within the week.
-    ~ gain("gold", 10)
+    The envoy leaves before dawn. A quiet purse will arrive each dawn while the understanding holds.
+    ~ over("gold", 3, 5)
 * [Expose the envoy at court]
     ~ rel("king", -12)
     ~ rel("rival", 8)
@@ -237,4 +267,30 @@ A visitor arrives after dark and lowers a hood. Under it is the seal of {king}.
 * [Send him home with no answer]
     ~ m_envoy = 3
     "Silence is also an answer," he says, and goes.
+- -> END
+
+=== envoy_return ===
+# speaker: A hooded envoy
+{ m_envoy == 1: The hooded envoy is back, and this time he is in a hurry.|{ m_envoy == 2: A herald in {rival}'s colors arrives in daylight, with a chest.|The hooded envoy returns. He does not lower his hood this time.}}
+{ m_envoy == 1: "{rival} has found a letter that should have been burned. My master asks what you intend to say about it."|{ m_envoy == 2: "My master remembers who told the truth about {king}. He sends his thanks, and his merchants."|"My master asked twice. He will not ask a third time."}}
+* { m_envoy == 1} [Deny everything]
+    ~ rel("rival", -8)
+    ~ gain("renown", -3)
+    Nobody believes you, but nobody can prove it either.
+* { m_envoy == 1 and can("gold", 15)} [Pay to make the letter disappear]
+    ~ gain("gold", -15)
+    ~ rel("king", 4)
+    The letter burns. So does a little of your treasury.
+* { m_envoy == 2} [Open your markets to his merchants]
+    ~ over("gold", 2, 6)
+    ~ rel("rival", 4)
+    Caravans in {rival}'s colors start arriving the next morning.
+* { m_envoy == 3} [Let him go]
+    ~ rel("king", -4)
+    He goes. Some answers cost more than others.
+* { m_envoy == 3} [Offer him a seat at your table]
+    ~ rel("king", 6)
+    ~ gain("gold", -5)
+    He eats, he drinks, and he leaves a little warmer than he came.
+- ~ m_envoy = 9
 - -> END

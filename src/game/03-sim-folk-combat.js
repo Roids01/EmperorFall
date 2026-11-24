@@ -321,7 +321,7 @@ function weapon(b){
   const oil=S.oilNights>0?1:0;
   const wf=hasEdict('watch')?.75:1, col=hasWonder('w_colossus')?1:0;
   const kl=S.cur==='home'?(S.keepLvl||1)-1:0;
-  if(b.type==='keep') return {range:1.8+m.range*.5-wr+kl*.3,rate:1.3*wf,dmg:1+m.dmg+oil+kl+col*2,min:0,h:1.3};
+  if(b.type==='keep') return {range:1.8+m.range*.5-wr+kl*.3,rate:1.3*wf*(S.lastStandT>0?.5:1),dmg:1+m.dmg+oil+kl+col*2,min:0,h:1.3};
   if(b.type==='tower'){ const sp=b.spec, rate=Math.max(.36,.75-(b.lvl-1)*.15)*wf*(sp==='ballista'?1.5:1); return {range:2.4+(b.lvl-1)*.35+m.range-wr+(sp==='ballista'?.7:0)+col*.4,rate,dmg:b.lvl+m.dmg+oil+(sp==='ballista'?3:0)+col*2,min:0,h:1.15+.18*b.lvl,burn:sp==='fire'}; }
   if(b.type==='cata') return {range:3.6+(b.lvl-1)*.4+m.range-wr,rate:(2.4-(b.lvl-1)*.5)*(m.cataRate||1),dmg:3+(b.lvl-1)*2,min:1,splash:.95,h:.6};
   return null;
@@ -348,7 +348,7 @@ function startNight(){ S.fever=0; S.feverM=0; S.streak=0;
   if(S.phase!=='day'||S.over||S.modal) return;
   closeRealm(); closeWorld();
   if(S.raid!==S.cur) enterRegion(S.raid,false);
-  S.phase='night'; S.spawnT=S.kind==='coast'?3:.5; S.nightKills=0; S.keepAtDusk=S.keep; S.lostTonight=0; S.nr={}; S.nightGold=0; S.nightTotal=S.queue.length;
+  S.phase='night'; S.spawnT=S.kind==='coast'?3:.5; S.nightKills=0; S.keepAtDusk=S.keep; S.lastStand=false; S.lastStandT=0; S.lostTonight=0; S.nr={}; S.nightGold=0; S.nightTotal=S.queue.length;
   if(S.hero.queue.length){ S.hero.queue=[]; }
   spawnMercs();
   sfx('bell'); if(S.kind==='coast'){ launchPirates(); seaBattle(); }
@@ -389,7 +389,10 @@ function dawn(){
   if(S.res.food<0) S.res.food=0;
   if(S.res.wood<0){ S.res.wood=0; notes.push('<b>Cold houses:</b> not enough wood to heat every home'); }
   const MI=moodInfo(), m0=S.mood; S.mood=Math.max(0,Math.min(100,Math.round(S.mood+(MI.target-S.mood)*.5)));
+  { const big=a=>a.filter(l=>l[1]).sort((x,y)=>Math.abs(y[1])-Math.abs(x[1])); const mc=big(MI.parts.slice()).find(p=>Math.sign(p[1])===Math.sign(S.mood-m0));
+    REP.eco={g:E.net.gold,f:E.net.food,pop:E.popD,mood:S.mood-m0,moodNow:S.mood,gl:big(E.L.gold.slice()).slice(0,3),fl:big(E.L.food.slice()).slice(0,2),mc:mc?mc[0]:null}; }
   if(S.mood<35&&m0>=35) notes.push('<b>Unrest:</b> your villagers are unhappy');
+  if(S.aud&&S.aud.linger){ for(const l of S.aud.linger) if(--l.left===0) notes.push(T('<b>{{s}}:</b> that court decision has run its course',{s:l.src})); S.aud.linger=S.aud.linger.filter(l=>l.left>0); }
   gainXP(5);
   S.pop=Math.max(0,S.pop+E.popD);
   if(E.popD<0) notes.push(`<b>Famine:</b> ${plural(-E.popD,'villager')} left for lack of food`);
@@ -419,6 +422,7 @@ function dawn(){
   if(season()!==seaBefore) notes.push(`<b>${season().name} begins</b>`);
   if(S.weather!=='clear') notes.push(`<b>${WX[S.weather].name}:</b> ${WX[S.weather].desc}`);
   if(S.blood) notes.push('<b>Blood moon tonight:</b> half again as many raiders, and every kill pays double');
+  if(S.day%5===4) notes.push(T('<b>Scouts warn of a warlord:</b> he rides tomorrow night. He breaks walls, flanks your towers and hurries his band along. Strengthen the keep and the inner ring today'));
   if(!S.coastUnlocked&&S.day>=3){ S.coastUnlocked=true; S.daily?seeded(S.daily.key+3,genCoast):genCoast(); notes.push(`<b>Scouts found ${regionName('coast')}</b> to the south. Open the realm map to ride there and build a harbor`); toast(T('New region'),T('Saltreach Cove'),'⚓'); }
   if(!S.mtnUnlocked&&S.day>=7){ S.mtnUnlocked=true; S.daily?seeded(S.daily.key+7,genMountain):genMountain(); notes.push(`<b>Scouts crossed the northern mountains</b> and found ${regionName('mountain')}, with iron in the rock. Ride there from the realm map`); toast(T('New region'),T('Ironpeak Pass'),'⛰'); }
   if(S.mtnUnlocked&&(season().name==='Winter'||S.weather==='snow')&&Math.random()<.35) withRegion('mountain',()=>{
@@ -593,6 +597,7 @@ function upgradeSel(){
   say(`${DEF[b.type].name} raised to level ${b.lvl}.`); save(); ui();
 }
 function step(dt){
+  if(S.lastStandT>0) S.lastStandT-=dt;
   stepFever(dt);
   S.t+=dt;
   stepHero(dt);
@@ -657,6 +662,9 @@ function boom(e,x,y,hit){
 }
 function keepHit(d,fromX,fromY){
   S.keep-=d;
+  if(S.phase==='night'&&!S.lastStand&&S.keep>0&&S.keep<=Math.ceil(S.keepMax/3)){ S.lastStand=true; S.lastStandT=12;
+    for(const u of S.units) if(!u.dead) u.hp=u.max;
+    say(T('<b>Last stand!</b> The keep is failing. Its archers fire twice as fast and your soldiers are back on their feet.')); toast(T('Last stand'),T('The keep fights back'),'🛡'); }
   puff((fromX+C)/2,(fromY+C)/2,COL.stone,12); embers((fromX+C)/2,(fromY+C)/2,16); floatText(C,C,'−'+d,CSS.foe);
   shake=.35; flash=.35; sfx('hurt'); bump('cHp','hurt'); S.keepHitT=S.t; debris(C,C,[COL.stone,COL.stoneDark,COL.plank],Math.min(6,2+d),2.4);
   try{navigator.vibrate&&navigator.vibrate(60)}catch(err){}

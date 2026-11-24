@@ -58,7 +58,7 @@ function pickSpawns(){
 }
 const isSpawn=(x,y)=>S.spawns.some(p=>p[0]===x&&p[1]===y);
 function planWave(){
-  const d=S.day, n=Math.max(2,Math.round((d<=10?3+2*(d-1):21+1.7*(d-10))*DIFF[S.diff].wave*(S.blood?1.5:1)*raidMult(S.raid||'home')));
+  const d=S.day, n=Math.max(2,Math.round((d<=10?3+2*(d-1):21+1.7*(d-10))*DIFF[S.diff].wave*(S.blood?1.5:1)*(d%5===0?.8:1)*raidMult(S.raid||'home')));
   const run=d>=3?Math.floor(n*.25):0, bru=d>=6?Math.floor(n*.15)+(d>=10?1:0):0, arc=d>=4?Math.max(1,Math.floor(n*.18)):0;
   const q=[]; for(let i=0;i<Math.max(1,n-run-bru-arc);i++)q.push('raider'); for(let i=0;i<run;i++)q.push('runner'); for(let i=0;i<bru;i++)q.push('brute'); for(let i=0;i<arc;i++)q.push('archer');
   if(d>=8) for(let i=0;i<1+Math.floor((d-8)/4);i++) q.push('ram');
@@ -187,10 +187,11 @@ function econ(){
   if(hasWonder('w_bazaar')) L.gold.push(['Grand Bazaar',6]);
   if(spoil>0) L.food.push([`Food spoils${met.salt>=1?' (salted, halved)':''}`,-spoil]);
   const shipped=routesEcon(L,avail);
-  { let cg=0; eachAll((b,x,y,t,here,rid,g)=>{ if(b.type==='counting') cg+=5+Math.min(3,nearCount(g,x,y,['market','house'],1)); }); if(cg) L.gold.push(['Counting houses',cg]);
+  { const cv=[]; eachAll((b,x,y,t,here,rid,g)=>{ if(b.type==='counting') cv.push(4+Math.min(2,nearCount(g,x,y,['market','house'],1))); }); cv.sort((a,b)=>b-a); const cg=cv.reduce((s,v,i)=>s+(i<2?v:Math.floor(v/2)),0); if(cg) L.gold.push([cv.length>2?'Counting houses (after the second, half)':'Counting houses',cg]);
     if(hasTier('holy',2)){ let n=0; eachAll(b=>{ if(b.type==='shrine'||b.type==='temple') n++; }); if(n) L.gold.push(['Pilgrims',n*2]); }
     if(hasTier('merchant',4)){ const pc=liveKings().filter(k=>K(k).pact).length; if(pc) L.gold.push(['Trade league',pc*4]); }
-    armyUpkeep(L); }
+    armyUpkeep(L);
+    for(const l of lingers()) if(L[l.w]) L[l.w].push([T('{{s}} ({{n}} dawns left)',{s:l.src,n:l.left}),l.n]); }
   const capS=storeCap(); for(const r of ALLR){ if(r==='gold') continue; const after=avail(r); if(after>capS) L[r].push([`No room in the stores (${capS})`,capS-after]); }
   const net={}; ALLR.forEach(r=>net[r]=L[r].reduce((a,l)=>a+l[1],0));
   const cap=housing(), foodAfter=S.res.food+net.food;
