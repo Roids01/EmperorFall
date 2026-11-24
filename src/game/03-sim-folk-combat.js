@@ -343,7 +343,7 @@ function enemyStats(type){
     default: return {hp:Math.ceil(h*DIFF[S.diff].hp),spd:s,dmg:1,pay:1};
   }
 }
-function startNight(){ S.fever=0; S.feverM=0; S.streak=0;
+function startNight(){ KEEP_BY={}; S.fever=0; S.feverM=0; S.streak=0;
   if(S.phase==='day'&&!S.modal&&!S.over&&hasTier('merchant',3)&&S.cur==='home'){ const n=Math.min(5,Math.floor(S.res.gold/30)); for(let k=0;k<n&&S.res.gold>=3;k++){ S.res.gold-=3; const a=k*1.57+.4; S.units.push({home:idx(C,C),slot:20+k,x:C+Math.cos(a)*.9,y:C+Math.sin(a)*.9,hp:unitMax(),max:unitMax(),atk:0,dir:0,target:null,age:0,hit:0,swing:0,moving:false,kind:'soldier',temp:true}); } if(n) say(`<b>${n} sellswords</b> take their pay and man the keep tonight.`); }
   if(S.phase!=='day'||S.over||S.modal) return;
   closeRealm(); closeWorld();
@@ -607,7 +607,7 @@ function step(dt){
         const dx=s.tx-s.x,dy=s.ty-s.y,d=Math.hypot(dx,dy),v=9*dt;
         if(d<=v){ s.done=true; const t=s.t;
           if(t.kind==='ally'){ if(!(t.o.hp<=0||t.o.dead)&&Math.hypot(t.o.x-s.tx,t.o.y-s.ty)<.6) damageAlly(t.o,s.dmg); }
-          else damageBuilding(t.x,t.y,s.dmg); }
+          else damageBuilding(t.x,t.y,s.dmg,'archer'); }
         else{ s.x+=dx/d*v; s.y+=dy/d*v; s.h=.25+Math.sin(Math.min(1,d/2)*Math.PI)*.25; }
         continue;
       }
@@ -649,22 +649,24 @@ function hurt(e,d,src){
   }
 }
 function boom(e,x,y,hit){
-  e.gone=true; if(hit) damageBuilding(x,y,e.boom||9);
+  e.gone=true; if(hit) damageBuilding(x,y,e.boom||9,'sapper');
   for(const [a,c] of NB){ const nx=x+a,ny=y+c; if(inb(nx,ny)&&G(nx,ny).b&&G(nx,ny).b.type!=='keep'&&G(nx,ny).b.type!=='road') damageBuilding(nx,ny,3); }
   for(const u of S.units) if(Math.hypot(u.x-x,u.y-y)<1.1) damageAlly(u,2);
   puff(x,y,0x3A3634,22); embers(x,y,40); scorch(x,y); shake=Math.max(shake,.32); flash=Math.max(flash,.2); sfx('thud'); sfx('hurt');
   if(!S.sapperWarned){ S.sapperWarned=true; say('<b>A sapper blew up!</b> Kill sappers before they reach your walls.'); }
 }
-function keepHit(d,fromX,fromY){
-  S.keep-=d;
+// Telemetry: keep damage by attacker type for the current night (read by tools/bot.js; reset at night start).
+var KEEP_BY={};
+function keepHit(d,fromX,fromY,src){
+  S.keep-=d; const k=src||'other'; KEEP_BY[k]=(KEEP_BY[k]||0)+d;
   puff((fromX+C)/2,(fromY+C)/2,COL.stone,12); embers((fromX+C)/2,(fromY+C)/2,16); floatText(C,C,'−'+d,CSS.foe);
   shake=.35; flash=.35; sfx('hurt'); bump('cHp','hurt'); S.keepHitT=S.t; debris(C,C,[COL.stone,COL.stoneDark,COL.plank],Math.min(6,2+d),2.4);
   try{navigator.vibrate&&navigator.vibrate(60)}catch(err){}
   ui();
 }
-function damageBuilding(x,y,d){
+function damageBuilding(x,y,d,src){
   const b=G(x,y).b; if(!b) return;
-  if(b.type==='keep'){ keepHit(d,x,y); return; }
+  if(b.type==='keep'){ keepHit(d,x,y,src); return; }
   b.hp-=d; b.hitT=S.t; puff(x,y,b.type==='wall'?COL.wood:COL.stone,4); sfx('chip');
   if(b.hp<=0){ S.lostTonight++; collapse(x,y,b.type); puff(x,y,COL.woodLight,16); embers(x,y,14); addRubble(x,y,b.type); removeBuilding(x,y); field(); renderInsp(); }
 }
@@ -709,11 +711,11 @@ function moveEnemy(e,dt){
   const n=(e.plan&&e.plan.pd?planStep(e):null)||nextStep(e.cx,e.cy); if(!n) return;
   e.dir=Math.atan2(n[1]-e.cy,n[0]-e.cx);
   const b=G(n[0],n[1]).b;
-  if(b&&b.type==='keep'){ e.gone=true; keepHit(e.type==='sapper'?4:e.dmg,e.cx,e.cy); if(e.type==='sapper') boom(e,n[0],n[1],false); return; }
+  if(b&&b.type==='keep'){ e.gone=true; keepHit(e.type==='sapper'?4:e.dmg,e.cx,e.cy,e.type); if(e.type==='sapper') boom(e,n[0],n[1],false); return; }
   if(b&&b.type!=='trap'&&b.type!=='road'&&e.type==='sapper'){ boom(e,n[0],n[1],true); return; }
   if(b&&b.type!=='trap'&&b.type!=='road'){
     e.atk-=dt; e.swing=Math.max(0,1-e.atk);
-    if(e.atk<=0){ e.atk=e.type==='ram'?1.4:1; if(e.type==='ram'){ shake=Math.max(shake,.12); embers(n[0],n[1],5); } damageBuilding(n[0],n[1],(e.bdmg||e.dmg)+(e.rallyT>0?1:0)); }
+    if(e.atk<=0){ e.atk=e.type==='ram'?1.4:1; if(e.type==='ram'){ shake=Math.max(shake,.12); embers(n[0],n[1],5); } damageBuilding(n[0],n[1],(e.bdmg||e.dmg)+(e.rallyT>0?1:0),e.type); }
     return;
   }
   e.swing=0; e.tx=n[0];e.ty=n[1];e.moving=true;

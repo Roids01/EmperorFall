@@ -61,9 +61,13 @@ for(const diff of DIFFS) for(const strat of STRATS){
     lossDayMedian:q(deathDays,.5),lossDayP10:q(deathDays,.1),
     goldEndMedian:q(g.map(r=>r.gold),.5),popEndMedian:q(g.map(r=>r.pop),.5),killsMedian:q(g.map(r=>r.kills),.5),
     scoreMedian:q(g.map(r=>r.score),.5),msPerGame:q(g.map(r=>r.ms),.5),
+    lossDays:Object.fromEntries(Object.entries(deathDays.reduce((m,d)=>(m[d]=(m[d]||0)+1,m),{})).sort((x,y)=>x[0]-y[0])),
+    // Keep damage on the night each lost game ended, summed by attacker type (who actually kills the keep).
+    lossKeepBy:Object.fromEntries(Object.entries(lost.reduce((m,r)=>{ const k=(r.keepBy||[]).at(-1)||{}; for(const t in k) m[t]=(m[t]||0)+k[t]; return m; },{})).sort((x,y)=>y[1]-x[1])),
     avgBuilt:Object.fromEntries(Object.entries(built).sort((a,b)=>b[1]-a[1]).map(([k,v])=>[k,+v.toFixed(1)]))});
 }
-console.table(summary.map(({avgBuilt,...s})=>s));
+console.table(summary.map(({avgBuilt,lossDays,lossKeepBy,...s})=>s));
+for(const s of summary) if(Object.keys(s.lossKeepBy).length) console.log(s.diff,s.strat,'loss nights',JSON.stringify(s.lossDays),'keep dmg by',JSON.stringify(s.lossKeepBy));
 const uniqErr=[...new Set([...rows.filter(r=>r.error).map(r=>r.error),...errors])];
 if(uniqErr.length) console.log('errors:',uniqErr.slice(0,8));
 if(OUT){ fs.writeFileSync(OUT,JSON.stringify({ran:new Date().toISOString(),games:GAMES,summary,errors:uniqErr,rows},null,1)); console.log('wrote',OUT); }

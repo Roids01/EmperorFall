@@ -47,7 +47,7 @@ function botClear(){ try{ hideOver(); }catch(e){} S.modal=false;
   if(S.perkPending>0){ const p=(typeof PERKS!=='undefined'?PERKS:[]).filter(p=>!hasPerk(p.id)); if(p.length){ S.perks.push(p[(Math.random()*p.length)|0].id); } S.perkPending=0; }
   S.lootPending=0; if(S.demand){ S.demand=null; } S.royalMsg=null; S.petition=null; if(S.aud) S.aud.pend=null; S.req=null; S.trader=null; }
 function simGame(strat,diff){
-  const st=BOT_STRATS[strat]; BOT_LOG={built:{},upg:[],nights:[],keep:[]};
+  const st=BOT_STRATS[strat]; BOT_LOG={built:{},upg:[],nights:[],keep:[],keepBy:[]};
   saveOn=false; startGame(diff||'normal'); botClear();
   const t0=performance.now(); let guard=0;
   while(!S.over&&S.day<=21&&guard++<40){
@@ -57,6 +57,6 @@ function simGame(strat,diff){
     while(S.phase==='night'&&!S.over&&k<9000){ step(.05); k++; if(S.modal) botClear();
       if(k%8===0&&heroHere()&&!S.hero.dead){ let best=null,bd=1e9; for(const e of S.enemies){ if(e.gone) continue; const d=Math.hypot(e.x-C,e.y-C)*1.5+Math.hypot(e.x-S.hero.x,e.y-S.hero.y); if(d<bd){ bd=d; best=e; } }
         if(best){ const dh=Math.hypot(best.x-S.hero.x,best.y-S.hero.y); if(dh>.7){ S.hero.tx=best.x; S.hero.ty=best.y; S.hero.pathKey=null; } if(dh<2.2&&S.hero.cdC<=0) try{ useCharge(); }catch(e){} if(S.enemies.filter(e=>!e.gone&&Math.hypot(e.x-C,e.y-C)<3).length>=3&&S.hero.cdR<=0) try{ useRally(); }catch(e){} } } }
-    botClear(); BOT_LOG.nights.push(k); BOT_LOG.keep.push(keep0-Math.max(0,S.keep));
+    botClear(); BOT_LOG.nights.push(k); BOT_LOG.keep.push(keep0-Math.max(0,S.keep)); BOT_LOG.keepBy.push({...KEEP_BY});
     if(S.won&&S.day>20) break; }
-  return {phase:S.phase,modal:S.modal,guard,nightsK:BOT_LOG.nights,strat,diff:diff||'normal',won:!!S.won,day:S.day,over:!!S.over,score:score(),kills:S.kills,pop:S.pop,gold:S.res.gold,ms:Math.round(performance.now()-t0),built:BOT_LOG.built,upg:BOT_LOG.upg,keepLoss:BOT_LOG.keep,renown:S.renown||0}; }
+  return {phase:S.phase,modal:S.modal,guard,nightsK:BOT_LOG.nights,strat,diff:diff||'normal',won:!!S.won,day:S.day,over:!!S.over,score:score(),kills:S.kills,pop:S.pop,gold:S.res.gold,ms:Math.round(performance.now()-t0),built:BOT_LOG.built,upg:BOT_LOG.upg,keepLoss:BOT_LOG.keep,keepBy:BOT_LOG.keepBy,renown:S.renown||0}; }
